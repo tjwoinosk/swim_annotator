@@ -99,7 +99,8 @@ curent_mode mode_mannager::print_prep_options() {
   string answer;
   int ans = 0;
   curent_mode res;
-  /*
+ 
+ /*
 -	view video options
 -	Mark as finished for labelling
 -	Save current progress and exit mode
