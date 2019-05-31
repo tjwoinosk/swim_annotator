@@ -153,7 +153,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="labelling_mode.cpp" />
+    <ClCompile Include="mode_mannager.cpp" />
+    <ClCompile Include="preprocessing_mode.cpp" />
+    <ClCompile Include="start_up_mode.cpp" />
+    <ClCompile Include="storage_mode.cpp" />
     <ClCompile Include="swim_annotate.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="labelling_mode.h" />
+    <ClInclude Include="mode_mannager.h" />
+    <ClInclude Include="preprocessing_mode.h" />
+    <ClInclude Include="start_up_mode.h" />
+    <ClInclude Include="storage_mode.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

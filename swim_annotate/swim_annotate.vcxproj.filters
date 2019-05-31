@@ -18,5 +18,37 @@
     <ClCompile Include="swim_annotate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="mode_mannager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="start_up_mode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="labelling_mode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="preprocessing_mode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="storage_mode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="mode_mannager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="start_up_mode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="labelling_mode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="preprocessing_mode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="storage_mode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
