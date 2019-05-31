@@ -10,6 +10,7 @@ class mode_mannager {
 
   curent_mode mode_val;
   string root_file_location;
+  bool prep_veiw_flag;
 
 public:
 

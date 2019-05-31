@@ -27,10 +27,10 @@
     <ClCompile Include="labelling_mode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="preprocessing_mode.cpp">
+    <ClCompile Include="storage_mode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="storage_mode.cpp">
+    <ClCompile Include="video_editor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,10 +44,10 @@
     <ClInclude Include="labelling_mode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="preprocessing_mode.h">
+    <ClInclude Include="storage_mode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="storage_mode.h">
+    <ClInclude Include="video_editor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -8,11 +8,13 @@ mode_mannager::mode_mannager() {
   //make up a defalt root directory for inizalization 
   root_file_location = "blah blah blah";
   mode_val = startup_mode;
+  prep_veiw_flag = false;
 }
 
 mode_mannager::mode_mannager(curent_mode start, string root_project_file) {
   root_file_location = root_project_file;
   mode_val = start;
+  prep_veiw_flag = false;
 }
 
 //Waits for the users next request 
@@ -21,6 +23,10 @@ void mode_mannager::service_next_request() {
   switch (mode_val) {
   case startup_mode: 
     mode_val = print_start_up_options();
+    if (prep_veiw_flag) {
+      //start video player
+
+    }
     break;
   case prep_mode: 
     mode_val = print_prep_options();
@@ -122,6 +128,7 @@ curent_mode mode_mannager::print_prep_options() {
 
   switch (ans) {
   case 1: res = prep_mode;
+    prep_veiw_flag = true;
     break;
   case 2: res = prep_mode;
     break;
