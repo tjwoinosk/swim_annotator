@@ -4,6 +4,7 @@
 #include <opencv2/opencv.hpp> //displaying video
 #include <opencv2/core/types.hpp> //for the rect object
 #include <opencv2/highgui.hpp>
+#include <opencv2/video/tracking.hpp>
 
 using namespace std;
 using namespace cv;
@@ -20,17 +21,18 @@ struct swim_data
 class supper_annotator
 {
 private:
-
-  string video_file;
-
-  int current_swimmer;
+  //processes data
   int number_of_frames;
-  int current_frame;
-
-  Mat current_image;
-
+  
+  //video display data
   VideoCapture an_video;
+  int current_frame;
+  int current_swimmer;
+  Mat current_image;
+  string video_file;
+  Rect current_box;
 
+  //Annotation data
   swim_data* all_data;
 
 public:
@@ -39,33 +41,45 @@ public:
 
   ~supper_annotator();
 
+  //select the lane number of the swimmer you are annotating
+  //must be called first 
+  //Finished
+  void select_lane_number();
+
   //loads the video in video file into the video object 
   //sets the number_of_frames, current_frame to zero, and opens the VideoCapture object
+  //must be called second
+  //
   bool load_video(string video_file);
 
-  //select the lane number of the swimmer you are annotating
-  //return prevouse lane number
-  bool select_lane_number(int lane_num);
-
   //Create ROI
+  //finished
   bool create_ROI_in_pool();
 
   //returns the swim data produced
   swim_data* get_swim_data();
 
-  //move to next frame and save current annotation in all_data 
+  //displays the current frame with or without annotation
+  bool display_current_frame();
+
+  //move to next frame 
+  //save current annotation in all_data
+  //predict the box in the next frame
+  void predict_next_frame();
 
   //moves to the next frame
-  bool next_frame();
+  void next_frame();
 
   //move to the last frame
-  bool last_frame();
+  void last_frame();
 
   //Go to the frame num specified
   bool go_to_frame(int frame_num);
 
   //exit supper annotator
   bool quit_and_save_data();
+
+  bool annotation_options();
 
   //create a better prediction
   //bool create_better_prediction();

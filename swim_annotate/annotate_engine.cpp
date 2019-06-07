@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <ctype.h>
 
 #include "annotate_engine.h"
 
@@ -19,13 +20,10 @@ annotate_engine::annotate_engine(string video_file) {
 }
 
 
-annotate_engine::~annotate_engine() {
-
-}
-
 bool annotate_engine::add_file_name(string file_name) {
   //make up a defalt root directory for inizalization 
   file_name = file_name;
+  return true;
 }
 
 //Waits for the users next request 
@@ -63,7 +61,7 @@ void annotate_engine::kill_app() {
 
 //prints the user options
 bool annotate_engine::print_general_lab_options() {
-  string answer;
+  char answer;
   int ans = 0;
 
   cout << "\nSelect from the following options:" << endl << endl;
@@ -71,13 +69,14 @@ bool annotate_engine::print_general_lab_options() {
   cout << "Mark video as finished for storage, press (2)" << endl;
   cout << "Quit labelling and exit, press (3)" << endl;
   cout << "\nlab>> ";
+  cin >> answer;
 
-  if (!(cin >> answer)) {
+  if (!isdigit(answer)) {
     return false;
+  } else {
+    ans = int(answer) - 48;//convert to int
   }
-
-  ans = stoi(answer, nullptr, 10);
-
+ 
   switch (ans) {
   case 1: current_request = start_work;
     break;
@@ -96,20 +95,20 @@ bool annotate_engine::print_general_lab_options() {
 //run the supper annotator to anotate the video
 bool annotate_engine::run_supper_annotator() {
 
-  int lane_num = -1;
   cout << "Loading file for annotation!" << endl;
+
+  work.select_lane_number();
 
   if (work.load_video(file_name)) {
 
-    do {
-      cout << "What lane number are we working on? ";
-      cin >> lane_num;
-
-    } while (!work.select_lane_number(lane_num));
-
     work.create_ROI_in_pool();
+    while (work.display_current_frame()) {
+      //keep looping
+    }
+    
     return true;
   }
+  
   return false;
 }
 

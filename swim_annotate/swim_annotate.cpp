@@ -30,6 +30,8 @@ int main(int argc, char* argv[])
     }
     else {
 
+      video_lab.release();
+
       cout << "\n\n\n";
       cout << "***************************************" << endl;
       cout << "*  Welcome to the swiming annotator!  *" << endl;
@@ -42,8 +44,7 @@ int main(int argc, char* argv[])
         while (!app.print_general_lab_options());
         app.service_next_request();
       }
-
-      video_lab.release();
+      
       app.kill_app();
       
     }
