@@ -1,10 +1,14 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>//file manipulation
+
+
 #include <opencv2/opencv.hpp> //displaying video
 #include <opencv2/core/types.hpp> //for the rect object
 #include <opencv2/highgui.hpp>
 #include <opencv2/video/tracking.hpp>
+#include <opencv2/core/ocl.hpp>
 
 using namespace std;
 using namespace cv;
@@ -28,9 +32,9 @@ private:
   VideoCapture an_video;
   int current_frame;
   int current_swimmer;
-  Mat current_image;
   string video_file;
   Rect current_box;
+  int skip_size; //how many frames to skip every new frame
 
   //Annotation data
   swim_data* all_data;
@@ -60,6 +64,7 @@ public:
   swim_data* get_swim_data();
 
   //displays the current frame with or without annotation
+  //works
   bool display_current_frame();
 
   //move to next frame 
@@ -68,18 +73,25 @@ public:
   void predict_next_frame();
 
   //moves to the next frame
+  //finished
   void next_frame();
 
   //move to the last frame
+  //finished
   void last_frame();
 
   //Go to the frame num specified
-  bool go_to_frame(int frame_num);
+  //finished
+  void go_to_frame();
 
   //exit supper annotator
   bool quit_and_save_data();
 
+  //prints the annotation options
+  //Is used in display current frame automaticly
+  //finished
   bool annotation_options();
+
 
   //create a better prediction
   //bool create_better_prediction();

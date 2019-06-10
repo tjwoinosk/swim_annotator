@@ -1,0 +1,5 @@
+#Header,video frame rate, video resolution, the frame skip size, total number of frames in video.
+FPS: 29.45
+RES: 
+FSS: 
+TNF:
