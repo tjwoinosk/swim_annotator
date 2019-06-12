@@ -9,6 +9,7 @@ supper_annotator::supper_annotator()
   all_data = nullptr;
   number_of_frames = -1;
   skip_size = 3;//skip every 2 frames
+  current_class = 1;
   //set box
   current_box.height = 0;
   current_box.width = 0;
@@ -125,7 +126,7 @@ bool supper_annotator::load_video(string video_file)
           for (jj = 0; jj < 10; jj++) {
             //lane loop
             pos_lane = find.find_first_of('{', pos_lane);//look for the next lane
-            if (pos_num != string::npos) {//if there is a lane
+            if (pos_lane != string::npos) {//if there is a lane
               //start looking through numbers for that lane
               pos_num_check = find.find_first_of('}', pos_lane);//check if there are 6 numbers
               if (pos_num_check == string::npos) {//if there is not an end to the other braket
@@ -150,7 +151,7 @@ bool supper_annotator::load_video(string video_file)
                 }
 
                 num_val = stoi(find.substr(pos_num + 1, pos_num_end - pos_num));//get the found number
-
+                //cout << num_val << endl;
                 //this is where the lane numbers are inserted into the sturcture
                 if (kk == 0) all_data[ii][jj].swimmer_box.x = num_val;
                 if (kk == 1) all_data[ii][jj].swimmer_box.y = num_val;
@@ -205,13 +206,14 @@ bool supper_annotator::annotation_options()
 
   cout << "\nOptions for annotation editing.\n\n";
   cout << "Change lane number of annotations, press (1)\n";
-  cout << "Save current annotation, press (2)\n";
-  cout << "Fix predicted annotation, press (3)\n";
+  cout << "Predict next frame, press (2)\n";
+  cout << "Create ROI, press (3)\n";
   cout << "Go back to last frame, press (4)\n";
   cout << "Go to next frame, press (5)\n";
   cout << "Move to any arbitrary frame, press (6)\n";
-  cout << "Stop annotating video, press (7)\n";
-  cout << "\nAnnotate> ";
+  cout << "Change annotation class, press (7)\n";
+  cout << "Stop annotating video, press (8)\n";
+  cout << "\nAnnotate F:"<<current_frame<<" L:"<<current_swimmer<< " c:" <<current_class<< "> ";
 
   cin.ignore(1000, '\n');
 
@@ -229,10 +231,10 @@ bool supper_annotator::annotation_options()
   case 1://Change lane number of annotations
     select_lane_number();
     break;
-  case 2://Save current annotation
+  case 2://Predict next frame
     predict_next_frame();
     break;
-  case 3://Fix predicted annotation
+  case 3://Create ROI
     break;
   case 4://Go back to last frame
     last_frame();
@@ -240,10 +242,13 @@ bool supper_annotator::annotation_options()
   case 5://Go to next frame
     next_frame();
     break;
-  case 6://Move to any arbitrary frame
+  case 6://Move to any arbitrary frame//Change annotation class
     go_to_frame();
     break;
-  case 7://Stop annotating video
+  case 7://Change annotation class
+    
+    break;
+  case 8://Stop annotating video
     if (quit_and_save_data()) {
       return false;//exit the annotator
     }
@@ -255,6 +260,24 @@ bool supper_annotator::annotation_options()
   return true;
 }
 
+//saves the current_box rect object in the class to the all_data and the text file 
+bool supper_annotator::save_annotation()
+{
+  swim_data* lane_data;
+  lane_data = get_swim_data(current_frame, current_swimmer);//checks for out of bounds errors
+
+  if (lane_data) {
+    //replace the data
+    lane_data->box_class = current_class;
+    lane_data->lane_num = current_swimmer;
+    lane_data->swimmer_box = current_box;
+    return true;
+  }
+  else {//if there was out of bound input
+    return false;
+  }
+
+}
 
 //select the lane number of the swimmer you are annotating
 //return prevouse lane number
@@ -296,6 +319,7 @@ bool supper_annotator::create_ROI_in_pool()
   an_video >> frame;
   current_box = selectROI("Annotating Window", frame, false, false);
   if(current_box.empty()) return false;
+  save_annotation();
 
   return true;
 }
@@ -303,7 +327,6 @@ bool supper_annotator::create_ROI_in_pool()
 
 //Use the camshift() algorithum to find swimmer in next frame
 //Every new frame, update the referance frame
-//curtusy of docs.opencv.org/3.4/d7/d00/tutorial_meanshift.html
 void supper_annotator::predict_next_frame()
 {
   Mat old_frame, frame;
@@ -333,18 +356,33 @@ void supper_annotator::predict_next_frame()
 bool supper_annotator::display_current_frame()
 {
   Mat frame;
-  bool temp_var = true;
+  bool display_box = false;
+  swim_data* lane;
 
+  //Get the frame
   an_video.set(CAP_PROP_POS_FRAMES,current_frame);//CV_CAP_PROP_POS_FRAMES
   an_video >> frame;
 
-  if (temp_var) {
+  //Update current box
+  lane = get_swim_data(current_frame, current_swimmer);//could return an empty lane!!
+  if (lane != nullptr) {
+    if (lane->lane_num == -1) {//if empty lane 
+      display_box = false; //dont display box
+    }
+    else {
+      display_box = true;//display box
+      current_box = lane->swimmer_box;
+    }
+  }
+
+  if (display_box) {
     rectangle(frame, current_box, Scalar(255, 0, 0), 2, 1);// will create a box in the image frame
     imshow("Annotating Window",frame);
     waitKey(1);
   }
   else {
     imshow("Annotating Window", frame);
+    waitKey(1);
   }
   if (annotation_options()) {
     return true;
@@ -442,17 +480,6 @@ void supper_annotator::go_to_frame()
 //return a pointer to the data in all_data
 swim_data* supper_annotator::get_swim_data(int frame_no, int lane_no)
 {
-  /*
-  //make an empty lane
-  swim_data empty_lane;
-  empty_lane.box_class = -1;
-  empty_lane.lane_num = -1;
-  empty_lane.swimmer_box.x = -1;
-  empty_lane.swimmer_box.y = -1;
-  empty_lane.swimmer_box.height = -1;
-  empty_lane.swimmer_box.width = -1;
-  */
-
   if ((frame_no > (number_of_frames - 1)) || (frame_no < 0)) {// out of range frames
     cout << "Invalid frame number was requested from data" << endl;
     return nullptr;//empty_lane;
@@ -462,15 +489,18 @@ swim_data* supper_annotator::get_swim_data(int frame_no, int lane_no)
     return nullptr;//empty_lane;
   }
 
-  swim_data* frame = all_data[frame_no];
+  //A reminder that frames are skipped every skip_size frames 
+  swim_data* frame = all_data[frame_no/skip_size];
   int ii = 0;
-  
+  cout << "searching data in frame " << frame_no << endl;
   for (ii = 0; ii < 10; ii++) {
-    if (frame[ii].lane_num == lane_no) {
+    if (frame[ii].lane_num == lane_no) {//check if lane number exists
       return &frame[ii];//return the location of that lane
-    } 
+    }
+    if (frame[ii].lane_num == -1) {//If no lane number exists then return pointer to first empty lane
+      return &frame[ii];
+    }
   }
-
   return nullptr;//empty_lane;
 }
 

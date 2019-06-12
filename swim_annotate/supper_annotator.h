@@ -32,7 +32,8 @@ private:
   //video display data
   VideoCapture an_video;
   int current_frame;
-  int current_swimmer;
+  int current_swimmer;//lane number of swimmer
+  int current_class;//current class of the annotaion
   string video_file;
   Rect current_box;
   int skip_size; //how many frames to skip every new frame
@@ -92,6 +93,9 @@ public:
   //Is used in display current frame automaticly
   //finished
   bool annotation_options();
+
+  //saves the current_box rect object in the class to the all_data and the text file 
+  bool save_annotation();
 
 
   //create a better prediction

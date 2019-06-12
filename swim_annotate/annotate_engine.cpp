@@ -101,7 +101,7 @@ bool annotate_engine::run_supper_annotator() {
 
   if (work.load_video(file_name)) {
 
-    work.create_ROI_in_pool();
+    //work.create_ROI_in_pool();
     while (work.display_current_frame()) {
       //keep looping
     }
