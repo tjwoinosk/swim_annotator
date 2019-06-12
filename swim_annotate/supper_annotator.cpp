@@ -92,60 +92,88 @@ bool supper_annotator::load_video(string video_file)
         cout << "number of frames dose not match file, open failed" << endl;
         return false;
       }
+
       //load data...
       get_from_header.getline(line, 500);//read in "#data"
+
+      //init data holder
+      all_data = new swim_data* [number_of_frames]; //memory allocated, needs to be deleted (on line... )
+      for (ii = 0; ii < number_of_frames; ii++) {
+        all_data[ii] = new swim_data[10];
+        for (jj = 0; jj < 10; jj++) {//init to -1
+          all_data[ii][jj].box_class = -1;
+          all_data[ii][jj].swimmer_box.x = -1;
+          all_data[ii][jj].swimmer_box.y = -1;
+          all_data[ii][jj].swimmer_box.height = -1;
+          all_data[ii][jj].swimmer_box.width = -1;
+          all_data[ii][jj].lane_num = -1;
+        }
+      }
 
       size_t pos_lane = 0;
       size_t pos_num = 0;
       size_t pos_num_check = 0;
       size_t pos_num_end = 0;
-      string num;
       int num_val = 0;
+      
       for (ii = 0; ii < number_of_frames; ii++) {//get #of frames 
         //frame loop
-        get_from_header.getline(line, 500);//should hold all data at max
-        find = line;
-        pos_lane = 0;
-        //start looking threw the frame
-        for (jj = 0; jj < 10; jj++) {
-          //lane loop
-          pos_lane = find.find_first_of('{', pos_lane);//look for the next lane
-          if (pos_num != string::npos) {//if there is a lane
-            //start looking through numbers for that lane
-            pos_num_check = find.find_first_of('}', pos_lane);//check if there are 6 numbers
-            if (pos_num_check == string::npos) {
+        if (get_from_header.getline(line, 500)) {//should hold all data at max
+          find = line;
+          pos_lane = 0;
+          //start looking threw the frame
+          for (jj = 0; jj < 10; jj++) {
+            //lane loop
+            pos_lane = find.find_first_of('{', pos_lane);//look for the next lane
+            if (pos_num != string::npos) {//if there is a lane
+              //start looking through numbers for that lane
+              pos_num_check = find.find_first_of('}', pos_lane);//check if there are 6 numbers
+              if (pos_num_check == string::npos) {//if there is not an end to the other braket
+                cout << "Braket error in frame " << ii << endl;
+                return false;
+              }
+              pos_num = pos_lane;//pos_num holds the position of the current number in a lane
+              pos_num_end = pos_lane;
+              for (kk = 0; kk < 6; kk++) {
+                //number loop
+                pos_num_end = find.find_first_of(",", pos_num);//find end of number
+                if ((pos_num_end > pos_num_check) && (kk < 5)) {//check if there are 6 numbers
+                  cout << "Error in frame " << jj << " lane index " << pos_lane << ". not enough numbers." << endl;
+                  return false;
+                }
+                else if (pos_num_end < pos_num_check && (kk == 5)) {//if in here then more than 6 number are in the lane 
+                  cout << "Error in frame, too many numbers." << jj << endl;
+                  return false;
+                }
+                else if (pos_num_end > pos_num_check) {//get the final number
+                  pos_num_end = pos_num_check;
+                }
+
+                num_val = stoi(find.substr(pos_num + 1, pos_num_end - pos_num));//get the found number
+
+                //this is where the lane numbers are inserted into the sturcture
+                if (kk == 0) all_data[ii][jj].swimmer_box.x = num_val;
+                if (kk == 1) all_data[ii][jj].swimmer_box.y = num_val;
+                if (kk == 2) all_data[ii][jj].swimmer_box.height = num_val;
+                if (kk == 3) all_data[ii][jj].swimmer_box.width = num_val;
+                if (kk == 4) all_data[ii][jj].box_class = num_val;
+                if (kk == 5) all_data[ii][jj].lane_num = num_val;
+              
+                pos_num = pos_num_end + 1;//reset the pos_num to look for the next number
+              }
+            }
+            else {//if there are no more lanes go to the next line
               break;
             }
-            pos_num = pos_lane;//pos_num holds the position of the current number in a lane
-            pos_num_end = pos_lane;
-            for (kk = 0; kk < 6; kk++) {
-              //number loop
-              pos_num_end = find.find_first_of(",", pos_num);//find end of number
-              if ((pos_num_end > pos_num_check) && (kk < 5)) {//check if there are 6 numbers
-                cout << "Error in frame " << jj << " lane index " <<pos_lane<< ". not enough numbers."<< endl;
-                break;
-              }
-              else if (pos_num_end > pos_num_end) {//get the final number
-                pos_num_end = pos_num_check;
-              }
-              else {//if in here then more than 6 number are in the lane 
-                cout << "Error in frame, too many numbers." << jj << endl;
-                break;
-              }
-              num_val = stoi(find.substr(pos_num + 1, pos_num_end - pos_num));//get the found number
-              //this is where the numbers are inserted into the sturcture
-
-              pos_num = pos_num_end + 1;//reset the pos_num to look for the next number
-            }
+            pos_lane = pos_num_check;
+            //end of lane loop
           }
-          else {
-            break;
-          }
-
         }
-
+        else {//if the video data is incomplete, stop looking for data that does not exist
+          break;
+        }
+        //end of frame loop
       }
-
       get_from_header.close();
     }
     else {//Create new header 
@@ -157,7 +185,6 @@ bool supper_annotator::load_video(string video_file)
       write_to_header << "#Data x, y, h, w, c, and l always in this order, for each lane. Sorted in order." << endl;
       write_to_header.close();
     }
-
     return true;
   }
   else {
@@ -412,15 +439,49 @@ void supper_annotator::go_to_frame()
   return;
 }
 
-swim_data* supper_annotator::get_swim_data()
+//return a pointer to the data in all_data
+swim_data* supper_annotator::get_swim_data(int frame_no, int lane_no)
 {
-  return nullptr;
+  /*
+  //make an empty lane
+  swim_data empty_lane;
+  empty_lane.box_class = -1;
+  empty_lane.lane_num = -1;
+  empty_lane.swimmer_box.x = -1;
+  empty_lane.swimmer_box.y = -1;
+  empty_lane.swimmer_box.height = -1;
+  empty_lane.swimmer_box.width = -1;
+  */
+
+  if ((frame_no > (number_of_frames - 1)) || (frame_no < 0)) {// out of range frames
+    cout << "Invalid frame number was requested from data" << endl;
+    return nullptr;//empty_lane;
+  }
+  if ((lane_no > 9) || (lane_no < 0)) {//out of range lanes
+    cout << "Invalid lane number was requested from data" << endl;
+    return nullptr;//empty_lane;
+  }
+
+  swim_data* frame = all_data[frame_no];
+  int ii = 0;
+  
+  for (ii = 0; ii < 10; ii++) {
+    if (frame[ii].lane_num == lane_no) {
+      return &frame[ii];//return the location of that lane
+    } 
+  }
+
+  return nullptr;//empty_lane;
 }
 
-
+//free the all_data memory
 supper_annotator::~supper_annotator()
 {
-
+  int ii = 0;
+  for (ii = 0; ii < number_of_frames; ii++) {
+    delete[] all_data[ii]; 
+  }
+  delete[] all_data;
 }
 
 

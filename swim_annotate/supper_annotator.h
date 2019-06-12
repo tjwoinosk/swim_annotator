@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>//file manipulation
+#include <vector>
 
 
 #include <opencv2/opencv.hpp> //displaying video
@@ -12,13 +13,13 @@
 
 using namespace std;
 using namespace cv;
-
+//----------------- 1 ------- 2 ------ 3 --------- 4 ------- 5 ------- 6 --------------------------------
 enum class_names {on_block, diving, swimming, underwater, turning, finishing}; //the six possible classes
 
 struct swim_data
 {
   Rect swimmer_box;
-  class_names box_class;
+  int box_class;
   int lane_num;
 };
 
@@ -37,7 +38,7 @@ private:
   int skip_size; //how many frames to skip every new frame
 
   //Annotation data
-  swim_data* all_data;
+  swim_data **all_data;
 
 public:
   //default constructor. No need for any other definitions. 
@@ -60,8 +61,8 @@ public:
   //finished
   bool create_ROI_in_pool();
 
-  //returns the swim data produced
-  swim_data* get_swim_data();
+  //returns a pointer to the swim data produced
+  swim_data* get_swim_data(int frame_no, int lane_no);
 
   //displays the current frame with or without annotation
   //works
