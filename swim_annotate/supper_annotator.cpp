@@ -236,7 +236,12 @@ bool supper_annotator::annotation_options()
     predict_next_frame();
     break;
   case 3://Create ROI
-    create_ROI_in_pool();
+    if (create_ROI_in_pool()) {
+      cout << "ROI saved!" << endl;
+    }
+    else {
+      cout << "ROI failed to save" << endl;
+    }
     break;
   case 4://Go back to last frame
     last_frame();
@@ -266,7 +271,7 @@ bool supper_annotator::annotation_options()
 bool supper_annotator::save_annotation()
 {
   swim_data* lane_data;
-  lane_data = get_swim_data(current_frame, current_swimmer);//checks for out of bounds errors
+  lane_data = get_swim_data(int(current_frame/skip_size), current_swimmer);//checks for out of bounds errors
 
   if (lane_data) {
     //replace the data
@@ -332,7 +337,7 @@ bool supper_annotator::update_text_file()
     size_t pos = header_filename.find_first_of('.', 0);
     header_filename.erase(pos, 4);
     header_filename.append(".txt");
-
+    remove("back_up.txt");//remove any file if exists
     if (rename(header_filename.c_str(), "back_up.txt") == 0) {//create a backup file
       if (rename("_app.txt", header_filename.c_str()) == 0) {
         return true;
@@ -423,6 +428,7 @@ void supper_annotator::select_lane_number() {
 bool supper_annotator::create_ROI_in_pool()
 {
   Mat frame;
+  an_video.set(CAP_PROP_POS_FRAMES, current_frame);//CV_CAP_PROP_POS_FRAMES
   an_video >> frame;
   current_box = selectROI("Annotating Window", frame, false, false);
   if(current_box.empty()) return false;
@@ -471,7 +477,7 @@ bool supper_annotator::display_current_frame()
   an_video >> frame;
 
   //Update current box
-  lane = get_swim_data(current_frame, current_swimmer);//could return an empty lane!!
+  lane = get_swim_data(int(current_frame / skip_size), current_swimmer);//could return an empty lane!!
   if (lane != nullptr) {
     if (lane->lane_num == -1) {//if empty lane 
       display_box = false; //dont display box
@@ -500,7 +506,6 @@ bool supper_annotator::display_current_frame()
 bool supper_annotator::quit_and_save_data()
 {
   //must destroy windows!!!
-
   char answer = 'n';
   bool keep_asking = true;
 
@@ -518,8 +523,10 @@ bool supper_annotator::quit_and_save_data()
       keep_asking = false;
 
       //save data
-      update_text_file();
-
+      if (!update_text_file()) {
+        cout << "could not save work!! look at text file for problem or data will be lost" << endl;
+        return false;
+      }
       return true;
     }
     else {
