@@ -97,6 +97,9 @@ public:
   //saves the current_box rect object in the class to the all_data and the text file 
   bool save_annotation();
 
+  //load completed work onto the textfile
+  bool update_text_file();
+
   //changes the current class lable for the box created
   void change_class();
 

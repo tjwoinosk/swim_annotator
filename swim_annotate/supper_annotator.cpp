@@ -56,6 +56,7 @@ bool supper_annotator::load_video(string video_file)
       int ii = 0;//frame number
       int jj = 0;//lane number
       int kk = 0;//number type
+      int num_possible_data_lines = number_of_frames / skip_size;
 
       get_from_header.getline(line, 500);
       if (line[0] != '#') {
@@ -98,8 +99,8 @@ bool supper_annotator::load_video(string video_file)
       get_from_header.getline(line, 500);//read in "#data"
 
       //init data holder
-      all_data = new swim_data* [number_of_frames]; //memory allocated, needs to be deleted (on line... )
-      for (ii = 0; ii < number_of_frames; ii++) {
+      all_data = new swim_data* [num_possible_data_lines]; //memory allocated, needs to be deleted (on line... )
+      for (ii = 0; ii < num_possible_data_lines; ii++) {
         all_data[ii] = new swim_data[10];
         for (jj = 0; jj < 10; jj++) {//init to -1
           all_data[ii][jj].box_class = -1;
@@ -117,7 +118,7 @@ bool supper_annotator::load_video(string video_file)
       size_t pos_num_end = 0;
       int num_val = 0;
       
-      for (ii = 0; ii < number_of_frames; ii++) {//get #of frames 
+      for (ii = 0; ii < num_possible_data_lines; ii++) {//get #of frames 
         //frame loop
         if (get_from_header.getline(line, 500)) {//should hold all data at max
           find = line;
@@ -206,8 +207,8 @@ bool supper_annotator::annotation_options()
 
   cout << "\nOptions for annotation editing.\n\n";
   cout << "Change lane number of annotations, press (1)\n";
-  cout << "Predict next frame, press (2)\n";
-  cout << "Create ROI, press (3)\n";
+  cout << "Predict next frame and save current frame, press (2)\n";//change to right mouse button click
+  cout << "Create ROI, press (3)\n";//change to left mouse button click
   cout << "Go back to last frame, press (4)\n";
   cout << "Go to next frame, press (5)\n";
   cout << "Move to any arbitrary frame, press (6)\n";
@@ -231,7 +232,7 @@ bool supper_annotator::annotation_options()
   case 1://Change lane number of annotations
     select_lane_number();
     break;
-  case 2://Predict next frame
+  case 2://Predict next frame and save current frame
     predict_next_frame();
     break;
   case 3://Create ROI
@@ -247,7 +248,7 @@ bool supper_annotator::annotation_options()
     go_to_frame();
     break;
   case 7://Change annotation class
-    
+    change_class();
     break;
   case 8://Stop annotating video
     if (quit_and_save_data()) {
@@ -278,6 +279,62 @@ bool supper_annotator::save_annotation()
     return false;
   }
 
+}
+
+//loads data from all data into the current text file
+bool supper_annotator::update_text_file()
+{
+  ofstream update_header;
+  string header_filename = video_file;
+  char line[500];
+  string header_data;
+  double FPS_vid = an_video.get(CAP_PROP_FPS);
+  int n = an_video.get(CAP_PROP_FRAME_HEIGHT);//hight
+  int m = an_video.get(CAP_PROP_FRAME_WIDTH);//width
+
+  //Change file name to end it .txt
+  size_t pos = header_filename.find_first_of('.', 0);
+  header_filename.erase(pos, 4);
+  header_filename.append("_app.txt");
+  update_header.open(header_filename);
+
+  if (update_header.is_open()) {//if file opened start updating 
+    int ii = 0;//frame number
+    int jj = 0;//lane number
+    int kk = 0;//lane contence
+    int num_possible_data_lines = number_of_frames / skip_size;//need to round down, need due to skipping frames
+    swim_data* a_lane;
+    update_header << "#Header, frames per second, video resolution(hight width), total number of frames in video." << endl;
+    update_header << "FPS: " << FPS_vid << endl;
+    update_header << "RES: " << n << " " << m << endl;
+    update_header << "TNF: " << number_of_frames << endl;
+    update_header << "#Data x, y, h, w, c, and l always in this order, for each lane. Sorted in order." << endl;
+
+    for(ii = 0; ii < num_possible_data_lines; ii++) {//look at each frame 
+      for (jj = 0; jj < 10; jj++) {//look at each lane
+        a_lane = get_swim_data(ii, jj);
+        if ((a_lane != nullptr) && (a_lane->lane_num == jj)) { //add the lane to the text file
+          update_header << "{";
+          for (kk = 0; kk < 6; kk++) {            
+            if (kk == 0) { update_header << a_lane->swimmer_box.x << ", "; }
+            if (kk == 1) { update_header << a_lane->swimmer_box.y << ", "; }
+            if (kk == 2) { update_header << a_lane->swimmer_box.height << ", "; }
+            if (kk == 3) { update_header << a_lane->swimmer_box.width << ", "; }
+            if (kk == 4) { update_header << a_lane->box_class << ", "; }
+            if (kk == 5) { update_header << a_lane->lane_num << "}"; }
+          }
+        }
+        //if last frame dont end line else end line
+        if ((ii < (num_possible_data_lines-1)) && (jj == 9)) update_header << endl;
+      }
+    }
+    //get_swim_data(int frame_no, int lane_no);
+
+    update_header.close();
+  } 
+  else {//if file does not open
+    return false;
+  }
 }
 
 //changes the current class lable for the box created
@@ -444,6 +501,10 @@ bool supper_annotator::quit_and_save_data()
     }
     else if (answer == 'y') {
       keep_asking = false;
+
+      //save data
+      update_text_file();
+
       return true;
     }
     else {
@@ -517,7 +578,8 @@ void supper_annotator::go_to_frame()
 //return a pointer to the data in all_data
 swim_data* supper_annotator::get_swim_data(int frame_no, int lane_no)
 {
-  if ((frame_no > (number_of_frames - 1)) || (frame_no < 0)) {// out of range frames
+  int most_possible_data = number_of_frames / skip_size;
+  if ((frame_no > most_possible_data-1) || (frame_no < 0)) {// out of range frames
     cout << "Invalid frame number was requested from data" << endl;
     return nullptr;//empty_lane;
   }
@@ -527,9 +589,8 @@ swim_data* supper_annotator::get_swim_data(int frame_no, int lane_no)
   }
 
   //A reminder that frames are skipped every skip_size frames 
-  swim_data* frame = all_data[frame_no/skip_size];
+  swim_data* frame = all_data[frame_no];
   int ii = 0;
-  cout << "searching data in frame " << frame_no << endl;
   for (ii = 0; ii < 10; ii++) {
     if (frame[ii].lane_num == lane_no) {//check if lane number exists
       return &frame[ii];//return the location of that lane
@@ -545,7 +606,9 @@ swim_data* supper_annotator::get_swim_data(int frame_no, int lane_no)
 supper_annotator::~supper_annotator()
 {
   int ii = 0;
-  for (ii = 0; ii < number_of_frames; ii++) {
+  int num_possible_data_lines = number_of_frames / skip_size;
+
+  for (ii = 0; ii < num_possible_data_lines; ii++) {
     delete[] all_data[ii]; 
   }
   delete[] all_data;
