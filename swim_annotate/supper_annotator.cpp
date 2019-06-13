@@ -292,12 +292,9 @@ bool supper_annotator::update_text_file()
   int n = an_video.get(CAP_PROP_FRAME_HEIGHT);//hight
   int m = an_video.get(CAP_PROP_FRAME_WIDTH);//width
 
-  //Change file name to end it .txt
-  size_t pos = header_filename.find_first_of('.', 0);
-  header_filename.erase(pos, 4);
-  header_filename.append("_app.txt");
-  update_header.open(header_filename);
+  update_header.open("_app.txt");//temp file
 
+  //make a new text file called _app.txt and then when created change the file names
   if (update_header.is_open()) {//if file opened start updating 
     int ii = 0;//frame number
     int jj = 0;//lane number
@@ -328,9 +325,27 @@ bool supper_annotator::update_text_file()
         if ((ii < (num_possible_data_lines-1)) && (jj == 9)) update_header << endl;
       }
     }
-    //get_swim_data(int frame_no, int lane_no);
-
     update_header.close();
+
+    //rename the files
+    //Change file name to end it .txt
+    size_t pos = header_filename.find_first_of('.', 0);
+    header_filename.erase(pos, 4);
+    header_filename.append(".txt");
+
+    if (rename(header_filename.c_str(), "back_up.txt") == 0) {//create a backup file
+      if (rename("_app.txt", header_filename.c_str()) == 0) {
+        return true;
+      }
+      else {
+        perror("Error renaming file");
+        return false;
+      }
+    }
+    else {
+      perror("Error renaming file");
+      return false;
+    }
   } 
   else {//if file does not open
     return false;

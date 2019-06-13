@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>//file manipulation
 #include <vector>
-
+#include <errno.h>
 
 #include <opencv2/opencv.hpp> //displaying video
 #include <opencv2/core/types.hpp> //for the rect object
