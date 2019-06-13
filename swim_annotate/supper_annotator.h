@@ -97,8 +97,8 @@ public:
   //saves the current_box rect object in the class to the all_data and the text file 
   bool save_annotation();
 
+  //changes the current class lable for the box created
+  void change_class();
 
-  //create a better prediction
-  //bool create_better_prediction();
 
 };

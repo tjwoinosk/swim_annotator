@@ -235,6 +235,7 @@ bool supper_annotator::annotation_options()
     predict_next_frame();
     break;
   case 3://Create ROI
+    create_ROI_in_pool();
     break;
   case 4://Go back to last frame
     last_frame();
@@ -277,6 +278,40 @@ bool supper_annotator::save_annotation()
     return false;
   }
 
+}
+
+//changes the current class lable for the box created
+void supper_annotator::change_class()
+{
+  char class_num;
+  int num = -1;
+  bool done;
+
+  //select lane number
+  do {
+    cout << "What class are we lableing? Options are..." << endl;
+    cout << "on_block (1), diving (2), swimming (3), underwater (4), turning (5), finishing (6)" << endl;
+    cout << "Class: ";
+    cin >> class_num;
+
+    if (!isdigit(class_num)) {
+      num = -1;
+    }
+    else {
+      num = int(class_num) - 48;//convert to int
+    }
+
+    if ((num > 6) || (num < 1)) {
+      cout << "\nAn invalid lane number was selected" << endl;
+      done = false;
+    }
+    else {
+      current_class = num;
+      done = true;
+    }
+  } while (!done);
+
+  return;
 }
 
 //select the lane number of the swimmer you are annotating
@@ -392,6 +427,8 @@ bool supper_annotator::display_current_frame()
 
 bool supper_annotator::quit_and_save_data()
 {
+  //must destroy windows!!!
+
   char answer = 'n';
   bool keep_asking = true;
 
