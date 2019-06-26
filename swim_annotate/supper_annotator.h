@@ -10,6 +10,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/video/tracking.hpp>
 #include <opencv2/core/ocl.hpp>
+#include <opencv2/tracking.hpp>
 
 using namespace std;
 using namespace cv;
@@ -37,6 +38,10 @@ private:
   string video_file;
   Rect current_box;
   int skip_size; //how many frames to skip every new frame
+
+  //tracker data
+  Ptr<TrackerKCF> tracker;
+  bool good_track;
 
   //Annotation data
   swim_data **all_data;
@@ -92,7 +97,7 @@ public:
   //prints the annotation options
   //Is used in display current frame automaticly
   //finished
-  bool annotation_options();
+  bool annotation_options(char reply);
 
   //saves the current_box rect object in the class to the all_data and the text file 
   bool save_annotation();
@@ -102,6 +107,12 @@ public:
 
   //changes the current class lable for the box created
   void change_class();
+
+  //sets up the app for start
+  void start_up();
+
+  //finds the latest annoation for the current lane number
+  void find_latest_annotation();
 
 
 };

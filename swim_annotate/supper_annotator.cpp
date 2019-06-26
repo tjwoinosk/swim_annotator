@@ -1,5 +1,11 @@
 #include "supper_annotator.h"
 
+//set the general screan options
+void onMouse(int event, int x, int y, int, void*)
+{
+
+}
+
 supper_annotator::supper_annotator() 
 {
   video_file = "";
@@ -187,6 +193,7 @@ bool supper_annotator::load_video(string video_file)
       write_to_header << "#Data x, y, h, w, c, and l always in this order, for each lane. Sorted in order." << endl;
       write_to_header.close();
     }
+
     return true;
   }
   else {
@@ -197,25 +204,26 @@ bool supper_annotator::load_video(string video_file)
 
 
 //gets the next acction to be exicuted on the video data
-bool supper_annotator::annotation_options()
+bool supper_annotator::annotation_options(char reply)
 {
   //I want unbuffered input to speed up annotations however this is difficult to do
   // there is an option to maybe use the OpenCV API setMouseCallback however I just
   // want somthing to work for now
-  char answer;
-  int ans = -1;
+  //char answer;
+  //int ans = -1;
 
   cout << "\nOptions for annotation editing.\n\n";
   cout << "Change lane number of annotations, press (1)\n";
   cout << "Predict next frame and save current frame, press (2)\n";//change to right mouse button click
-  cout << "Create ROI, press (3)\n";//change to left mouse button click
+  cout << "Create ROI, press (l)\n";//change to left mouse button click
   cout << "Go back to last frame, press (4)\n";
   cout << "Go to next frame, press (5)\n";
   cout << "Move to any arbitrary frame, press (6)\n";
   cout << "Change annotation class, press (7)\n";
   cout << "Stop annotating video, press (8)\n";
-  cout << "\nAnnotate F:"<<current_frame<<" L:"<<current_swimmer<< " c:" <<current_class<< "> ";
+  //cout << "\nAnnotate F:"<<current_frame<<" L:"<<current_swimmer<< " c:" <<current_class<< "> ";
 
+  /*
   cin.ignore(1000, '\n');
 
   cin >> answer;
@@ -227,35 +235,39 @@ bool supper_annotator::annotation_options()
   else {
     ans = int(answer) - 48;//convert to int
   }
-
-  switch (ans) {
-  case 1://Change lane number of annotations
+  */
+  
+  switch (reply) {
+  case '1'://Change lane number of annotations
     select_lane_number();
+    update_text_file();
     break;
-  case 2://Predict next frame and save current frame
+  case '2'://Predict next frame and save current frame
     predict_next_frame();
     break;
-  case 3://Create ROI
+  case 'l'://Create ROI
     if (create_ROI_in_pool()) {
       cout << "ROI saved!" << endl;
     }
     else {
       cout << "ROI failed to save" << endl;
     }
+    predict_next_frame();
     break;
-  case 4://Go back to last frame
+  case '4'://Go back to last frame
     last_frame();
     break;
-  case 5://Go to next frame
+  case '5'://Go to next frame
     next_frame();
     break;
-  case 6://Move to any arbitrary frame//Change annotation class
+  case '6'://Move to any arbitrary frame//Change annotation class
     go_to_frame();
     break;
-  case 7://Change annotation class
+  case '7'://Change annotation class
     change_class();
+    update_text_file();
     break;
-  case 8://Stop annotating video
+  case '8'://Stop annotating video
     if (quit_and_save_data()) {
       return false;//exit the annotator
     }
@@ -431,6 +443,10 @@ bool supper_annotator::create_ROI_in_pool()
   an_video.set(CAP_PROP_POS_FRAMES, current_frame);//CV_CAP_PROP_POS_FRAMES
   an_video >> frame;
   current_box = selectROI("Annotating Window", frame, false, false);
+
+  //Now the mouse callback needs to be reset again
+  //setMouseCallback("Annotating Window", onMouse, 0);
+
   if(current_box.empty()) return false;
   save_annotation();
 
@@ -438,16 +454,28 @@ bool supper_annotator::create_ROI_in_pool()
 }
 
 
+
 //Use the camshift() algorithum to find swimmer in next frame
 //Every new frame, update the referance frame
 void supper_annotator::predict_next_frame()
 {
+  //TrackerKCF
   Mat old_frame, frame;
+  Rect2d new_current_box;
+  bool results = false;
+
+  //create the tracker for box prediction
+  tracker = TrackerKCF::create();
 
   //get the frist frame to get the histogram of the ROI
   an_video.set(CAP_PROP_POS_FRAMES, current_frame);//CV_CAP_PROP_POS_FRAMES
   an_video >> frame;
   old_frame = frame.clone();
+
+  if (!tracker->init(old_frame, Rect2d(current_box))) {
+    cout << "Could not initalize tracker" << endl;
+    return;
+  }
 
   //get the next frame
   current_frame += skip_size;
@@ -460,6 +488,17 @@ void supper_annotator::predict_next_frame()
   an_video.set(CAP_PROP_POS_FRAMES, current_frame);
   an_video >> frame;
 
+  results = tracker->update(frame, new_current_box);
+  
+  if (results) {
+    current_box = new_current_box;
+    save_annotation();
+    tracker.release();//kill the tracker
+  }
+  else {
+    cout << "tracker failed!" << endl;
+  }
+
 
   return;
 }
@@ -468,9 +507,15 @@ void supper_annotator::predict_next_frame()
 //primary loop control for supper_annotator class
 bool supper_annotator::display_current_frame()
 {
+  int blue = 0;
+  int green = 0;
+  int red = 0;
+  int current_class_temp = 0;
+
   Mat frame;
   bool display_box = false;
   swim_data* lane;
+  char reply_from_vid = '1';//set to select ROI
 
   //Get the frame
   an_video.set(CAP_PROP_POS_FRAMES,current_frame);//CV_CAP_PROP_POS_FRAMES
@@ -485,19 +530,48 @@ bool supper_annotator::display_current_frame()
     else {
       display_box = true;//display box
       current_box = lane->swimmer_box;
+      current_class_temp = lane->box_class;
     }
   }
 
   if (display_box) {
-    rectangle(frame, current_box, Scalar(255, 0, 0), 2, 1);// will create a box in the image frame
+    
+    switch (current_class_temp) {
+    case 1://Brown
+      blue = 0; red = 100; green = 50;
+      break;
+    case 2://red
+      blue = 0; red = 255; green = 0;
+      break;
+    case 3://green
+      blue = 0; red = 0; green = 255;
+      break;
+    case 4://orange
+      blue = 0; red = 255; green = 127;
+      break;
+    case 5://yellow
+      blue = 0; red = 255; green = 255;
+      break;
+    case 6://purpuel
+      blue = 255; red = 128; green = 0;
+      break;
+    default:
+      break;
+    }
+   
+    rectangle(frame, current_box, Scalar(blue, green, red), 2, 1);// will create a box in the image frame
     imshow("Annotating Window",frame);
-    waitKey(1);
+    cout << "\nAnnotate F:" << current_frame << " L:" << current_swimmer << " c:" << current_class << "> ";
+    reply_from_vid = waitKey(0);
+    cout << reply_from_vid << endl;
   }
   else {
     imshow("Annotating Window", frame);
-    waitKey(1);
+    cout << "\nAnnotate F:" << current_frame << " L:" << current_swimmer << " c:" << current_class << "> ";
+    reply_from_vid = waitKey(0);
+    cout << reply_from_vid << endl;
   }
-  if (annotation_options()) {
+  if (annotation_options(reply_from_vid)) {
     return true;
   }
   return false;//exiting annotator
@@ -637,50 +711,31 @@ supper_annotator::~supper_annotator()
 }
 
 
-
-/*
-//Use the camshift() algorithum to find swimmer in next frame
-//Every new frame, update the referance frame
-//curtusy of docs.opencv.org/3.4/d7/d00/tutorial_meanshift.html
-void supper_annotator::predict_next_frame()
-{
-  Mat old_frame, frame, mask, hsv, backproj, hsv_roi, roi, roi_hist;
-  Rect trackWindow = current_box;
-  float range_[] = { 0, 180 };
-  const float* range[] = { range_ };
-  int histSize[] = { 180 };
-  int channels[] = { 0 };
-
-  //get the frist frame to get the histogram of the ROI
-  an_video.set(CAP_PROP_POS_FRAMES, current_frame);//CV_CAP_PROP_POS_FRAMES
-  an_video >> frame;
-  old_frame = frame.clone();
-  roi = old_frame(trackWindow);
-
-  cvtColor(roi, hsv_roi, COLOR_BGR2HSV);
-  inRange(hsv_roi, Scalar(0, 120, 120), Scalar(180, 255, 255), mask);
-  calcHist(&hsv_roi, 1, channels, mask, roi_hist, 1, histSize, range);
-  normalize(roi_hist, roi_hist, 0, 255, NORM_MINMAX);
-
-  //get the next frame
-  current_frame += skip_size;
-  if (current_frame > (number_of_frames - 1)) {
-    current_frame -= skip_size;
-    cout << "This is the last frame in this video" << endl;
-    return;
-  }
-
-  an_video.set(CAP_PROP_POS_FRAMES, current_frame);//CV_CAP_PROP_POS_FRAMES
-  an_video >> frame;
-  cvtColor(frame, hsv, COLOR_BGR2HSV);
-
-  //Camshift
-  calcBackProject(&hsv, 1, channels, roi_hist, backproj, range);// Need this 
-  //meanShift(backproj, trackWindow, TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 3, 1));
-  //RotatedRect trackBox = CamShift(backproj, trackWindow, TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 3, 1));
-  //put the new predicted box into the current box vairable so that it can be displayed
-  //current_box = trackBox.boundingRect();
-
-  return;
+//sets up the app for start
+void supper_annotator::start_up() {
+  select_lane_number();
+  find_latest_annotation();
 }
-*/
+
+//finds the latest annoation for the current lane number
+void supper_annotator::find_latest_annotation() {
+  
+  int ii = 0;//frame number
+  swim_data* frame_of_lane;
+
+  for (ii = 0; ii < int(number_of_frames / skip_size); ii++) {
+    frame_of_lane = get_swim_data(ii, current_swimmer);
+    if (frame_of_lane->lane_num == -1) {
+      break;
+    }
+  }
+  if((ii < int(number_of_frames / skip_size)) && ii > 0) {
+    current_frame = (ii-1) * skip_size;
+  }
+  else {
+    cout << "All or no lanes have annotaions!" << endl;
+    current_frame = 0;
+  }
+  
+}
+
