@@ -217,7 +217,7 @@ bool supper_annotator::annotation_options(char reply)
   cout << "Go to next frame, press (d)\n";
   cout << "Move to any arbitrary frame, press (m)\n";
   cout << "Change annotation class, press (c)\n";
-  cout << "Remove ROI from frame, press (k)\n";
+  cout << "Mark as absent, press (k)\n";//says the swimmer is not in the frame 
   cout << "Check for unfinished work, press (y)\n";//looks at each lane to see if a frame was skipped or a lane has not been done
   cout << "Stop annotating video, press (esc)\n";
   //cout << "\nAnnotate F:"<<current_frame<<" L:"<<current_swimmer<< " c:" <<current_class<< "> ";
@@ -246,15 +246,16 @@ bool supper_annotator::annotation_options(char reply)
     break;
   case 'm'://Move to any arbitrary frame
     go_to_frame();
-    good_track = false;
     break;
   case 'c'://Change annotation class
     change_class();
     update_text_file();
     break;
-  case 'k'://Remove ROI from frame Check for unfinished work
+  case 'k'://if swimmer is simply not in frame at all, remove ROI from frame and mark as absent
+    mark_as_absent();
     break;
   case 'y'://Check for unfinished work
+    check_for_completion();
     break;
   case 27://Stop annotating video
     if (quit_and_save_data()) {
@@ -688,12 +689,6 @@ void supper_annotator::go_to_frame()
   }
   current_frame = frame_num;
 
-  //reset the tracker
-  if (good_track) {
-    tracker->clear();
-    good_track = false;
-  }
-
   return;
 }
 
@@ -741,11 +736,11 @@ supper_annotator::~supper_annotator()
 //sets up the app for start
 void supper_annotator::start_up() {
   select_lane_number();
-  find_latest_annotation();
+  find_latest_annotation(true);
 }
 
 //finds the latest annoation for the current lane number
-void supper_annotator::find_latest_annotation() {
+void supper_annotator::find_latest_annotation(bool noise) {
   
   int ii = 0;//frame number
   swim_data* frame_of_lane;
@@ -756,13 +751,75 @@ void supper_annotator::find_latest_annotation() {
       break;
     }
   }
-  if((ii < int(number_of_frames / skip_size)) && ii > 0) {
+  if((ii < int(number_of_frames / skip_size)) && ii > 0) {//If ii 
     current_frame = (ii-1) * skip_size;
   }
   else {
-    cout << "All or no lanes have annotaions!" << endl;
+    if (noise) {
+      cout << "All or no lanes have annotaions!" << endl;
+    }
     current_frame = 0;
   }
-  
+
+}
+
+//looks at each lane to see if there is a missed frame
+//if the lane has not been started then it will also not show anything
+void supper_annotator::check_for_completion()
+{
+  bool incomplete_lanes[10] = { 1,1,1,1,1,1,1,1,1,1 };
+  int ii = 0;
+  int old_current_swimmer = current_swimmer;
+  int old_current_frame = current_frame;
+
+  for (ii = 0; ii < 10; ii++) {
+    current_swimmer = ii;
+    current_frame = 0;
+    find_latest_annotation(false);
+    if (current_frame == 0) {//If find_latest changes the frame number then the lane is incomplete 
+      incomplete_lanes[ii] = false;
+    }
+    else {
+      incomplete_lanes[ii] = true;//true if lane is complete or not started
+    }
+  }
+
+  current_swimmer = old_current_swimmer;
+  current_frame = old_current_frame;
+
+  for (ii = 0; ii < 10; ii++) {
+    if (incomplete_lanes[ii] == true) {
+      cout << "Lane " << ii << " is incomplete" << endl;
+    }
+  }
+
+  return;
+}
+
+//Tells the program that the swimmer is not in the frame
+void supper_annotator::mark_as_absent()
+{
+  swim_data* empty_frame;
+    
+  empty_frame = get_swim_data(int(current_frame / skip_size), current_swimmer);
+
+  if (empty_frame != nullptr) {
+    empty_frame->box_class = current_class;
+    empty_frame->lane_num = current_swimmer;
+    empty_frame->swimmer_box.x = 0;
+    empty_frame->swimmer_box.y = 0;
+    empty_frame->swimmer_box.height = 0;
+    empty_frame->swimmer_box.width = 0;
+  }
+  else {
+    //out of bounds error
+  }
+
+  //reset the tracker
+  if (good_track) {
+    tracker->clear();
+    good_track = false;
+  }
+
 }
 

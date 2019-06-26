@@ -68,6 +68,8 @@ public:
   bool create_ROI_in_pool();
 
   //returns a pointer to the swim data produced
+  //Data warning!! Relative data position in output file is equal to the current frame / skip size!
+  // an example can be seen in mark_as_absent(), int(current_frame / skip_size) == int frame_no
   swim_data* get_swim_data(int frame_no, int lane_no);
 
   //displays the current frame with or without annotation
@@ -112,7 +114,14 @@ public:
   void start_up();
 
   //finds the latest annoation for the current lane number
-  void find_latest_annotation();
+  void find_latest_annotation(bool noise);
+
+  //looks at each lane to see if there is a missed frame
+  //if the lane has not been started then it will also not show anything
+  void check_for_completion();
+
+  //Tells the program that the swimmer is not in the frame
+  void mark_as_absent();
 
 
 };
