@@ -16,6 +16,7 @@ supper_annotator::supper_annotator()
   number_of_frames = -1;
   skip_size = 3;//skip every 2 frames
   current_class = 1;
+  good_track = false;
   //set box
   current_box.height = 0;
   current_box.width = 0;
@@ -28,19 +29,39 @@ bool supper_annotator::load_video(string video_file)
   Mat frame;
   an_video.open(video_file);
 
+  int ii = 0;//frame number
+  int jj = 0;//lane number
+  int kk = 0;//number type
+  current_frame = 0;
+  this->video_file = video_file;
+
   if (an_video.isOpened()) {
 
     ifstream get_from_header;
     ofstream write_to_header;
     string header_filename = video_file;
+
+    //set class member fields
+    number_of_frames = int(an_video.get(CAP_PROP_FRAME_COUNT));
     double FPS_vid = an_video.get(CAP_PROP_FPS);
     int n = an_video.get(CAP_PROP_FRAME_HEIGHT);//hight
     int m = an_video.get(CAP_PROP_FRAME_WIDTH);//width
 
-    //set class member fields
-    number_of_frames = int(an_video.get(CAP_PROP_FRAME_COUNT));
-    this->video_file = video_file;
-    current_frame = 0;
+    int num_possible_data_lines = number_of_frames / skip_size;
+
+    //init data holder
+    all_data = new swim_data * [num_possible_data_lines]; //memory allocated, needs to be deleted (on line... )
+    for (ii = 0; ii < num_possible_data_lines; ii++) {
+      all_data[ii] = new swim_data[10];
+      for (jj = 0; jj < 10; jj++) {//init to -1
+        all_data[ii][jj].box_class = -1;
+        all_data[ii][jj].swimmer_box.x = -1;
+        all_data[ii][jj].swimmer_box.y = -1;
+        all_data[ii][jj].swimmer_box.height = -1;
+        all_data[ii][jj].swimmer_box.width = -1;
+        all_data[ii][jj].lane_num = -1;
+      }
+    }
 
     namedWindow("Annotating Window", WINDOW_AUTOSIZE);
 
@@ -59,10 +80,6 @@ bool supper_annotator::load_video(string video_file)
       string find;
       string num;
       string::size_type sz;
-      int ii = 0;//frame number
-      int jj = 0;//lane number
-      int kk = 0;//number type
-      int num_possible_data_lines = number_of_frames / skip_size;
 
       get_from_header.getline(line, 500);
       if (line[0] != '#') {
@@ -103,20 +120,6 @@ bool supper_annotator::load_video(string video_file)
 
       //load data...
       get_from_header.getline(line, 500);//read in "#data"
-
-      //init data holder
-      all_data = new swim_data* [num_possible_data_lines]; //memory allocated, needs to be deleted (on line... )
-      for (ii = 0; ii < num_possible_data_lines; ii++) {
-        all_data[ii] = new swim_data[10];
-        for (jj = 0; jj < 10; jj++) {//init to -1
-          all_data[ii][jj].box_class = -1;
-          all_data[ii][jj].swimmer_box.x = -1;
-          all_data[ii][jj].swimmer_box.y = -1;
-          all_data[ii][jj].swimmer_box.height = -1;
-          all_data[ii][jj].swimmer_box.width = -1;
-          all_data[ii][jj].lane_num = -1;
-        }
-      }
 
       size_t pos_lane = 0;
       size_t pos_num = 0;
@@ -252,7 +255,6 @@ bool supper_annotator::annotation_options(char reply)
     else {
       cout << "ROI failed to save" << endl;
     }
-    predict_next_frame();
     break;
   case '4'://Go back to last frame
     last_frame();
@@ -262,6 +264,7 @@ bool supper_annotator::annotation_options(char reply)
     break;
   case '6'://Move to any arbitrary frame//Change annotation class
     go_to_frame();
+    good_track = false;
     break;
   case '7'://Change annotation class
     change_class();
@@ -400,6 +403,12 @@ void supper_annotator::change_class()
     }
   } while (!done);
 
+  //reset the tracker
+  if (good_track) {
+    tracker->clear();
+    good_track = false;
+  }
+
   return;
 }
 
@@ -434,6 +443,12 @@ void supper_annotator::select_lane_number() {
     }
   } while (!done);
 
+  //reset the tracker
+  if (good_track) {
+    tracker->clear();
+    good_track = false;
+  }
+
   return;
 }
 
@@ -444,11 +459,14 @@ bool supper_annotator::create_ROI_in_pool()
   an_video >> frame;
   current_box = selectROI("Annotating Window", frame, false, false);
 
-  //Now the mouse callback needs to be reset again
-  //setMouseCallback("Annotating Window", onMouse, 0);
-
   if(current_box.empty()) return false;
   save_annotation();
+
+  //reset the tracker
+  if (good_track) {
+    tracker->clear();
+    good_track = false;
+  }
 
   return true;
 }
@@ -464,17 +482,27 @@ void supper_annotator::predict_next_frame()
   Rect2d new_current_box;
   bool results = false;
 
+  if (!good_track) { //Recreate the tracker to account for changes in angle or body position
   //create the tracker for box prediction
-  tracker = TrackerKCF::create();
+    TrackerKCF::Params param;
+    param.desc_pca = TrackerKCF::CN; // TrackerKCF::CN | TrackerKCF::GRAY
+    param.desc_npca = 0;
+   // param.compress_feature = true;
+   // param.compressed_size = 2;
+    
+    tracker = TrackerKCF::create(param);
 
-  //get the frist frame to get the histogram of the ROI
-  an_video.set(CAP_PROP_POS_FRAMES, current_frame);//CV_CAP_PROP_POS_FRAMES
-  an_video >> frame;
-  old_frame = frame.clone();
+    //get the frist frame
+    an_video.set(CAP_PROP_POS_FRAMES, current_frame);//CV_CAP_PROP_POS_FRAMES
+    an_video >> frame;
+    old_frame = frame.clone();
 
-  if (!tracker->init(old_frame, Rect2d(current_box))) {
-    cout << "Could not initalize tracker" << endl;
-    return;
+    if (!tracker->init(old_frame, Rect2d(current_box))) {
+      cout << "Could not initalize tracker" << endl;
+      return;
+    }
+    //tracker->setFeatureExtractor();
+    good_track = true;
   }
 
   //get the next frame
@@ -488,17 +516,10 @@ void supper_annotator::predict_next_frame()
   an_video.set(CAP_PROP_POS_FRAMES, current_frame);
   an_video >> frame;
 
-  results = tracker->update(frame, new_current_box);
+  tracker->update(frame, new_current_box);
   
-  if (results) {
-    current_box = new_current_box;
-    save_annotation();
-    tracker.release();//kill the tracker
-  }
-  else {
-    cout << "tracker failed!" << endl;
-  }
-
+  current_box = new_current_box;
+  save_annotation();
 
   return;
 }
@@ -561,12 +582,14 @@ bool supper_annotator::display_current_frame()
    
     rectangle(frame, current_box, Scalar(blue, green, red), 2, 1);// will create a box in the image frame
     imshow("Annotating Window",frame);
+    for (int ii = 0; ii < 10; ii++) reply_from_vid = waitKey(1);//might clear window buffer
     cout << "\nAnnotate F:" << current_frame << " L:" << current_swimmer << " c:" << current_class << "> ";
     reply_from_vid = waitKey(0);
     cout << reply_from_vid << endl;
   }
   else {
     imshow("Annotating Window", frame);
+    for (int ii = 0; ii < 10; ii++) reply_from_vid = waitKey(1);//might clear window buffer
     cout << "\nAnnotate F:" << current_frame << " L:" << current_swimmer << " c:" << current_class << "> ";
     reply_from_vid = waitKey(0);
     cout << reply_from_vid << endl;
@@ -623,7 +646,11 @@ void supper_annotator::next_frame()
     cout << "This is the last frame in this video" << endl;
     return;
   } 
-
+  //reset the tracker
+  if (good_track) {
+    tracker->clear();
+    good_track = false;
+  }
   return;
 }
 
@@ -635,6 +662,12 @@ void supper_annotator::last_frame()
     current_frame += skip_size;
     cout << "Cant got farther back, this is the frist frame in this video" << endl;
     return;
+  }
+
+  //reset the tracker
+  if (good_track) {
+    tracker->clear();
+    good_track = false;
   }
 
   return;
@@ -668,6 +701,13 @@ void supper_annotator::go_to_frame()
     return;
   }
   current_frame = frame_num;
+
+  //reset the tracker
+  if (good_track) {
+    tracker->clear();
+    good_track = false;
+  }
+
   return;
 }
 
@@ -704,12 +744,13 @@ supper_annotator::~supper_annotator()
   int ii = 0;
   int num_possible_data_lines = number_of_frames / skip_size;
 
-  for (ii = 0; ii < num_possible_data_lines; ii++) {
-    delete[] all_data[ii]; 
-  }
-  delete[] all_data;
+  if(all_data != nullptr) {
+    for (ii = 0; ii < num_possible_data_lines; ii++) {
+      delete[] all_data[ii]; 
+    }
+    delete[] all_data;
+   }
 }
-
 
 //sets up the app for start
 void supper_annotator::start_up() {
