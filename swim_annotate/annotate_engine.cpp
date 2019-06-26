@@ -100,16 +100,6 @@ bool annotate_engine::run_supper_annotator() {
   if (work.load_video(file_name)) {
 
     work.start_up();
-
-    cout << "\nOptions for annotation editing.\n\n";
-    cout << "Change lane number of annotations, press (1)\n";
-    cout << "Predict next frame and save current frame, press (2)\n";//change to right mouse button click
-    cout << "Create ROI, press (3)\n";//change to left mouse button click
-    cout << "Go back to last frame, press (4)\n";
-    cout << "Go to next frame, press (5)\n";
-    cout << "Move to any arbitrary frame, press (6)\n";
-    cout << "Change annotation class, press (7)\n";
-    cout << "Stop annotating video, press (8)\n";
    
     while (work.display_current_frame()) {
       //keep looping

@@ -209,46 +209,28 @@ bool supper_annotator::load_video(string video_file)
 //gets the next acction to be exicuted on the video data
 bool supper_annotator::annotation_options(char reply)
 {
-  //I want unbuffered input to speed up annotations however this is difficult to do
-  // there is an option to maybe use the OpenCV API setMouseCallback however I just
-  // want somthing to work for now
-  //char answer;
-  //int ans = -1;
-
   cout << "\nOptions for annotation editing.\n\n";
-  cout << "Change lane number of annotations, press (1)\n";
-  cout << "Predict next frame and save current frame, press (2)\n";//change to right mouse button click
-  cout << "Create ROI, press (l)\n";//change to left mouse button click
-  cout << "Go back to last frame, press (4)\n";
-  cout << "Go to next frame, press (5)\n";
-  cout << "Move to any arbitrary frame, press (6)\n";
-  cout << "Change annotation class, press (7)\n";
-  cout << "Stop annotating video, press (8)\n";
+  cout << "Change lane number of annotations, press (l)\n";
+  cout << "Predict next frame and save current frame, press (w)\n";//change to right mouse button click
+  cout << "Create ROI, press (r)\n";//change to left mouse button click
+  cout << "Go back to last frame, press (a)\n";
+  cout << "Go to next frame, press (d)\n";
+  cout << "Move to any arbitrary frame, press (m)\n";
+  cout << "Change annotation class, press (c)\n";
+  cout << "Remove ROI from frame, press (k)\n";
+  cout << "Check for unfinished work, press (y)\n";//looks at each lane to see if a frame was skipped or a lane has not been done
+  cout << "Stop annotating video, press (esc)\n";
   //cout << "\nAnnotate F:"<<current_frame<<" L:"<<current_swimmer<< " c:" <<current_class<< "> ";
-
-  /*
-  cin.ignore(1000, '\n');
-
-  cin >> answer;
-  
-  if (!isdigit(answer)) {
-    cout << "An unrecognised value was input\n";
-    return false;
-  }
-  else {
-    ans = int(answer) - 48;//convert to int
-  }
-  */
   
   switch (reply) {
-  case '1'://Change lane number of annotations
+  case 'l'://Change lane number of annotations
     select_lane_number();
     update_text_file();
     break;
-  case '2'://Predict next frame and save current frame
+  case 'w'://Predict next frame and save current frame, up arrow
     predict_next_frame();
     break;
-  case 'l'://Create ROI
+  case 'r'://Create ROI
     if (create_ROI_in_pool()) {
       cout << "ROI saved!" << endl;
     }
@@ -256,21 +238,25 @@ bool supper_annotator::annotation_options(char reply)
       cout << "ROI failed to save" << endl;
     }
     break;
-  case '4'://Go back to last frame
+  case 'a'://Go back to last frame, left arrow
     last_frame();
     break;
-  case '5'://Go to next frame
+  case 'd'://Go to next frame, right arrow
     next_frame();
     break;
-  case '6'://Move to any arbitrary frame//Change annotation class
+  case 'm'://Move to any arbitrary frame
     go_to_frame();
     good_track = false;
     break;
-  case '7'://Change annotation class
+  case 'c'://Change annotation class
     change_class();
     update_text_file();
     break;
-  case '8'://Stop annotating video
+  case 'k'://Remove ROI from frame Check for unfinished work
+    break;
+  case 'y'://Check for unfinished work
+    break;
+  case 27://Stop annotating video
     if (quit_and_save_data()) {
       return false;//exit the annotator
     }
