@@ -17,6 +17,7 @@ supper_annotator::supper_annotator()
   skip_size = 3;//skip every 2 frames
   current_class = 1;
   good_track = false;
+  fast_ROI_mode = false;
   //set box
   current_box.height = 0;
   current_box.width = 0;
@@ -219,24 +220,28 @@ bool supper_annotator::annotation_options(char reply)
   cout << "Change annotation class, press (c)\n";
   cout << "Mark as absent, press (k)\n";//says the swimmer is not in the frame 
   cout << "Check for unfinished work, press (y)\n";//looks at each lane to see if a frame was skipped or a lane has not been done
+  cout << "Togel fast ROI mode, press (t)\n";//Allows used to just select ROI continuesly
   cout << "Stop annotating video, press (esc)\n";
   //cout << "\nAnnotate F:"<<current_frame<<" L:"<<current_swimmer<< " c:" <<current_class<< "> ";
   
   switch (reply) {
   case 'l'://Change lane number of annotations
     select_lane_number();
+    find_latest_annotation(true);
     update_text_file();
     break;
   case 'w'://Predict next frame and save current frame, up arrow
     predict_next_frame();
     break;
   case 'r'://Create ROI
-    if (create_ROI_in_pool()) {
+    while(create_ROI_in_pool() && fast_ROI_mode) {
       cout << "ROI saved!" << endl;
+      if (current_frame >= (number_of_frames-3)) {
+        break;
+      }
+      next_frame();
     }
-    else {
-      cout << "ROI failed to save" << endl;
-    }
+    cout << "ROI failed to save" << endl;
     break;
   case 'a'://Go back to last frame, left arrow
     last_frame();
@@ -253,9 +258,13 @@ bool supper_annotator::annotation_options(char reply)
     break;
   case 'k'://if swimmer is simply not in frame at all, remove ROI from frame and mark as absent
     mark_as_absent();
+    next_frame();
     break;
   case 'y'://Check for unfinished work
     check_for_completion();
+    break;
+  case 't'://togel fast_ROI_mode
+    fast_ROI_mode = !fast_ROI_mode;
     break;
   case 27://Stop annotating video
     if (quit_and_save_data()) {
@@ -362,16 +371,23 @@ bool supper_annotator::update_text_file()
 //changes the current class lable for the box created
 void supper_annotator::change_class()
 {
-  char class_num;
+  char class_num = '0';
   int num = -1;
   bool done;
+  Mat frame;
 
   //select lane number
   do {
     cout << "What class are we lableing? Options are..." << endl;
     cout << "on_block (1), diving (2), swimming (3), underwater (4), turning (5), finishing (6)" << endl;
     cout << "Class: ";
-    cin >> class_num;
+
+    //Get the key from the window
+    an_video.set(CAP_PROP_POS_FRAMES, current_frame);//CV_CAP_PROP_POS_FRAMES
+    an_video >> frame;
+    imshow("Annotating Window", frame);
+    class_num = waitKey(0);
+    cout << class_num;
 
     if (!isdigit(class_num)) {
       num = -1;
@@ -407,11 +423,18 @@ void supper_annotator::select_lane_number() {
   char lane_num;
   int num = -1;
   bool done;
+  Mat frame;
 
   //select lane number
   do {
     cout << "What lane number are we working on? ";
-    cin >> lane_num;
+
+    //Get the key from the window
+    an_video.set(CAP_PROP_POS_FRAMES, current_frame);//CV_CAP_PROP_POS_FRAMES
+    an_video >> frame;
+    imshow("Annotating Window", frame);
+    lane_num = waitKey(0);
+    cout << lane_num << endl;
 
     if (!isdigit(lane_num)) {
       num = -1;
@@ -592,13 +615,18 @@ bool supper_annotator::quit_and_save_data()
   //must destroy windows!!!
   char answer = 'n';
   bool keep_asking = true;
+  Mat frame;
 
   do {
     cout << "Are you sure you are done? (y/n)" << endl;
 
-    cin.ignore(1000, '\n');//remove extra stuff 
+    //Get the key from the window
+    an_video.set(CAP_PROP_POS_FRAMES, current_frame);//CV_CAP_PROP_POS_FRAMES
+    an_video >> frame;
+    imshow("Annotating Window", frame);
+    answer = waitKey(0);
+    cout << answer << endl;
 
-    cin >> answer;
     if (answer == 'n') {
       keep_asking = false;
       return false;

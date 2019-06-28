@@ -42,6 +42,7 @@ private:
   //tracker data
   Ptr<TrackerKCF> tracker;
   bool good_track;
+  bool fast_ROI_mode;
 
   //Annotation data
   swim_data **all_data;
