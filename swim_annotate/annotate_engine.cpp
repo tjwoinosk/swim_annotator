@@ -97,7 +97,7 @@ bool annotate_engine::run_supper_annotator() {
 
   cout << "Loading file for annotation!" << endl;
 
-  if (work.load_video(file_name)) {
+  if (work.load_video_for_boxing(file_name)) {
 
     work.start_up();
    

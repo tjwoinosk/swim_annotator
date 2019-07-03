@@ -12,75 +12,56 @@
 #include <opencv2/core/ocl.hpp>
 #include <opencv2/tracking.hpp>
 
+constexpr auto AN_WINDOW_NAME = "Annotating Window";
+
 using namespace std;
 using namespace cv;
-//----------------- 1 ------- 2 ------ 3 --------- 4 ------- 5 ------- 6 --------------------------------
-enum class_names {on_block, diving, swimming, underwater, turning, finishing}; //the six possible classes
 
-struct swim_data
-{
-  Rect swimmer_box;
-  int box_class;
-  int lane_num;
-};
 
 class supper_annotator
 {
 private:
-  //processes data
-  int number_of_frames;
   
   //video display data
-  VideoCapture an_video;
+  int number_of_frames;
   int current_frame;
+  string video_file_name;
+  int skip_size; //how many frames to skip every new frame
+  VideoCapture an_video;
+  bool video_file_open;
+  double FPS_vid;
+  int hight;
+  int width;
+
+  //annotation data
   int current_swimmer;//lane number of swimmer
   int current_class;//current class of the annotaion
-  string video_file;
-  Rect current_box;
-  int skip_size; //how many frames to skip every new frame
 
-  //tracker data
-  Ptr<TrackerKCF> tracker;
-  bool good_track;
-  bool fast_ROI_mode;
-
-  //Annotation data
-  swim_data **all_data;
 
 public:
+  
   //default constructor. No need for any other definitions. 
   supper_annotator();
+  supper_annotator(int class_skip_size);
 
-  ~supper_annotator();
+  //acsessors
+  VideoCapture get_video_data() { return an_video; }
+  int get_num_frames() { return number_of_frames; }
+  int get_current_frame() { return current_frame; }
+  string get_video_file() { return video_file_name; }
+  int get_skip_size() { return skip_size; }
+  int get_current_swimmer() { return current_swimmer; }
+  double get_FPS_vid() { return FPS_vid; }
+  int get_hight() { return hight; }
+  int get_width() { return width; }
+  int get_current_class() { return current_class; }
+
+  //loads relavant video information into class 
+  bool load_video(string video_file);
 
   //select the lane number of the swimmer you are annotating
   //must be called first 
-  //Finished
   void select_lane_number();
-
-  //loads the video in video file into the video object 
-  //sets the number_of_frames, current_frame to zero, and opens the VideoCapture object
-  //must be called second
-  //
-  bool load_video(string video_file);
-
-  //Create ROI
-  //finished
-  bool create_ROI_in_pool();
-
-  //returns a pointer to the swim data produced
-  //Data warning!! Relative data position in output file is equal to the current frame / skip size!
-  // an example can be seen in mark_as_absent(), int(current_frame / skip_size) == int frame_no
-  swim_data* get_swim_data(int frame_no, int lane_no);
-
-  //displays the current frame with or without annotation
-  //works
-  bool display_current_frame();
-
-  //move to next frame 
-  //save current annotation in all_data
-  //predict the box in the next frame
-  void predict_next_frame();
 
   //moves to the next frame
   //finished
@@ -94,35 +75,15 @@ public:
   //finished
   void go_to_frame();
 
-  //exit supper annotator
-  bool quit_and_save_data();
-
-  //prints the annotation options
-  //Is used in display current frame automaticly
-  //finished
-  bool annotation_options(char reply);
-
-  //saves the current_box rect object in the class to the all_data and the text file 
-  bool save_annotation();
-
-  //load completed work onto the textfile
-  bool update_text_file();
-
   //changes the current class lable for the box created
   void change_class();
 
-  //sets up the app for start
-  void start_up();
+  //Create ROI
+  bool create_ROI_in_pool(Rect* current_box);
 
-  //finds the latest annoation for the current lane number
-  void find_latest_annotation(bool noise);
-
-  //looks at each lane to see if there is a missed frame
-  //if the lane has not been started then it will also not show anything
-  void check_for_completion();
-
-  //Tells the program that the swimmer is not in the frame
-  void mark_as_absent();
-
+  //returns a Mat object holding the current frame  
+  Mat get_current_Mat();
+  
+  void quit_app();
 
 };

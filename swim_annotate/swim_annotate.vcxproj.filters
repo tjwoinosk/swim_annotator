@@ -24,12 +24,24 @@
     <ClCompile Include="supper_annotator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="box_annotate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stroke_annotate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="annotate_engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="supper_annotator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="box_annotate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stroke_annotate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

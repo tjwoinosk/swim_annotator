@@ -54,39 +54,3 @@ int main(int argc, char* argv[])
   return 0;
 }
 
-
-// how to get frames
-/*
-
-
- string videofile;
- VideoCapture video_lab(argv[1]); //check if file can be opened befor starting
-
-while (1) {
-
-  Mat frame;
-  // Capture frame-by-frame
-  video_lab >> frame;
-
-  // If the frame is empty, break immediately
-  if (frame.empty())
-    break;
-
-  // Display the resulting frame
-  imshow("Frame", frame);
-
-  // Press  ESC on keyboard to exit
-  char c = (char)waitKey(25);
-  if (c == 27)
-    break;
-}
-
-// When everything done, release the video capture object
-video_lab.release();
-
-// Closes all the frames
-destroyAllWindows();
-
-*/
-
-

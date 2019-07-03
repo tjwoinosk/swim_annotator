@@ -2,7 +2,7 @@
 
 #include <string> 
 
-#include "supper_annotator.h"
+#include "box_annotate.h"
 
 using namespace std;
 
@@ -12,7 +12,7 @@ class annotate_engine {
 
   string file_name;
   input_options current_request;
-  supper_annotator work;
+  box_annotate work;
 
 public:
 
