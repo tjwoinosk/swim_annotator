@@ -19,25 +19,18 @@ annotate_engine::annotate_engine(string video_file) {
   current_request = waiting_for_request;
 }
 
-
-bool annotate_engine::add_file_name(string file_name) {
-  //make up a defalt root directory for inizalization 
-  file_name = file_name;
-  return true;
-}
-
 //Waits for the users next request 
 void annotate_engine::service_next_request() {
 
   switch (current_request) {
-  case start_work:
+  case make_boxes:
     //start image annotate class
-    if (!run_supper_annotator()) {
-      cout << "Could not run annotator with this file" << endl;
+    if (!run_box_annotator()) {
+      cout << "Could not run box annotator with this file" << endl;
     }
     break;
-  case finish_up:
-    //finish the work done by the annotate class
+  case count_strokes:
+    run_stroke_annotator();
     break;
   case exit_opt:
     current_request = exit_opt;
@@ -65,9 +58,9 @@ bool annotate_engine::print_general_lab_options() {
   int ans = 0;
 
   cout << "\nSelect from the following options:" << endl << endl;
-  cout << "Start annotating video, press (1)" << endl;
-  cout << "Mark video as finished for storage, press (2)" << endl;
-  cout << "Quit labelling and exit, press (3)" << endl;
+  cout << "Start Annotating Video With Boxes, press (1)" << endl;
+  cout << "Start Counting Strokes, press (2)" << endl;
+  cout << "Quit Labelling And Exit, press (3)" << endl;
   cout << "\nlab>> ";
   cin >> answer;
 
@@ -78,9 +71,9 @@ bool annotate_engine::print_general_lab_options() {
   }
  
   switch (ans) {
-  case 1: current_request = start_work;
+  case 1: current_request = make_boxes;
     break;
-  case 2: current_request = finish_up;
+  case 2: current_request = count_strokes;
     break;
   case 3: current_request = exit_opt;
     break;
@@ -93,24 +86,32 @@ bool annotate_engine::print_general_lab_options() {
 }
 
 //run the supper annotator to anotate the video
-bool annotate_engine::run_supper_annotator() {
-
-  cout << "Loading file for annotation!" << endl;
-
-  if (work.load_video_for_boxing(file_name)) {
-
-    work.start_up();
-   
-    while (work.display_current_frame()) {
+bool annotate_engine::run_box_annotator() {
+  
+  box_annotate box_work;
+  cout << "Loading file for box annotation!" << endl;
+  if (box_work.load_video_for_boxing(file_name)) {
+    box_work.start_up();
+    while (box_work.display_current_frame()) {
       //keep looping
     }
-    
     return true;
   }
-  else {
-    
-  }
-  
   return false;
+}
+
+bool annotate_engine::run_stroke_annotator() {
+
+  stroke_annotate stroke_work;
+
+  if (!stroke_work.load_video_for_stroke_counting(file_name)) {
+    cout << "could not load video for stroke counting" << endl;
+    return false;
+  }
+  else {
+    cout << "Loading file for stroke annotation!" << endl;
+    stroke_work.play_video();
+    return true;
+  }
 }
 

@@ -55,6 +55,7 @@ public:
   int get_hight() { return hight; }
   int get_width() { return width; }
   int get_current_class() { return current_class; }
+  void set_skip_size(int set_skip) { skip_size = set_skip; return; }
 
   //loads relavant video information into class 
   bool load_video(string video_file);

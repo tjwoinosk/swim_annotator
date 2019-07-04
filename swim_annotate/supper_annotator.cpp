@@ -224,5 +224,6 @@ Mat supper_annotator::get_current_Mat()
 void supper_annotator::quit_app()
 {
   video_file_open = false;
+  destroyWindow(AN_WINDOW_NAME);
 }
 

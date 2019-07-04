@@ -3,24 +3,22 @@
 #include <string> 
 
 #include "box_annotate.h"
+#include "stroke_annotate.h"
 
 using namespace std;
 
-enum input_options {start_work, finish_up, waiting_for_request, exit_opt, err_val};
+enum input_options { make_boxes, count_strokes, exit_opt, err_val, waiting_for_request};
 
 class annotate_engine {
 
   string file_name;
   input_options current_request;
-  box_annotate work;
 
 public:
 
   //constructors
   annotate_engine();
   annotate_engine(string video_file);
-
-  bool add_file_name(string file_name);
 
   //Waits for the users next request 
   void service_next_request();
@@ -35,7 +33,9 @@ public:
   bool print_general_lab_options();
 
   //run the supper annotator to anotate the video
-  bool run_supper_annotator();
+  bool run_box_annotator();
+
+  bool run_stroke_annotator();
 
 };
 
