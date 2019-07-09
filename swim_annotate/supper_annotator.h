@@ -5,7 +5,7 @@
 #include <vector>
 #include <errno.h>
 
-#include <opencv2/opencv.hpp> //displaying video
+#include <opencv2/opencv.hpp>
 #include <opencv2/core/types.hpp> //for the rect object
 #include <opencv2/highgui.hpp>
 #include <opencv2/video/tracking.hpp>
@@ -35,8 +35,6 @@ private:
 
   //annotation data
   int current_swimmer;//lane number of swimmer
-  int current_class;//current class of the annotaion
-
 
 public:
   
@@ -54,8 +52,10 @@ public:
   double get_FPS_vid() { return FPS_vid; }
   int get_hight() { return hight; }
   int get_width() { return width; }
-  int get_current_class() { return current_class; }
+
+  //setters
   void set_skip_size(int set_skip) { skip_size = set_skip; return; }
+  void set_current_frame(int frame_num) { current_frame = frame_num; }
 
   //loads relavant video information into class 
   bool load_video(string video_file);
@@ -75,9 +75,6 @@ public:
   //Go to the frame num specified
   //finished
   void go_to_frame();
-
-  //changes the current class lable for the box created
-  void change_class();
 
   //Create ROI
   bool create_ROI_in_pool(Rect* current_box);

@@ -19,6 +19,7 @@ private:
   //stuff for box annotator
   Rect current_box;
   int num_possible_data_lines;
+  int current_class;
 
   //tracker data
   Ptr<TrackerKCF> tracker;
@@ -65,6 +66,9 @@ public:
 
   //load completed work onto the textfile
   bool update_text_file();
+
+  //changes the current class lable for the box created
+  void change_class();
 
   //sets up the app for start
   void start_up();

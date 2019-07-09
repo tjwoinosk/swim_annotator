@@ -110,6 +110,7 @@ bool annotate_engine::run_stroke_annotator() {
   }
   else {
     cout << "Loading file for stroke annotation!" << endl;
+    stroke_work.start_up();
     stroke_work.play_video();
     return true;
   }

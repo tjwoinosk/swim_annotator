@@ -12,7 +12,6 @@ supper_annotator::supper_annotator()
   FPS_vid = 0;
   hight = 0;
   width = 0;
-  current_class = 1;//current class of the annotaion
 }
 
 
@@ -27,7 +26,6 @@ supper_annotator::supper_annotator(int class_skip_size) {
   FPS_vid = 0;
   hight = 0;
   width = 0;
-  current_class = 1;//current class of the annotaion
 }
 
 
@@ -149,48 +147,6 @@ void supper_annotator::go_to_frame()
     return;
   }
   current_frame = frame_num;
-
-  return;
-}
-
-
-//changes the current class lable for the box created
-void supper_annotator::change_class()
-{
-  char class_num = '0';
-  int num = -1;
-  bool done;
-  Mat frame;
-
-  //select lane number
-  do {
-    cout << "What class are we lableing? Options are..." << endl;
-    cout << "on_block (1), diving (2), swimming (3), underwater (4), turning (5), finishing (6)" << endl;
-    cout << "Class: ";
-
-    //Get the key from the window
-    an_video.set(CAP_PROP_POS_FRAMES, current_frame);//CV_CAP_PROP_POS_FRAMES
-    an_video >> frame;
-    imshow(AN_WINDOW_NAME, frame);
-    class_num = waitKey(0);
-    cout << class_num;
-
-    if (!isdigit(class_num)) {
-      num = -1;
-    }
-    else {
-      num = int(class_num) - 48;//convert to int
-    }
-
-    if ((num > 6) || (num < 1)) {
-      cout << "\nAn invalid lane number was selected" << endl;
-      done = false;
-    }
-    else {
-      current_class = num;
-      done = true;
-    }
-  } while (!done);
 
   return;
 }

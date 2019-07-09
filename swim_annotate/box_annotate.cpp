@@ -6,6 +6,7 @@ box_annotate::box_annotate()
   good_track = false;
   fast_ROI_mode = false;
   num_possible_data_lines = 0;
+  current_class = 1;
   //set box
   current_box.height = 0;
   current_box.width = 0;
@@ -20,7 +21,6 @@ bool box_annotate::load_video_for_boxing(string video_file)
   int ii = 0;//frame number
   int jj = 0;//lane number
   int kk = 0;//number type
-  int current_frame = 0;
 
   if (load_video(video_file)) {
 
@@ -188,6 +188,47 @@ bool box_annotate::load_video_for_boxing(string video_file)
 }
 
 
+//changes the current class lable for the box created
+void box_annotate::change_class()
+{
+  char class_num = '0';
+  int num = -1;
+  bool done;
+  Mat frame;
+
+  //select lane number
+  do {
+    cout << "What class are we lableing? Options are..." << endl;
+    cout << "on_block (1), diving (2), swimming (3), underwater (4), turning (5), finishing (6)" << endl;
+    cout << "Class: ";
+
+    //Get the key from the window
+    frame = get_current_Mat();
+    imshow(AN_WINDOW_NAME, frame);
+    class_num = waitKey(0);
+    cout << class_num;
+
+    if (!isdigit(class_num)) {
+      num = -1;
+    }
+    else {
+      num = int(class_num) - 48;//convert to int
+    }
+
+    if ((num > 6) || (num < 1)) {
+      cout << "\nAn invalid class number was selected" << endl;
+      done = false;
+    }
+    else {
+      current_class = num;
+      done = true;
+    }
+  } while (!done);
+
+  return;
+}
+
+
 //gets the next acction to be exicuted on the video data
 bool box_annotate::annotation_options(char reply)
 {
@@ -273,7 +314,6 @@ bool box_annotate::save_annotation()
 {
   swim_data* lane_data;
   int current_swimmer = get_current_swimmer();
-  int current_class = get_current_class();
 
   lane_data = get_swim_data(int(get_current_frame() / get_skip_size()), current_swimmer);//checks for out of bounds errors
 
@@ -420,7 +460,6 @@ bool box_annotate::display_current_frame()
   int current_frame = get_current_frame();
   int skip_size = get_skip_size();
   int current_swimmer = get_current_swimmer();
-  int current_class = get_current_class();
 
   //Get the frame
   frame = get_current_Mat();
@@ -577,12 +616,14 @@ void box_annotate::find_latest_annotation(bool noise) {
   }
   if ((ii < int(number_of_frames / skip_size)) && ii > 0) {//If ii 
     current_frame = (ii - 1) * skip_size;
+    set_current_frame(current_frame);
   }
   else {
     if (noise) {
       cout << "All or no lanes have annotaions!" << endl;
     }
     current_frame = 0;
+    set_current_frame(current_frame);
   }
 }
 
@@ -610,9 +651,6 @@ void box_annotate::check_for_completion()
     }
   }
 
-  current_swimmer = old_current_swimmer;
-  current_frame = old_current_frame;
-
   for (ii = 0; ii < 10; ii++) {
     if (incomplete_lanes[ii] == true) {
       cout << "Lane " << ii << " is incomplete" << endl;
@@ -631,7 +669,6 @@ void box_annotate::mark_as_absent()
   int current_swimmer = get_current_swimmer();
   int current_frame = get_current_frame();
   int skip_size = get_skip_size();
-  int current_class = get_current_class();
 
   empty_frame = get_swim_data(int(current_frame / skip_size), current_swimmer);
 

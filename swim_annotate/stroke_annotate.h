@@ -1,10 +1,13 @@
 #pragma once
 #include "supper_annotator.h"
+#include <list>
+
+using namespace std;
+using namespace cv;
 
 struct swim_data_stroke {
-  int first_half;//first half cycle frame number
-  int second_half;//second half cyle frame number
-  int stroke; //fly == 1, back == 2, breast == 3, free == 4
+  int cycle;//frame number
+  int stroke_spec; //fly == 1, back_right == 2, back_left == 20,  breast == 3, free_right == 4, free_left == 40
 };
 
 class stroke_annotate :
@@ -14,9 +17,12 @@ private:
 
   //Viewing variables
   int video_speed;//speed at which video plays (1x, 1/2x, 1/3x, ...)
+  int max_speed;
+  int min_speed;
 
   //Annotation data
-  swim_data_stroke** all_data;
+  list<swim_data_stroke> stroke_data[10];
+  int current_class;
 
 public:
 
@@ -28,25 +34,18 @@ public:
   //must be called second
   bool load_video_for_stroke_counting(string video_file);
 
-  //returns a pointer to the swim data produced
-  //Data warning!! Relative data position in output file is equal to the current frame / skip size!
-  // an example can be seen in mark_as_absent(), int(current_frame / skip_size) == int frame_no
-  //swim_data* get_swim_data(int lane_no);
-
   //displays the current frame with or without annotation
   //works
   bool play_video();
 
+  //change annotation class 
+  void change_class();
+
   //exit supper annotator
   bool quit_and_save_data();
 
-  //prints the annotation options
-  //Is used in display current frame automaticly
-  //finished
-  bool annotation_options(char reply);
-
   //saves the current_box rect object in the class to the all_data and the text file 
-  bool save_annotation();
+  void save_annotation(bool is_right);
 
   //load completed work onto the textfile
   bool update_text_file();
@@ -58,7 +57,15 @@ public:
   void pause_video();
 
   //change the viewing speed of the video 
-  void change_video_speed();
+  void change_video_speed(bool increase_speed);
+
+  //search of the annotation and deletes it if and_delete is true
+  bool check_for_annotation(int input_current_lane, int input_current_frame, bool and_delete);
+
+  //goes to the most recently annotated frame
+  void go_to_most_recent_annotation();
+
+  void print_play_vid_dialog();
 
 
   /*inharated class------
