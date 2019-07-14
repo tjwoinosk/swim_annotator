@@ -15,6 +15,19 @@ box_annotate::box_annotate()
 }
 
 
+box_annotate::~box_annotate()
+{
+  if (all_data != nullptr) {
+    int ii = 0;
+    for (ii = 0; ii < num_possible_data_lines; ii++) {
+      delete[] all_data[ii];
+    }
+    delete[] all_data;
+    all_data = nullptr;
+  }
+}
+
+
 bool box_annotate::load_video_for_boxing(string video_file)
 {
   Mat frame;
@@ -698,4 +711,86 @@ void box_annotate::reset_tracker()
     tracker->clear();
     good_track = false;
   }
+}
+
+
+bool box_annotate::create_training_set(int* picture_num)
+{
+  ofstream frame_data;
+  Mat out_picture;
+  int ii = 0;
+  int jj = 0;
+  int kk = 0;
+  int number_pics = int(get_num_frames() / get_skip_size());
+  float frame_hight = float(get_hight());
+  float frame_width = float(get_width());
+  float box_x = 0;//position of center of box in x
+  float box_y = 0;//position of center of box in y
+  float box_width = 0;
+  float box_hight = 0;
+  char num_str[] = "0000";//if a diget is added then sprintf(num_str, "%4.4u", *picture_num); needs to be changed
+  string pic_path = "C:/Users/tim_w/Downloads/yolo_swim/JPEGImages/";
+  string lab_path = "C:\\Users\\tim_w\\Downloads\\yolo_swim\\labels\\";
+
+  vector<int> compression_params;
+  compression_params.push_back(IMWRITE_JPEG_QUALITY);
+  compression_params.push_back(100);
+
+  for (ii = 0; ii < number_pics; ii++) {
+    
+    sprintf(num_str, "%4.4u", *picture_num);
+    
+    //save data
+    frame_data.open(lab_path + string(num_str) + ".txt");
+    if (frame_data.is_open()) {
+      //<object-class-id> <center-x> <center-y> <width> <height>
+      jj = 0;
+      while (all_data[ii][jj].lane_num != -1) {
+        //do convertion calculations
+        box_width = float(all_data[ii][jj].swimmer_box.width);
+        box_hight = float(all_data[ii][jj].swimmer_box.height);
+        box_x = float(all_data[ii][jj].swimmer_box.x) + box_width / 2;
+        box_y = float(all_data[ii][jj].swimmer_box.y) + box_hight / 2;
+
+        for (kk = 0; kk < 5; kk++) {
+          switch (kk)
+          {
+          case 0://<object-class-id>
+            frame_data << all_data[ii][jj].box_class << " ";
+            break;
+          case 1://center - x
+            frame_data << box_x / frame_width << " ";
+            break;
+          case 2://center-y
+            frame_data << box_y / frame_hight << " ";
+            break;
+          case 3://width
+            frame_data << box_width / frame_width << " ";
+            break;
+          case 4://height
+            frame_data << box_hight / frame_hight << endl;
+            break;
+          }
+        }
+        jj++;
+      }
+      frame_data.close();
+    }
+    else {
+      perror("Error");
+      return false;
+    }
+
+    //save image
+    out_picture = get_current_Mat();
+    if (!imwrite(pic_path + string(num_str) + ".jpg", out_picture, compression_params)) {
+      perror("Error");
+    }
+    
+    //increment the name
+    (*picture_num)++;
+    next_frame();
+  }
+  return true;
+
 }

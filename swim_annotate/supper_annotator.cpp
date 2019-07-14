@@ -31,6 +31,17 @@ supper_annotator::supper_annotator(int class_skip_size) {
 
 bool supper_annotator::load_video(string video_file)
 {
+  video_file_name = "";
+  an_video = NULL;
+  current_frame = 0;
+  number_of_frames = -1;
+  skip_size = 3;//how many frames to skip every new frame
+  current_swimmer = -1;//lane number of swimmer
+  video_file_open = false;
+  FPS_vid = 0;
+  hight = 0;
+  width = 0;
+
   video_file_name = video_file;
   if (an_video.open(video_file)) {
     number_of_frames = int(an_video.get(CAP_PROP_FRAME_COUNT));
@@ -46,6 +57,7 @@ bool supper_annotator::load_video(string video_file)
     return false;
   }
 }
+
 
 //select the lane number of the swimmer you are annotating
 //return prevouse lane number

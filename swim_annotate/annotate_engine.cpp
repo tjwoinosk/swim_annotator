@@ -32,6 +32,9 @@ void annotate_engine::service_next_request() {
   case count_strokes:
     run_stroke_annotator();
     break;
+  case ship_data:
+    ship_data_for_yolo();
+    break;
   case exit_opt:
     current_request = exit_opt;
     break;
@@ -61,6 +64,7 @@ bool annotate_engine::print_general_lab_options() {
   cout << "Start Annotating Video With Boxes, press (1)" << endl;
   cout << "Start Counting Strokes, press (2)" << endl;
   cout << "Quit Labelling And Exit, press (3)" << endl;
+  cout << "To create data for YOLO, press (4)" << endl;
   cout << "\nlab>> ";
   cin >> answer;
 
@@ -76,6 +80,8 @@ bool annotate_engine::print_general_lab_options() {
   case 2: current_request = count_strokes;
     break;
   case 3: current_request = exit_opt;
+    break;
+  case 4: current_request = ship_data;
     break;
   default: current_request = err_val;
     cout << "An unrecognised value was input\n";
@@ -114,5 +120,37 @@ bool annotate_engine::run_stroke_annotator() {
     stroke_work.play_video();
     return true;
   }
+}
+
+//create data for yolo to use
+//open application with the smallest named file
+//specife file structures must occure for this to work
+bool annotate_engine::ship_data_for_yolo()
+{
+  box_annotate box_work;
+  bool out_of_files = false;
+  int file_num = 0;
+  int picture_num = 0;
+
+
+  while (!out_of_files) {
+    cout << "collecting data "<< file_num << ", from file " << (to_string(file_num) + ".avi") <<endl;
+
+    if (box_work.load_video_for_boxing( to_string(file_num) + ".avi" )) {
+      if (!box_work.create_training_set(&picture_num)) {
+        cout << "Failing to create training sets" << endl;
+        return false;
+      }
+      box_work.~box_annotate();
+    }
+    else {
+      out_of_files = true;
+    }
+
+    file_num++;
+  }
+
+
+  return true;
 }
 

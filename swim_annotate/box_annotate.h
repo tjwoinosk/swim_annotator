@@ -1,6 +1,9 @@
 #pragma once
 #include "supper_annotator.h"
 
+using namespace std;
+using namespace cv;
+
 //----------------- 1 ------- 2 ------ 3 --------- 4 ------- 5 ------- 6 --------------------------------
 enum class_names { on_block, diving, swimming, underwater, turning, finishing }; //the six possible classes, redundant...
 
@@ -33,6 +36,8 @@ public:
 
   //default constructor
   box_annotate();
+
+  ~box_annotate();
 
   //loads the video in video file into the video object 
   //sets the number_of_frames, current_frame to zero, and opens the VideoCapture object
@@ -85,6 +90,9 @@ public:
 
   //reset the tracker
   void reset_tracker();
+
+  //creates new text files and JPEG pictures that YOLO can use 
+  bool create_training_set(int *picture_num);
 
   /*inharated class------
 
