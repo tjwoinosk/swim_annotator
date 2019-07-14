@@ -732,6 +732,8 @@ bool box_annotate::create_training_set(int* picture_num)
   string pic_path = "C:/Users/tim_w/Downloads/yolo_swim/JPEGImages/";
   string lab_path = "C:\\Users\\tim_w\\Downloads\\yolo_swim\\labels\\";
 
+  typedef std::numeric_limits< float > fl;
+
   vector<int> compression_params;
   compression_params.push_back(IMWRITE_JPEG_QUALITY);
   compression_params.push_back(100);
@@ -756,19 +758,19 @@ bool box_annotate::create_training_set(int* picture_num)
           switch (kk)
           {
           case 0://<object-class-id>
-            frame_data << all_data[ii][jj].box_class << " ";
+            frame_data << setprecision(fl::digits) << all_data[ii][jj].box_class << " ";
             break;
           case 1://center - x
-            frame_data << box_x / frame_width << " ";
+            frame_data << setprecision(fl::digits) << box_x / frame_width << " ";
             break;
           case 2://center-y
-            frame_data << box_y / frame_hight << " ";
+            frame_data << setprecision(fl::digits) << box_y / frame_hight << " ";
             break;
           case 3://width
-            frame_data << box_width / frame_width << " ";
+            frame_data << setprecision(fl::digits) << box_width / frame_width << " ";
             break;
           case 4://height
-            frame_data << box_hight / frame_hight << endl;
+            frame_data << setprecision(fl::digits) << box_hight / frame_hight << endl;
             break;
           }
         }
