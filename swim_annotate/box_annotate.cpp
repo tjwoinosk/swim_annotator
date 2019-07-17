@@ -714,7 +714,7 @@ void box_annotate::reset_tracker()
 }
 
 
-bool box_annotate::create_training_set(int* picture_num)
+bool box_annotate::create_training_set(int* picture_num, bool update_text, bool update_JPEG)
 {
   ofstream frame_data;
   Mat out_picture;
@@ -739,54 +739,58 @@ bool box_annotate::create_training_set(int* picture_num)
   compression_params.push_back(100);
 
   for (ii = 0; ii < number_pics; ii++) {
-    
-    sprintf(num_str, "%4.4u", *picture_num);
-    
-    //save data
-    frame_data.open(lab_path + string(num_str) + ".txt");
-    if (frame_data.is_open()) {
-      //<object-class-id> <center-x> <center-y> <width> <height>
-      jj = 0;
-      while (all_data[ii][jj].lane_num != -1) {
-        //do convertion calculations
-        box_width = float(all_data[ii][jj].swimmer_box.width);
-        box_hight = float(all_data[ii][jj].swimmer_box.height);
-        box_x = float(all_data[ii][jj].swimmer_box.x) + box_width / 2;
-        box_y = float(all_data[ii][jj].swimmer_box.y) + box_hight / 2;
 
-        for (kk = 0; kk < 5; kk++) {
-          switch (kk)
-          {
-          case 0://<object-class-id>
-            frame_data << setprecision(fl::digits) << all_data[ii][jj].box_class << " ";
-            break;
-          case 1://center - x
-            frame_data << setprecision(fl::digits) << box_x / frame_width << " ";
-            break;
-          case 2://center-y
-            frame_data << setprecision(fl::digits) << box_y / frame_hight << " ";
-            break;
-          case 3://width
-            frame_data << setprecision(fl::digits) << box_width / frame_width << " ";
-            break;
-          case 4://height
-            frame_data << setprecision(fl::digits) << box_hight / frame_hight << endl;
-            break;
+    sprintf(num_str, "%4.4u", *picture_num);
+
+    if (update_text) {//save data
+      frame_data.open(lab_path + string(num_str) + ".txt");
+      if (frame_data.is_open()) {
+        //<object-class-id> <center-x> <center-y> <width> <height>
+        jj = 0;
+        while (all_data[ii][jj].lane_num != -1) {
+          if (all_data[ii][jj].swimmer_box.area() != 0) {//For situlation where in my application I noted that the swimmer was not visable
+            //do convertion calculations
+            box_width = float(all_data[ii][jj].swimmer_box.width - ((1 + all_data[ii][jj].swimmer_box.width) % 2));
+            box_hight = float(all_data[ii][jj].swimmer_box.height - ((1 + all_data[ii][jj].swimmer_box.height) % 2));
+            box_x = float(all_data[ii][jj].swimmer_box.x + floor(box_width / 2));
+            box_y = float(all_data[ii][jj].swimmer_box.y + floor(box_hight / 2));
+
+            for (kk = 0; kk < 5; kk++) {
+              switch (kk)
+              {
+              case 0://<object-class-id>
+                frame_data << (all_data[ii][jj].box_class - 1) << " ";//class must be zero indexed 
+                break;
+              case 1://center - x
+                frame_data << setprecision(fl::digits) << box_x / frame_width << " ";
+                break;
+              case 2://center-y
+                frame_data << setprecision(fl::digits) << box_y / frame_hight << " ";
+                break;
+              case 3://width
+                frame_data << setprecision(fl::digits) << box_width / frame_width << " ";
+                break;
+              case 4://height
+                frame_data << setprecision(fl::digits) << box_hight / frame_hight << endl;
+                break;
+              }
+            }
+            jj++;
           }
         }
-        jj++;
+        frame_data.close();
       }
-      frame_data.close();
-    }
-    else {
-      perror("Error");
-      return false;
+      else {
+        perror("Error");
+        return false;
+      }
     }
 
-    //save image
-    out_picture = get_current_Mat();
-    if (!imwrite(pic_path + string(num_str) + ".jpg", out_picture, compression_params)) {
-      perror("Error");
+    if (update_JPEG) {//save image
+      out_picture = get_current_Mat();
+      if (!imwrite(pic_path + string(num_str) + ".jpg", out_picture, compression_params)) {
+        perror("Error");
+      }
     }
     
     //increment the name

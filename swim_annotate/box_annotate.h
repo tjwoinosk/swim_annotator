@@ -93,7 +93,7 @@ public:
   void reset_tracker();
 
   //creates new text files and JPEG pictures that YOLO can use 
-  bool create_training_set(int *picture_num);
+  bool create_training_set(int *picture_num, bool update_text, bool update_JPEG);
 
   /*inharated class------
 
