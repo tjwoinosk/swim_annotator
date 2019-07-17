@@ -775,8 +775,9 @@ bool box_annotate::create_training_set(int* picture_num, bool update_text, bool 
                 break;
               }
             }
-            jj++;
+            
           }
+          jj++;
         }
         frame_data.close();
       }
