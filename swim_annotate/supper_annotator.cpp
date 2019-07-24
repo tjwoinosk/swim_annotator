@@ -169,7 +169,7 @@ bool supper_annotator::create_ROI_in_pool(Rect *current_box)
   Mat frame;
   an_video.set(CAP_PROP_POS_FRAMES, current_frame);//CV_CAP_PROP_POS_FRAMES
   an_video >> frame;
-  current_box = &selectROI(AN_WINDOW_NAME, frame, false, false);
+  *current_box = selectROI(AN_WINDOW_NAME, frame, false, false);
 
   if (current_box->empty()) {
     return false;

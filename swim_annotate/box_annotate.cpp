@@ -258,6 +258,7 @@ bool box_annotate::annotation_options(char reply)
   cout << "Togel fast ROI mode, press (t)\n";//Allows used to just select ROI continuesly
   cout << "Stop annotating video, press (esc)\n";
   //cout << "\nAnnotate F:"<<current_frame<<" L:"<<current_swimmer<< " c:" <<current_class<< "> ";
+  Rect in_box;
 
   switch (reply) {
   case 'l'://Change lane number of annotations
@@ -270,16 +271,23 @@ bool box_annotate::annotation_options(char reply)
     predict_next_frame();
     break;
   case 'r'://Create ROI
-    while (create_ROI_in_pool(&current_box) && fast_ROI_mode) {//loop for faster ROI creation
-      save_annotation();
-      reset_tracker();
-      if (get_current_frame() >= (get_num_frames() - 3)) {
+    if (fast_ROI_mode) {//loop for faster ROI creation
+      while (create_ROI_in_pool(&current_box)) {
+        save_annotation();
+        reset_tracker();
+        if (get_current_frame() >= (get_num_frames() - 3)) {
+          break;
+        }
+        cout << "ROI saved!" << endl;
+        next_frame();
+      }
+    } else {//!fast_RIO_mode
+      if (create_ROI_in_pool(&current_box)) {
+        save_annotation();
+        reset_tracker();
         break;
       }
-      cout << "ROI saved!" << endl;
-      next_frame();
-    }
-    reset_tracker();
+    }     
     cout << "ROI failed to save" << endl;
     break;
   case 'a'://Go back to last frame, left arrow
