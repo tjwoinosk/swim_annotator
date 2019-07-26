@@ -7,7 +7,7 @@ box_annotate::box_annotate()
   fast_ROI_mode = false;
   num_possible_data_lines = 0;
   current_class = 1;
-  current_box_num = 1;
+  current_box_num = 0;
   //set box
   current_box.height = 0;
   current_box.width = 0;
@@ -174,10 +174,17 @@ bool box_annotate::load_video_for_boxing(string video_file)
 
                 pos_num = pos_num_end + 1;//reset the pos_num to look for the next number
               }
-              if (jj != hold_data.lane_num) {//in the case that there are multiple swimmers in one lane
-                jj = hold_data.lane_num;
+              if ((jj > 0) && (all_data[ii][jj-1][0].lane_num == hold_data.lane_num)) {//in the case that there are multiple swimmers in one lane
+                jj--;
               }
-              all_data[ii][jj].push_back(hold_data);
+              if (all_data[ii][jj][0].box_class == -1) {
+                all_data[ii][jj][0].box_class = hold_data.box_class;
+                all_data[ii][jj][0].lane_num = hold_data.lane_num;
+                all_data[ii][jj][0].swimmer_box = hold_data.swimmer_box;
+              }
+              else {
+                all_data[ii][jj].push_back(hold_data);
+              }
             }
             else {//if there are no more lanes go to the next line
               break;
@@ -364,6 +371,18 @@ bool box_annotate::save_annotation()
     }
     else {//create new data
       swim_data temp;
+      int ii = num_swimmers_in_lane;
+      temp.box_class = 1;
+      temp.lane_num = -1;
+      temp.swimmer_box.x = 0;
+      temp.swimmer_box.y = 0;
+      temp.swimmer_box.height = 0;
+      temp.swimmer_box.width = 0;
+
+      while (ii < current_box_num) {
+        lane_data->push_back(temp);
+        ii++;
+      }
       temp.box_class = current_class;
       temp.lane_num = current_swimmer;
       temp.swimmer_box = current_box;
@@ -545,7 +564,7 @@ bool box_annotate::display_current_frame()
       
         rectangle(frame, (*lane)[zz].swimmer_box, Scalar(blue, green, red), 2, 1);// will create a box in the image frame
         if (zz == current_box_num) {
-          putText(frame, "Current box", Point((*lane)[zz].swimmer_box.x, (*lane)[zz].swimmer_box.y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0, 0, 0), 1);
+          putText(frame, "Current box", Point((*lane)[zz].swimmer_box.x, (*lane)[zz].swimmer_box.y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0, 0, 255), 3);
         }
       }
     }
@@ -553,7 +572,7 @@ bool box_annotate::display_current_frame()
   
   imshow(AN_WINDOW_NAME, frame);
   for (int ii = 0; ii < 10; ii++) reply_from_vid = waitKey(1);//clear window buffer if extra chars are input by accident
-  cout << "\nAnnotate F:" << current_frame << " L:" << current_swimmer << " c:" << current_class << "> ";
+  cout << "\nAnnotate F:" << current_frame << " L:" << current_swimmer << " C:" << current_class << " N:" << current_box_num << "> ";
   reply_from_vid = waitKey(0);
   cout << reply_from_vid << endl;
   
@@ -827,10 +846,16 @@ void box_annotate::change_current_box_num()
 {
   int frame_no = get_current_frame();
   int lane_no = get_current_swimmer();
-  vector<swim_data>* check_data = get_swim_data(frame_no, lane_no);
-  int number_swimmers_in_lane = (*check_data).size();
+  int skip_size = get_skip_size();
+  vector<swim_data>* check_data = get_swim_data(int(frame_no / skip_size), lane_no);//data is not the same size as the number of frames
 
-  if (current_box_num > (number_swimmers_in_lane-1)) {
+  int number_swimmers_in_lane = 0;
+  if (check_data->at(0).box_class != -1) {
+    number_swimmers_in_lane = check_data->size();
+  }
+   
+
+  if (current_box_num >= number_swimmers_in_lane) {
     current_box_num = 0;
   }
   else {
