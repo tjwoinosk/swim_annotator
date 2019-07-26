@@ -34,7 +34,8 @@ private:
   int width;
 
   //annotation data
-  int current_swimmer;//lane number of swimmer
+  int current_swimmer;//lane number of swimmer, zero indexed to the pool 
+  //So a 10 lane pool would have lanes 0-9, but an 8 and 6 lane pool would not be zero indexed 
 
 public:
   

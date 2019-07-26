@@ -7,6 +7,7 @@ box_annotate::box_annotate()
   fast_ROI_mode = false;
   num_possible_data_lines = 0;
   current_class = 1;
+  current_box_num = 1;
   //set box
   current_box.height = 0;
   current_box.width = 0;
@@ -19,7 +20,9 @@ box_annotate::~box_annotate()
 {
   if (all_data != nullptr) {
     int ii = 0;
+    int jj = 0;
     for (ii = 0; ii < num_possible_data_lines; ii++) {
+      for (jj = 0; jj < 10; jj++) all_data[ii][jj].clear();//free the data in each vector structure
       delete[] all_data[ii];
     }
     delete[] all_data;
@@ -48,16 +51,19 @@ bool box_annotate::load_video_for_boxing(string video_file)
     num_possible_data_lines = get_num_frames() / get_skip_size();
 
     //init data holder
-    all_data = new swim_data * [num_possible_data_lines]; //memory allocated, needs to be deleted (on line... )
+    swim_data init_swimmer;
+    init_swimmer.box_class = -1;
+    init_swimmer.swimmer_box.x = -1;
+    init_swimmer.swimmer_box.y = -1;
+    init_swimmer.swimmer_box.height = -1;
+    init_swimmer.swimmer_box.width = -1;
+    init_swimmer.lane_num = -1;
+    //allocate memory
+    all_data = new vector<swim_data> * [num_possible_data_lines]; //memory allocated, needs to be deleted (on line... )
     for (ii = 0; ii < num_possible_data_lines; ii++) {
-      all_data[ii] = new swim_data[10];
+      all_data[ii] = new vector<swim_data>[10];
       for (jj = 0; jj < 10; jj++) {//init to -1
-        all_data[ii][jj].box_class = -1;
-        all_data[ii][jj].swimmer_box.x = -1;
-        all_data[ii][jj].swimmer_box.y = -1;
-        all_data[ii][jj].swimmer_box.height = -1;
-        all_data[ii][jj].swimmer_box.width = -1;
-        all_data[ii][jj].lane_num = -1;
+        all_data[ii][jj].push_back(init_swimmer);
       }
     }
 
@@ -122,6 +128,7 @@ bool box_annotate::load_video_for_boxing(string video_file)
       size_t pos_num_end = 0;
       int num_val = 0;
 
+      swim_data hold_data;
       for (ii = 0; ii < num_possible_data_lines; ii++) {//get #of frames 
         //frame loop
         if (get_from_header.getline(line, 500)) {//should hold all data at max
@@ -158,15 +165,19 @@ bool box_annotate::load_video_for_boxing(string video_file)
                 num_val = stoi(find.substr(pos_num + 1, pos_num_end - pos_num));//get the found number
                 //cout << num_val << endl;
                 //this is where the lane numbers are inserted into the sturcture
-                if (kk == 0) all_data[ii][jj].swimmer_box.x = num_val;
-                if (kk == 1) all_data[ii][jj].swimmer_box.y = num_val;
-                if (kk == 2) all_data[ii][jj].swimmer_box.height = num_val;
-                if (kk == 3) all_data[ii][jj].swimmer_box.width = num_val;
-                if (kk == 4) all_data[ii][jj].box_class = num_val;
-                if (kk == 5) all_data[ii][jj].lane_num = num_val;
+                if (kk == 0) hold_data.swimmer_box.x = num_val;
+                if (kk == 1) hold_data.swimmer_box.y = num_val;
+                if (kk == 2) hold_data.swimmer_box.height = num_val;
+                if (kk == 3) hold_data.swimmer_box.width = num_val;
+                if (kk == 4) hold_data.box_class = num_val;
+                if (kk == 5) hold_data.lane_num = num_val;
 
                 pos_num = pos_num_end + 1;//reset the pos_num to look for the next number
               }
+              if (jj != hold_data.lane_num) {//in the case that there are multiple swimmers in one lane
+                jj = hold_data.lane_num;
+              }
+              all_data[ii][jj].push_back(hold_data);
             }
             else {//if there are no more lanes go to the next line
               break;
@@ -253,9 +264,10 @@ bool box_annotate::annotation_options(char reply)
   cout << "Go to next frame, press (d)\n";
   cout << "Move to any arbitrary frame, press (m)\n";
   cout << "Change annotation class, press (c)\n";
+  cout << "Switch or add current box, press (p)\n";
   cout << "Mark as absent, press (k)\n";//says the swimmer is not in the frame 
   cout << "Check for unfinished work, press (y)\n";//looks at each lane to see if a frame was skipped or a lane has not been done
-  cout << "Togel fast ROI mode, press (t)\n";//Allows used to just select ROI continuesly
+  cout << "Togel fast ROI mode, press (t)\n";//Allows used to select ROI continuesly
   cout << "Stop annotating video, press (esc)\n";
   //cout << "\nAnnotate F:"<<current_frame<<" L:"<<current_swimmer<< " c:" <<current_class<< "> ";
   Rect in_box;
@@ -311,6 +323,9 @@ bool box_annotate::annotation_options(char reply)
     mark_as_absent();
     next_frame();
     break;
+  case 'p'://Change current box
+    change_current_box_num();
+    break;
   case 'y'://Check for unfinished work
     check_for_completion();
     break;
@@ -333,17 +348,27 @@ bool box_annotate::annotation_options(char reply)
 //saves the current_box rect object in the class to the all_data and the text file 
 bool box_annotate::save_annotation()
 {
-  swim_data* lane_data;
+  vector<swim_data>* lane_data;
   int current_swimmer = get_current_swimmer();
 
   lane_data = get_swim_data(int(get_current_frame() / get_skip_size()), current_swimmer);//checks for out of bounds errors
+  int num_swimmers_in_lane = (*lane_data).size();
 
-  if (lane_data) {
-    //replace the data
-    lane_data->box_class = current_class;
-    lane_data->lane_num = current_swimmer;
-    lane_data->swimmer_box = current_box;
-    return true;
+  if (lane_data) {//lane data can be NULL
+    if (num_swimmers_in_lane > current_box_num) {
+      //replace the data
+      lane_data->at(current_box_num).box_class = current_class;
+      lane_data->at(current_box_num).lane_num = current_swimmer;
+      lane_data->at(current_box_num).swimmer_box = current_box;
+      return true;
+    }
+    else {//create new data
+      swim_data temp;
+      temp.box_class = current_class;
+      temp.lane_num = current_swimmer;
+      temp.swimmer_box = current_box;
+      lane_data->push_back(temp);
+    }
   }
   else {//if there was out of bound input
     return false;
@@ -371,8 +396,9 @@ bool box_annotate::update_text_file()
     int ii = 0;//frame number
     int jj = 0;//lane number
     int kk = 0;//lane contence
+    int zz = 0;
 
-    swim_data* a_lane;
+    vector<swim_data>* a_lane;
     update_header << "#Header, frames per second, video resolution(hight width), total number of frames in video." << endl;
     update_header << "FPS: " << FPS_vid << endl;
     update_header << "RES: " << n << " " << m << endl;
@@ -381,16 +407,21 @@ bool box_annotate::update_text_file()
 
     for (ii = 0; ii < num_possible_data_lines; ii++) {//look at each frame 
       for (jj = 0; jj < 10; jj++) {//look at each lane
+
         a_lane = get_swim_data(ii, jj);
-        if ((a_lane != nullptr) && (a_lane->lane_num == jj)) { //add the lane to the text file
-          update_header << "{";
-          for (kk = 0; kk < 6; kk++) {
-            if (kk == 0) { update_header << a_lane->swimmer_box.x << ", "; }
-            if (kk == 1) { update_header << a_lane->swimmer_box.y << ", "; }
-            if (kk == 2) { update_header << a_lane->swimmer_box.height << ", "; }
-            if (kk == 3) { update_header << a_lane->swimmer_box.width << ", "; }
-            if (kk == 4) { update_header << a_lane->box_class << ", "; }
-            if (kk == 5) { update_header << a_lane->lane_num << "}"; }
+        if (a_lane != nullptr) {
+          for (zz = 0; zz < a_lane->size(); zz++) {
+            if (((*a_lane)[zz].lane_num == jj)) { //add the lane to the text file
+              update_header << "{";
+              for (kk = 0; kk < 6; kk++) {
+                if (kk == 0) { update_header << (*a_lane)[zz].swimmer_box.x << ", "; }
+                if (kk == 1) { update_header << (*a_lane)[zz].swimmer_box.y << ", "; }
+                if (kk == 2) { update_header << (*a_lane)[zz].swimmer_box.height << ", "; }
+                if (kk == 3) { update_header << (*a_lane)[zz].swimmer_box.width << ", "; }
+                if (kk == 4) { update_header << (*a_lane)[zz].box_class << ", "; }
+                if (kk == 5) { update_header << (*a_lane)[zz].lane_num << "}"; }
+              }
+            }
           }
         }
         //if last frame dont end line else end line
@@ -471,11 +502,10 @@ bool box_annotate::display_current_frame()
   int blue = 0;
   int green = 0;
   int red = 0;
-  int current_class_temp = 0;
+  int zz = 0;
 
   Mat frame;
-  bool display_box = false;
-  swim_data* lane;
+  vector<swim_data>* lane;
   char reply_from_vid = '1';//set to select ROI
 
   int current_frame = get_current_frame();
@@ -488,55 +518,45 @@ bool box_annotate::display_current_frame()
   //Update current box
   lane = get_swim_data(int(current_frame / skip_size), current_swimmer);//could return an empty lane!!
   if (lane != nullptr) {
-    if (lane->lane_num == -1) {//if empty lane 
-      display_box = false; //dont display box
-    }
-    else {
-      display_box = true;//display box
-      current_box = lane->swimmer_box;
-      current_class_temp = lane->box_class;
+    if ((*lane)[0].lane_num != -1) {//if empty lane 
+      for(zz = 0; zz < (*lane).size(); zz++) {
+        switch ((*lane)[zz].box_class) {
+        case 1://Brown
+          blue = 0; red = 100; green = 50;
+          break;
+        case 2://red
+          blue = 0; red = 255; green = 0;
+          break;
+        case 3://green
+          blue = 0; red = 0; green = 255;
+          break;
+        case 4://orange
+          blue = 0; red = 255; green = 127;
+          break;
+        case 5://yellow
+          blue = 0; red = 255; green = 255;
+          break;
+        case 6://purple
+          blue = 255; red = 128; green = 0;
+          break;
+        default:
+          break;
+        }
+      
+        rectangle(frame, (*lane)[zz].swimmer_box, Scalar(blue, green, red), 2, 1);// will create a box in the image frame
+        if (zz == current_box_num) {
+          putText(frame, "Current box", Point((*lane)[zz].swimmer_box.x, (*lane)[zz].swimmer_box.y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0, 0, 0), 1);
+        }
+      }
     }
   }
-
-  if (display_box) {
-
-    switch (current_class_temp) {
-    case 1://Brown
-      blue = 0; red = 100; green = 50;
-      break;
-    case 2://red
-      blue = 0; red = 255; green = 0;
-      break;
-    case 3://green
-      blue = 0; red = 0; green = 255;
-      break;
-    case 4://orange
-      blue = 0; red = 255; green = 127;
-      break;
-    case 5://yellow
-      blue = 0; red = 255; green = 255;
-      break;
-    case 6://purpuel
-      blue = 255; red = 128; green = 0;
-      break;
-    default:
-      break;
-    }
-
-    rectangle(frame, current_box, Scalar(blue, green, red), 2, 1);// will create a box in the image frame
-    imshow(AN_WINDOW_NAME, frame);
-    for (int ii = 0; ii < 10; ii++) reply_from_vid = waitKey(1);//might clear window buffer
-    cout << "\nAnnotate F:" << current_frame << " L:" << current_swimmer << " c:" << current_class << "> ";
-    reply_from_vid = waitKey(0);
-    cout << reply_from_vid << endl;
-  }
-  else {
-    imshow("Annotating Window", frame);
-    for (int ii = 0; ii < 10; ii++) reply_from_vid = waitKey(1);//might clear window buffer
-    cout << "\nAnnotate F:" << current_frame << " L:" << current_swimmer << " c:" << current_class << "> ";
-    reply_from_vid = waitKey(0);
-    cout << reply_from_vid << endl;
-  }
+  
+  imshow(AN_WINDOW_NAME, frame);
+  for (int ii = 0; ii < 10; ii++) reply_from_vid = waitKey(1);//clear window buffer if extra chars are input by accident
+  cout << "\nAnnotate F:" << current_frame << " L:" << current_swimmer << " c:" << current_class << "> ";
+  reply_from_vid = waitKey(0);
+  cout << reply_from_vid << endl;
+  
   if (annotation_options(reply_from_vid)) {
     return true;
   }
@@ -585,7 +605,7 @@ bool box_annotate::quit_and_save_data()
 
 
 //return a pointer to the data in all_data
-swim_data* box_annotate::get_swim_data(int frame_no, int lane_no)
+vector<swim_data>* box_annotate::get_swim_data(int frame_no, int lane_no)
 {
 
   if ((frame_no > num_possible_data_lines - 1) || (frame_no < 0)) {// out of range frames
@@ -598,13 +618,13 @@ swim_data* box_annotate::get_swim_data(int frame_no, int lane_no)
   }
 
   //A reminder that frames are skipped every skip_size frames 
-  swim_data* frame = all_data[frame_no];
+  vector<swim_data>* frame = all_data[frame_no];
   int ii = 0;
   for (ii = 0; ii < 10; ii++) {
-    if (frame[ii].lane_num == lane_no) {//check if lane number exists
+    if (frame[ii][0].lane_num == lane_no) {//check if lane number exists
       return &frame[ii];//return the location of that lane
     }
-    if (frame[ii].lane_num == -1) {//If no lane number exists then return pointer to first empty lane
+    if (frame[ii][0].lane_num == -1) {//If no lane number exists then return pointer to first empty lane
       return &frame[ii];
     }
   }
@@ -623,7 +643,7 @@ void box_annotate::start_up() {
 void box_annotate::find_latest_annotation(bool noise) {
 
   int ii = 0;//frame number
-  swim_data* frame_of_lane;
+  vector<swim_data>* frame_of_lane;
   int number_of_frames = get_num_frames();
   int skip_size = get_skip_size();
   int current_swimmer = get_current_swimmer();
@@ -631,11 +651,11 @@ void box_annotate::find_latest_annotation(bool noise) {
 
   for (ii = 0; ii < int(number_of_frames / skip_size); ii++) {
     frame_of_lane = get_swim_data(ii, current_swimmer);
-    if (frame_of_lane->lane_num == -1) {
+    if ((*frame_of_lane)[0].lane_num == -1) {
       break;
     }
   }
-  if ((ii < int(number_of_frames / skip_size)) && ii > 0) {//If ii 
+  if ((ii < int(number_of_frames / skip_size)) && ii > 0) {//If ii is not the end or the begining
     current_frame = (ii - 1) * skip_size;
     set_current_frame(current_frame);
   }
@@ -683,31 +703,19 @@ void box_annotate::check_for_completion()
 
 
 //Tells the program that the swimmer is not in the frame
+//this is done by making a box with zero size
 void box_annotate::mark_as_absent()
 {
-  swim_data* empty_frame;
+  Rect temp;
+  temp.x = 0;
+  temp.y = 0;
+  temp.height = 0;
+  temp.width = 0;
 
-  int current_swimmer = get_current_swimmer();
-  int current_frame = get_current_frame();
-  int skip_size = get_skip_size();
-
-  empty_frame = get_swim_data(int(current_frame / skip_size), current_swimmer);
-
-  if (empty_frame != nullptr) {
-    empty_frame->box_class = current_class;
-    empty_frame->lane_num = current_swimmer;
-    empty_frame->swimmer_box.x = 0;
-    empty_frame->swimmer_box.y = 0;
-    empty_frame->swimmer_box.height = 0;
-    empty_frame->swimmer_box.width = 0;
-  }
-  else {
-    //out of bounds error
-  }
-
+  current_box = temp;
+  save_annotation();
   //reset the tracker
   reset_tracker();
-
 }
 
 
@@ -729,6 +737,7 @@ bool box_annotate::create_training_set(int* picture_num, bool update_text, bool 
   int ii = 0;
   int jj = 0;
   int kk = 0;
+  int zz = 0;
   int number_pics = int(get_num_frames() / get_skip_size());
   float frame_hight = float(get_hight());
   float frame_width = float(get_width());
@@ -755,37 +764,38 @@ bool box_annotate::create_training_set(int* picture_num, bool update_text, bool 
       if (frame_data.is_open()) {
         //<object-class-id> <center-x> <center-y> <width> <height>
         jj = 0;
-        while (all_data[ii][jj].lane_num != -1) {
-          if (all_data[ii][jj].swimmer_box.area() != 0) {//For situlation where in my application I noted that the swimmer was not visable
-            //do convertion calculations
-            box_width = float(all_data[ii][jj].swimmer_box.width - ((1 + all_data[ii][jj].swimmer_box.width) % 2));
-            box_hight = float(all_data[ii][jj].swimmer_box.height - ((1 + all_data[ii][jj].swimmer_box.height) % 2));
-            box_x = float(all_data[ii][jj].swimmer_box.x + floor(box_width / 2));
-            box_y = float(all_data[ii][jj].swimmer_box.y + floor(box_hight / 2));
+        while (all_data[ii][jj][0].lane_num != -1) {
+          for (zz = 0; zz < all_data[ii][jj].size(); zz++) {
+            if (all_data[ii][jj][zz].swimmer_box.area() != 0) {//For situlation where in my application I noted that the swimmer was not visable
+              //do convertion calculations
+              box_width = float(all_data[ii][jj][zz].swimmer_box.width - ((1 + all_data[ii][jj][zz].swimmer_box.width) % 2));
+              box_hight = float(all_data[ii][jj][zz].swimmer_box.height - ((1 + all_data[ii][jj][zz].swimmer_box.height) % 2));
+              box_x = float(all_data[ii][jj][zz].swimmer_box.x + floor(box_width / 2));
+              box_y = float(all_data[ii][jj][zz].swimmer_box.y + floor(box_hight / 2));
 
-            for (kk = 0; kk < 5; kk++) {
-              switch (kk)
-              {
-              case 0://<object-class-id>
-                frame_data << (all_data[ii][jj].box_class - 1) << " ";//class must be zero indexed 
-                break;
-              case 1://center - x
-                frame_data << setprecision(fl::digits) << box_x / frame_width << " ";
-                break;
-              case 2://center-y
-                frame_data << setprecision(fl::digits) << box_y / frame_hight << " ";
-                break;
-              case 3://width
-                frame_data << setprecision(fl::digits) << box_width / frame_width << " ";
-                break;
-              case 4://height
-                frame_data << setprecision(fl::digits) << box_hight / frame_hight << endl;
-                break;
+              for (kk = 0; kk < 5; kk++) {
+                switch (kk)
+                {
+                case 0://<object-class-id>
+                  frame_data << (all_data[ii][jj][zz].box_class - 1) << " ";//class must be zero indexed 
+                  break;
+                case 1://center - x
+                  frame_data << setprecision(fl::digits) << box_x / frame_width << " ";
+                  break;
+                case 2://center-y
+                  frame_data << setprecision(fl::digits) << box_y / frame_hight << " ";
+                  break;
+                case 3://width
+                  frame_data << setprecision(fl::digits) << box_width / frame_width << " ";
+                  break;
+                case 4://height
+                  frame_data << setprecision(fl::digits) << box_hight / frame_hight << endl;
+                  break;
+                }
               }
             }
-            
+            jj++;
           }
-          jj++;
         }
         frame_data.close();
       }
@@ -808,4 +818,23 @@ bool box_annotate::create_training_set(int* picture_num, bool update_text, bool 
   }
   return true;
 
+}
+
+
+//changes the current box number
+//Creates a new swimmer in the frame if ROI is selected
+void box_annotate::change_current_box_num()
+{
+  int frame_no = get_current_frame();
+  int lane_no = get_current_swimmer();
+  vector<swim_data>* check_data = get_swim_data(frame_no, lane_no);
+  int number_swimmers_in_lane = (*check_data).size();
+
+  if (current_box_num > (number_swimmers_in_lane-1)) {
+    current_box_num = 0;
+  }
+  else {
+    current_box_num++;
+  }
+  
 }

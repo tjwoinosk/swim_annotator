@@ -1,11 +1,12 @@
 #pragma once
 #include "supper_annotator.h"
 #include <iomanip>
+#include <vector>
 
 using namespace std;
 using namespace cv;
 
-//----------------- 1 ------- 2 ------ 3 --------- 4 ------- 5 ------- 6 --------------------------------
+//------------------ 1 ------- 2 ------ 3 -------- 4 ------- 5 ------- 6 --------------------------------
 enum class_names { on_block, diving, swimming, underwater, turning, finishing }; //the six possible classes, redundant...
 
 struct swim_data
@@ -22,6 +23,7 @@ private:
 
   //stuff for box annotator
   Rect current_box;
+  int current_box_num;//zero indexed 
   int num_possible_data_lines;
   int current_class;
 
@@ -31,7 +33,7 @@ private:
   bool fast_ROI_mode;
 
   //Annotation data
-  swim_data** all_data;
+  vector<swim_data>** all_data;
 
 public:
 
@@ -48,7 +50,7 @@ public:
   //returns a pointer to the swim data produced
   //Data warning!! Relative data position in output file is equal to the current frame / skip size!
   // an example can be seen in mark_as_absent(), int(current_frame / skip_size) == int frame_no
-  swim_data* get_swim_data(int frame_no, int lane_no);
+  vector<swim_data>* get_swim_data(int frame_no, int lane_no);
 
   //displays the current frame with or without annotation
   //works
@@ -94,6 +96,10 @@ public:
 
   //creates new text files and JPEG pictures that YOLO can use 
   bool create_training_set(int *picture_num, bool update_text, bool update_JPEG);
+
+  //changes the current box number
+  //Creates a new swimmer in the frame if ROI is selected
+  void change_current_box_num();
 
   /*inharated class------
 
