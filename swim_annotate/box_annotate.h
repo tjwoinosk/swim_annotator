@@ -59,7 +59,7 @@ public:
   //move to next frame 
   //save current annotation in all_data
   //predict the box in the next frame
-  void predict_next_frame();
+  bool predict_next_frame();
 
   //exit supper annotator
   bool quit_and_save_data();

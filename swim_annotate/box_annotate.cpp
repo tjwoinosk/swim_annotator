@@ -287,7 +287,14 @@ bool box_annotate::annotation_options(char reply)
     update_text_file();
     break;
   case 'w'://Predict next frame and save current frame, up arrow
-    predict_next_frame();
+    if (!predict_next_frame()) {
+      if (create_ROI_in_pool(&current_box)) {
+        save_annotation();
+        reset_tracker();
+        break;
+      }
+    }
+    cout << "ROI failed to save" << endl;
     break;
   case 'r'://Create ROI
     if (fast_ROI_mode) {//loop for faster ROI creation
@@ -332,6 +339,7 @@ bool box_annotate::annotation_options(char reply)
     break;
   case 'p'://Change current box
     change_current_box_num();
+    reset_tracker();
     break;
   case 'y'://Check for unfinished work
     check_for_completion();
@@ -372,7 +380,7 @@ bool box_annotate::save_annotation()
     else {//create new data
       swim_data temp;
       int ii = num_swimmers_in_lane;
-      temp.box_class = 1;
+      temp.box_class = -1;
       temp.lane_num = -1;
       temp.swimmer_box.x = 0;
       temp.swimmer_box.y = 0;
@@ -477,12 +485,12 @@ bool box_annotate::update_text_file()
 
 //Use the KCF algorithum to find swimmer in next frame
 //Every new frame, update the referance frame
-void box_annotate::predict_next_frame()
+bool box_annotate::predict_next_frame()
 {
   //TrackerKCF
   Mat old_frame, frame;
   Rect2d new_current_box;
-  bool results = false;
+  bool good_track_res = false;
 
   if (!good_track) { //Recreate the tracker to account for changes in angle or body position
   //create the tracker for box prediction
@@ -499,7 +507,7 @@ void box_annotate::predict_next_frame()
 
     if (!tracker->init(old_frame, Rect2d(current_box))) {
       cout << "Could not initalize tracker" << endl;
-      return;
+      return false;
     }
     //tracker->setFeatureExtractor();//If you want to define a custom feature extractor 
     good_track = true;
@@ -507,11 +515,16 @@ void box_annotate::predict_next_frame()
 
   next_frame();
   frame = get_current_Mat();
-  tracker->update(frame, new_current_box);
-  current_box = new_current_box;
-  save_annotation();
-
-  return;
+  good_track_res = tracker->update(frame, new_current_box);
+  
+  if (!good_track_res) {
+    return false;
+  }
+  else {
+    current_box = new_current_box;
+    save_annotation();
+    return true;
+  }
 }
 
 
@@ -813,8 +826,8 @@ bool box_annotate::create_training_set(int* picture_num, bool update_text, bool 
                 }
               }
             }
-            jj++;
           }
+          jj++;
         }
         frame_data.close();
       }
