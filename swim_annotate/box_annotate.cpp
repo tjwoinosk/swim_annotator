@@ -47,26 +47,6 @@ bool box_annotate::load_video_for_boxing(string video_file)
     ofstream write_to_header;
     string header_filename = video_file;
 
-    //set class member fields
-    num_possible_data_lines = get_num_frames() / get_skip_size();
-
-    //init data holder
-    swim_data init_swimmer;
-    init_swimmer.box_class = -1;
-    init_swimmer.swimmer_box.x = -1;
-    init_swimmer.swimmer_box.y = -1;
-    init_swimmer.swimmer_box.height = -1;
-    init_swimmer.swimmer_box.width = -1;
-    init_swimmer.lane_num = -1;
-    //allocate memory
-    all_data = new vector<swim_data> * [num_possible_data_lines]; //memory allocated, needs to be deleted (on line... )
-    for (ii = 0; ii < num_possible_data_lines; ii++) {
-      all_data[ii] = new vector<swim_data>[10];
-      for (jj = 0; jj < 10; jj++) {//init to -1
-        all_data[ii][jj].push_back(init_swimmer);
-      }
-    }
-
     //Change file name to end it .txt
     size_t pos = header_filename.find_first_of('.', 0);//no need to be carfull as the file was already opened
     header_filename.erase(pos + 1, 3);
@@ -117,6 +97,35 @@ bool box_annotate::load_video_for_boxing(string video_file)
         cout << stoi(num) << endl;
         cout << "number of frames dose not match file, open failed" << endl;
         return false;
+      }
+      get_from_header.getline(line, 500);//get skip size for annotations 
+      find = line;
+      if (line[0] == '#') {
+        cout << "No skip size was given" << endl;
+        return false;
+      }
+      pos = find.find_first_of(' ', 0);
+      num = find.substr(pos + 1, (find.size() - pos - 1));
+      set_skip_size(stoi(num));
+
+      //set class member field
+      num_possible_data_lines = get_num_frames() / get_skip_size();
+
+      //init data holder
+      swim_data init_swimmer;
+      init_swimmer.box_class = -1;
+      init_swimmer.swimmer_box.x = -1;
+      init_swimmer.swimmer_box.y = -1;
+      init_swimmer.swimmer_box.height = -1;
+      init_swimmer.swimmer_box.width = -1;
+      init_swimmer.lane_num = -1;
+      //allocate memory
+      all_data = new vector<swim_data> * [num_possible_data_lines]; //memory allocated, needs to be deleted (on line... )
+      for (ii = 0; ii < num_possible_data_lines; ii++) {
+        all_data[ii] = new vector<swim_data>[10];
+        for (jj = 0; jj < 10; jj++) {//init to -1
+          all_data[ii][jj].push_back(init_swimmer);
+        }
       }
 
       //load data...
@@ -201,11 +210,14 @@ bool box_annotate::load_video_for_boxing(string video_file)
       get_from_header.close();
     }
     else {//Create new header 
+      //ask for skip frame size
+      prompt_skip_size();
       write_to_header.open(header_filename);
       write_to_header << "#Header, frames per second, video resolution(hight width), total number of frames in video." << endl;
       write_to_header << "FPS: " << get_FPS_vid() << endl;
       write_to_header << "RES: " << n << " " << m << endl;
       write_to_header << "TNF: " << get_num_frames() << endl;
+      write_to_header << "Skip: " << get_skip_size() << endl;
       write_to_header << "#Data x, y, h, w, c, and l always in this order, for each lane. Sorted in order." << endl;
       write_to_header.close();
     }
@@ -430,6 +442,7 @@ bool box_annotate::update_text_file()
     update_header << "FPS: " << FPS_vid << endl;
     update_header << "RES: " << n << " " << m << endl;
     update_header << "TNF: " << number_of_frames << endl;
+    update_header << "Skip: " << get_skip_size() << endl;
     update_header << "#Data x, y, h, w, c, and l always in this order, for each lane. Sorted in order." << endl;
 
     for (ii = 0; ii < num_possible_data_lines; ii++) {//look at each frame 

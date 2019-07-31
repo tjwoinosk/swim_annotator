@@ -55,8 +55,12 @@ public:
   int get_width() { return width; }
 
   //setters
-  void set_skip_size(int set_skip) { skip_size = set_skip; return; }
   void set_current_frame(int frame_num) { current_frame = frame_num; }
+  void set_skip_size(int size_skip) { skip_size = size_skip; }
+
+  //ask user for the skip size to use
+  //can only skip up to 9 frames
+  void prompt_skip_size();
 
   //loads relavant video information into class 
   bool load_video(string video_file);
