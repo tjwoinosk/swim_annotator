@@ -48,7 +48,7 @@ bool supper_annotator::load_video(string video_file)
     FPS_vid = an_video.get(CAP_PROP_FPS);
     hight = an_video.get(CAP_PROP_FRAME_HEIGHT);
     width = an_video.get(CAP_PROP_FRAME_WIDTH);
-    namedWindow(AN_WINDOW_NAME, WINDOW_AUTOSIZE);
+    namedWindow(AN_WINDOW_NAME, WINDOW_NORMAL);
     video_file_open = true;
     return true;
   }
@@ -188,6 +188,7 @@ Mat supper_annotator::get_current_Mat()
   an_video >> frame;
   return frame;
 }
+
 
 void supper_annotator::quit_app()
 {
