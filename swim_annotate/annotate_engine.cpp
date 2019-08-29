@@ -3,6 +3,7 @@
 #include <ctype.h>
 
 #include "annotate_engine.h"
+#include "test_swim_detect_network.h"
 
 using namespace std;
 
@@ -18,6 +19,7 @@ annotate_engine::annotate_engine(string video_file) {
   file_name = video_file;
   current_request = waiting_for_request;
 }
+
 
 //Waits for the users next request 
 void annotate_engine::service_next_request() {
@@ -38,19 +40,25 @@ void annotate_engine::service_next_request() {
   case ship_data:
     ship_data_for_yolo(false);
     break;
+  case analize_swim_detect:
+    analize_swimmer_detection_netowrk();
+    break;
   case exit_opt:
     current_request = exit_opt;
     break;
+    
   default:
     break;
   }
 }
+
 
 //Checks if app requested to shut down
 bool annotate_engine::is_app_finished() {
   if (current_request == exit_opt) return true;
   return false;
 }
+
 
 //Save all application things
 void annotate_engine::kill_app() {
@@ -69,6 +77,7 @@ bool annotate_engine::print_general_lab_options() {
   cout << "Quit Labelling And Exit, press (3)" << endl;
   cout << "To create data for YOLO and EXCLUDE JPEG images, press (4)" << endl;
   cout << "To create data for YOLO WITH JPEG images, press (5)" << endl;
+  cout << "To analize swimmer detection network with current video, press (6)" << endl;
   cout << "\nlab>> ";
   cin >> answer;
 
@@ -89,6 +98,8 @@ bool annotate_engine::print_general_lab_options() {
     break;
   case 5: current_request = ship_data_with_pics;
     break;
+  case 6: current_request = analize_swim_detect;
+    break;
   default: current_request = err_val;
     cout << "An unrecognised value was input\n";
     return false;
@@ -96,6 +107,7 @@ bool annotate_engine::print_general_lab_options() {
 
   return true;
 }
+
 
 //run the supper annotator to anotate the video
 bool annotate_engine::run_box_annotator() {
@@ -112,6 +124,7 @@ bool annotate_engine::run_box_annotator() {
   return false;
 }
 
+
 bool annotate_engine::run_stroke_annotator() {
 
   stroke_annotate stroke_work;
@@ -127,6 +140,7 @@ bool annotate_engine::run_stroke_annotator() {
     return true;
   }
 }
+
 
 //create data for yolo to use
 //open application with the smallest named file
@@ -150,14 +164,32 @@ bool annotate_engine::ship_data_for_yolo(bool func_update_JPEG)
       }
       box_work.~box_annotate();
     }
+    else if (box_work.load_video_for_boxing(to_string(file_num) + ".mp4")) {
+      if (!box_work.create_training_set(&picture_num, update_text, update_JPEG)) {
+        cout << "Failing to create training sets" << endl;
+        return false;
+      }
+      box_work.~box_annotate();
+    }
     else {
       out_of_files = true;
     }
-
     file_num++;
   }
 
-
   return true;
+}
+
+
+//produce video of what netowrk sees
+//produce a summary of results
+bool annotate_engine::analize_swimmer_detection_netowrk()
+{
+  test_swim_detect_network tester;
+
+  tester.get_network_results(file_name);
+  tester.save_network_results(file_name);
+
+  return false;
 }
 

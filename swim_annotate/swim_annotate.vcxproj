@@ -159,12 +159,14 @@
     <ClCompile Include="stroke_annotate.cpp" />
     <ClCompile Include="supper_annotator.cpp" />
     <ClCompile Include="swim_annotate.cpp" />
+    <ClCompile Include="test_swim_detect_network.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="annotate_engine.h" />
     <ClInclude Include="box_annotate.h" />
     <ClInclude Include="stroke_annotate.h" />
     <ClInclude Include="supper_annotator.h" />
+    <ClInclude Include="test_swim_detect_network.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -7,7 +7,7 @@
 
 using namespace std;
 
-enum input_options { make_boxes, count_strokes, exit_opt, err_val, waiting_for_request, ship_data, ship_data_with_pics};
+enum input_options {make_boxes, count_strokes, exit_opt, err_val, waiting_for_request, ship_data, ship_data_with_pics, analize_swim_detect};
 
 class annotate_engine {
 
@@ -40,6 +40,9 @@ public:
   //create data for yolo to use
   //open application with the smallest named file
   bool ship_data_for_yolo(bool func_update_JPEG);
+
+  //produce analytics for the current detection network
+  bool analize_swimmer_detection_netowrk();
 
 };
 

@@ -6,7 +6,7 @@ box_annotate::box_annotate()
   good_track = false;
   fast_ROI_mode = false;
   num_possible_data_lines = 0;
-  current_class = 1;
+  current_class = 0;
   current_box_num = 0;
   //set box
   current_box.height = 0;
@@ -28,6 +28,7 @@ box_annotate::~box_annotate()
     delete[] all_data;
     all_data = nullptr;
   }
+  destroyWindow(AN_WINDOW_NAME);
 }
 
 
@@ -220,6 +221,25 @@ bool box_annotate::load_video_for_boxing(string video_file)
       write_to_header << "Skip: " << get_skip_size() << endl;
       write_to_header << "#Data x, y, h, w, c, and l always in this order, for each lane. Sorted in order." << endl;
       write_to_header.close();
+      //set class member field
+      num_possible_data_lines = get_num_frames() / get_skip_size();
+
+      //init data holder
+      swim_data init_swimmer;
+      init_swimmer.box_class = -1;
+      init_swimmer.swimmer_box.x = -1;
+      init_swimmer.swimmer_box.y = -1;
+      init_swimmer.swimmer_box.height = -1;
+      init_swimmer.swimmer_box.width = -1;
+      init_swimmer.lane_num = -1;
+      //allocate memory
+      all_data = new vector<swim_data> * [num_possible_data_lines]; //memory allocated, needs to be deleted (on line... )
+      for (ii = 0; ii < num_possible_data_lines; ii++) {
+        all_data[ii] = new vector<swim_data>[10];
+        for (jj = 0; jj < 10; jj++) {//init to -1
+          all_data[ii][jj].push_back(init_swimmer);
+        }
+      }
     }
 
     return true;
@@ -242,7 +262,7 @@ void box_annotate::change_class()
   //select lane number
   do {
     cout << "What class are we lableing? Options are..." << endl;
-    cout << "on_block (1), diving (2), swimming (3), underwater (4), turning (5), finishing (6)" << endl;
+    cout << "on_block (0), diving (1), swimming (2), underwater (3), turning (4), finishing (5)" << endl;
     cout << "Class: ";
 
     //Get the key from the window
@@ -258,7 +278,7 @@ void box_annotate::change_class()
       num = int(class_num) - 48;//convert to int
     }
 
-    if ((num > 6) || (num < 1)) {
+    if ((num > 5) || (num < 0)) {
       cout << "\nAn invalid class number was selected" << endl;
       done = false;
     }
@@ -277,8 +297,8 @@ bool box_annotate::annotation_options(char reply)
 {
   cout << "\nOptions for annotation editing.\n\n";
   cout << "Change lane number of annotations, press (l)\n";
-  cout << "Predict next frame and save current frame, press (w)\n";//change to right mouse button click
-  cout << "Create ROI, press (r)\n";//change to left mouse button click
+  cout << "Predict next frame and save current frame, press (w)\n";
+  cout << "Create ROI, press (r)\n";
   cout << "Go back to last frame, press (a)\n";
   cout << "Go to next frame, press (d)\n";
   cout << "Move to any arbitrary frame, press (m)\n";
@@ -288,7 +308,7 @@ bool box_annotate::annotation_options(char reply)
   cout << "Check for unfinished work, press (y)\n";//looks at each lane to see if a frame was skipped or a lane has not been done
   cout << "Togel fast ROI mode, press (t)\n";//Allows used to select ROI continuesly
   cout << "Stop annotating video, press (esc)\n";
-  //cout << "\nAnnotate F:"<<current_frame<<" L:"<<current_swimmer<< " c:" <<current_class<< "> ";
+
   Rect in_box;
 
   switch (reply) {
@@ -313,7 +333,7 @@ bool box_annotate::annotation_options(char reply)
       while (create_ROI_in_pool(&current_box)) {
         save_annotation();
         reset_tracker();
-        if (get_current_frame() >= (get_num_frames() - 3)) {
+        if (get_current_frame() >= (get_num_frames() - get_skip_size())) {
           break;
         }
         cout << "ROI saved!" << endl;
@@ -566,22 +586,22 @@ bool box_annotate::display_current_frame()
     if ((*lane)[0].lane_num != -1) {//if empty lane 
       for(zz = 0; zz < (*lane).size(); zz++) {
         switch ((*lane)[zz].box_class) {
-        case 1://Brown
+        case 0://Brown
           blue = 0; red = 100; green = 50;
           break;
-        case 2://red
+        case 1://red
           blue = 0; red = 255; green = 0;
           break;
-        case 3://green
+        case 2://green
           blue = 0; red = 0; green = 255;
           break;
-        case 4://orange
+        case 3://orange
           blue = 0; red = 255; green = 127;
           break;
-        case 5://yellow
+        case 4://yellow
           blue = 0; red = 255; green = 255;
           break;
-        case 6://purple
+        case 5://purple
           blue = 255; red = 128; green = 0;
           break;
         default:
@@ -598,7 +618,7 @@ bool box_annotate::display_current_frame()
   
   imshow(AN_WINDOW_NAME, frame);
   for (int ii = 0; ii < 10; ii++) reply_from_vid = waitKey(1);//clear window buffer if extra chars are input by accident
-  cout << "\nAnnotate F:" << current_frame << " L:" << current_swimmer << " C:" << current_class << " N:" << current_box_num << "> ";
+  cout << "\nAnnotate F:" << current_frame << " L:" << current_swimmer << " C:" << CLASSES[current_class] << " N:" << current_box_num << "> ";
   reply_from_vid = waitKey(0);
   cout << reply_from_vid << endl;
   

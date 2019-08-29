@@ -6,8 +6,8 @@
 using namespace std;
 using namespace cv;
 
-//------------------ 1 ------- 2 ------ 3 -------- 4 ------- 5 ------- 6 --------------------------------
-enum class_names { on_block, diving, swimming, underwater, turning, finishing }; //the six possible classes, redundant...
+//----------------------------- 0 --------- 1 ------ 2 ----------- 3 ---------- 4 --------- 5 --------------------
+const string CLASSES[6] = { "On_Block", "Diving", "Swimming", "Underwater", "Turning", "Finishing" }; //the six possible classes
 
 struct swim_data
 {

@@ -338,3 +338,8 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/swim_annotate/100FLY.mp4
+/swim_annotate/2.avi
+/swim_annotate/200F.avi
+/swim_annotate/2_yolo_out_cpp.avi
+/swim_annotate/yolov3.weights

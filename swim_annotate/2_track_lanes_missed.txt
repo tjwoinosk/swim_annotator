@@ -1,0 +1,18 @@
+Lane numbers (zero indexed) missed by the model per frame are:
+Skip size is 3
+frame 0: 1 
+frame 3: 
+frame 6: 
+frame 9: 2 
+frame 12: 
+frame 15: 
+frame 18: 
+frame 21: 
+frame 24: 
+frame 27: 
+frame 30: 
+frame 33: 2 
+frame 36: 
+frame 39: 1 
+frame 42: 
+frame 45: 

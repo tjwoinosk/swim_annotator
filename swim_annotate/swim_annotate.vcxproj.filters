@@ -30,6 +30,9 @@
     <ClCompile Include="stroke_annotate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test_swim_detect_network.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="annotate_engine.h">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stroke_annotate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="test_swim_detect_network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

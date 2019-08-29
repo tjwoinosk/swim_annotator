@@ -1,0 +1,18 @@
+mAP value of finding a swimmer in any class is: 0.964126
+Skip size is 3
+frame 0: 0.857143
+frame 3: 1
+frame 6: 1
+frame 9: 0.857143
+frame 12: 1
+frame 15: 1
+frame 18: 1
+frame 21: 1
+frame 24: 1
+frame 27: 1
+frame 30: 1
+frame 33: 0.836735
+frame 36: 1
+frame 39: 0.875
+frame 42: 1
+frame 45: 1

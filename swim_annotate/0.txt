@@ -1,5 +1,0 @@
-#Header, frames per second, video resolution(hight width), total number of frames in video.
-FPS: 30
-RES: 1080 1920
-TNF: 331
-#Data x, y, h, w, c, and l always in this order, for each lane. Sorted in order.
