@@ -153,6 +153,13 @@ bool annotate_engine::ship_data_for_yolo(bool func_update_JPEG)
   int picture_num = 0;
   bool  update_text = true;
   bool update_JPEG = func_update_JPEG;
+  int class_stats[6];
+  int ii = 0;
+  int* sub_class_stats;
+
+  ofstream output_class_stats("class_stats.txt");
+
+  for (ii = 0; ii < 6; ii++)  class_stats[ii] = 0;
 
   while (!out_of_files) {
     cout << "collecting data "<< file_num << ", from file " << (to_string(file_num) + ".avi") <<endl;
@@ -162,6 +169,9 @@ bool annotate_engine::ship_data_for_yolo(bool func_update_JPEG)
         cout << "Failing to create training sets" << endl;
         return false;
       }
+      //get class stats
+      sub_class_stats = box_work.get_class_stats();
+      for (ii = 0; ii < 6; ii++) class_stats[ii] += sub_class_stats[ii];
       box_work.~box_annotate();
     }
     else if (box_work.load_video_for_boxing(to_string(file_num) + ".mp4")) {
@@ -169,12 +179,24 @@ bool annotate_engine::ship_data_for_yolo(bool func_update_JPEG)
         cout << "Failing to create training sets" << endl;
         return false;
       }
+      //get class stats
+      sub_class_stats = box_work.get_class_stats();
+      for (ii = 0; ii < 6; ii++) class_stats[ii] += sub_class_stats[ii];
       box_work.~box_annotate();
     }
     else {
       out_of_files = true;
     }
     file_num++;
+  }
+
+  //write class stats to a file
+  if (output_class_stats.is_open()) {
+    output_class_stats << "The amout of data for each class is the following:" << endl;
+    for (ii = 0; ii < 6; ii++) {
+      output_class_stats << CLASSES[ii] << " count: " << class_stats[ii] << endl;
+    }
+    output_class_stats.close();
   }
 
   return true;

@@ -13,6 +13,7 @@ box_annotate::box_annotate()
   current_box.width = 0;
   current_box.x = 0;
   current_box.y = 0;
+  for (int ii = 0; ii < 6; ii++) class_stats[ii] = 0;
 }
 
 
@@ -832,7 +833,8 @@ bool box_annotate::create_training_set(int* picture_num, bool update_text, bool 
         while (all_data[ii][jj][0].lane_num != -1) {
           for (zz = 0; zz < all_data[ii][jj].size(); zz++) {
             if (all_data[ii][jj][zz].swimmer_box.area() != 0) {//For situlation where in my application I noted that the swimmer was not visable
-              //do convertion calculations
+              //do convertion calculations for yolo 
+              //yolo wants the center of the box rather than the top left corner
               box_width = float(all_data[ii][jj][zz].swimmer_box.width - ((1 + all_data[ii][jj][zz].swimmer_box.width) % 2));
               box_hight = float(all_data[ii][jj][zz].swimmer_box.height - ((1 + all_data[ii][jj][zz].swimmer_box.height) % 2));
               box_x = float(all_data[ii][jj][zz].swimmer_box.x + floor(box_width / 2));
@@ -842,7 +844,8 @@ bool box_annotate::create_training_set(int* picture_num, bool update_text, bool 
                 switch (kk)
                 {
                 case 0://<object-class-id>
-                  frame_data << (all_data[ii][jj][zz].box_class - 1) << " ";//class must be zero indexed 
+                  frame_data << all_data[ii][jj][zz].box_class << " ";//classes must be zero indexed 
+                  class_stats[all_data[ii][jj][zz].box_class]++;//used to find number of each class
                   break;
                 case 1://center - x
                   frame_data << setprecision(fl::digits) << box_x / frame_width << " ";

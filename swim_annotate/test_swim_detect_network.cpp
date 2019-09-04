@@ -97,7 +97,10 @@ void test_swim_detect_network::save_network_results(string file_name)
   }
   map_results << "Skip size is " << get_skip_size() << endl;
   map_results << "AP per frame for each class:" << endl;
-  for (ii = 0; ii < class_precision[0].size(); ii++) map_results << setw(6) << ii*get_skip_size();
+
+  for (ii = 0; ii < class_precision[0].size(); ii++) map_results << setw(8) << ii*get_skip_size();
+  cout << endl;
+
   for (ii = 0; ii < 6; ii++) {
     map_results << ii << ". ";
     for (jj = 0; jj < class_precision[ii].size(); jj++) {
@@ -536,7 +539,7 @@ void test_swim_detect_network::get_network_results(string file_name)
       compare_results_with_ground(frame_num / get_skip_size());
       //add ground to the video for testing
       //class 0: Brown, class 1: Red, class 2: Green, class 3: Orange, class 4: Yellow, class 5: Purple
-      add_ground_to_video(frame, frame_num / get_skip_size());
+      //add_ground_to_video(frame, frame_num / get_skip_size());
     }
 
     // Write the frame with the detection boxes

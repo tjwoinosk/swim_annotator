@@ -35,12 +35,17 @@ private:
   //Annotation data
   vector<swim_data>** all_data;
 
+  //data for annotation stats
+  int class_stats[6];
+
 public:
 
   //default constructor
   box_annotate();
 
   ~box_annotate();
+
+  int* get_class_stats() { return class_stats; }
 
   //loads the video in video file into the video object 
   //sets the number_of_frames, current_frame to zero, and opens the VideoCapture object
