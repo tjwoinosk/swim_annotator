@@ -722,7 +722,7 @@ void box_annotate::find_latest_annotation(bool noise) {
       break;
     }
   }
-  if ((ii < int(number_of_frames / skip_size)) && ii > 0) {//If ii is not the end or the begining
+  if ((ii < num_possible_data_lines) && (ii > 0)) {//If ii is not the end or the begining
     current_frame = (ii - 1) * skip_size;
     set_current_frame(current_frame);
   }
