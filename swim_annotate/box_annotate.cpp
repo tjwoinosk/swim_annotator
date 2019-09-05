@@ -39,6 +39,7 @@ bool box_annotate::load_video_for_boxing(string video_file)
   int ii = 0;//frame number
   int jj = 0;//lane number
   int kk = 0;//number type
+  for (int ii = 0; ii < 6; ii++) class_stats[ii] = 0;
 
   if (load_video(video_file)) {
 
@@ -111,7 +112,7 @@ bool box_annotate::load_video_for_boxing(string video_file)
       set_skip_size(stoi(num));
 
       //set class member field
-      num_possible_data_lines = get_num_frames() / get_skip_size();
+      num_possible_data_lines = floor((get_num_frames()-1) / get_skip_size()) + 1;
 
       //init data holder
       swim_data init_swimmer;
@@ -398,11 +399,11 @@ bool box_annotate::save_annotation()
 {
   vector<swim_data>* lane_data;
   int current_swimmer = get_current_swimmer();
+  int num_swimmers_in_lane = 0;
 
   lane_data = get_swim_data(int(get_current_frame() / get_skip_size()), current_swimmer);//checks for out of bounds errors
-  int num_swimmers_in_lane = (*lane_data).size();
-
   if (lane_data) {//lane data can be NULL
+    num_swimmers_in_lane = (*lane_data).size();
     if (num_swimmers_in_lane > current_box_num) {
       //replace the data
       lane_data->at(current_box_num).box_class = current_class;

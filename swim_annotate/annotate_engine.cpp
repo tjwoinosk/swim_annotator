@@ -154,6 +154,7 @@ bool annotate_engine::ship_data_for_yolo(bool func_update_JPEG)
   bool  update_text = true;
   bool update_JPEG = func_update_JPEG;
   int class_stats[6];
+  int total_class_stats = 0;
   int ii = 0;
   int* sub_class_stats;
 
@@ -195,7 +196,9 @@ bool annotate_engine::ship_data_for_yolo(bool func_update_JPEG)
     output_class_stats << "The amout of data for each class is the following:" << endl;
     for (ii = 0; ii < 6; ii++) {
       output_class_stats << CLASSES[ii] << " count: " << class_stats[ii] << endl;
+      total_class_stats += class_stats[ii];
     }
+    output_class_stats << "Total annotations collected: " << total_class_stats << endl;
     output_class_stats.close();
   }
 
