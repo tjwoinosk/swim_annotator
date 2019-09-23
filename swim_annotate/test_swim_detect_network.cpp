@@ -146,6 +146,7 @@ void test_swim_detect_network::save_network_results(string file_name)
       if (num_total > 1 ) {
         mean_val = double(num_good) / double(num_total);
         //getting std dev
+        std_dev = 0;
         for (kk = 0; kk < swimmer_in_lane_per_class[ii].size(); kk++) {
           if (swimmer_in_lane_per_class[ii][kk][jj] == true) {
             std_dev = std_dev + pow((1 - mean_val), 2);
@@ -154,7 +155,7 @@ void test_swim_detect_network::save_network_results(string file_name)
             std_dev = std_dev + pow((0 - mean_val), 2);
           }
         }
-        std_dev = std_dev / (double(num_total)-1);
+        std_dev = pow(std_dev / (double(num_total)-1),0.5);
 
         map_results << fixed << setw(4) << setprecision(2) << mean_val << " (";
         map_results << fixed << setw(6) << setprecision(4) << std_dev << ")";
