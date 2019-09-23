@@ -483,6 +483,7 @@ void test_swim_detect_network::get_network_results(string file_name)
   ifstream ifs(classesFile.c_str());
   string line;
   while (getline(ifs, line)) classes.push_back(line);
+  int iou_val_user = 0;
 
   // Give the configuration and weight files for the model
   String modelConfiguration = "yolov3.cfg";
@@ -520,6 +521,15 @@ void test_swim_detect_network::get_network_results(string file_name)
   // Create a window
   static const string kWinName = "Deep learning object detection in OpenCV";
   namedWindow(kWinName, WINDOW_NORMAL);
+
+  //Get mAP value to compute with
+  do
+  {
+    cout << "What IOU value would you like to do the mAP calcualtions with (1 - 99)? ";
+    cin >> iou_val_user;
+    cout << endl;
+  } while ((iou_val_user < 100) & (iou_val_user > 0));
+  IOU_val = float(iou_val_user) / 100;
 
   //Set the starting frame to be analized 
   //cap.set(CAP_PROP_POS_FRAMES, 0);
