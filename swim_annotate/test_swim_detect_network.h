@@ -22,6 +22,7 @@ class test_swim_detect_network :
 private:
 
   //Class paramiters
+  float IOU_val = 0.25; //For calculating mAP values
   float confThreshold = 0.5; // Confidence threshold
   float nmsThreshold = 0.3;  // Non-maximum suppression threshold
   int inpWidth = 416;  // Width of network's input image

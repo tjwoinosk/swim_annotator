@@ -3,6 +3,7 @@
 #include "test_swim_detect_network.h"
 #include <list>
 #include <iomanip>
+#include <math.h>
 
 test_swim_detect_network::test_swim_detect_network()
 {
@@ -32,6 +33,8 @@ void test_swim_detect_network::save_network_results(string file_name)
   bool lane_data[10];
   int num_good = 0;
   int num_total = 0;
+  double std_dev = 0;
+  double mean_val = 0;
   float track_mAP = 0;
 
   //Save mAP results for swimmer tracking
@@ -99,12 +102,12 @@ void test_swim_detect_network::save_network_results(string file_name)
   map_results << "AP per frame for each class:" << endl;
 
   for (ii = 0; ii < class_precision[0].size(); ii++) map_results << setw(8) << ii*get_skip_size();
-  cout << endl;
+  map_results << endl;
 
   for (ii = 0; ii < 6; ii++) {
     map_results << ii << ". ";
     for (jj = 0; jj < class_precision[ii].size(); jj++) {
-      map_results << setw(6) << setprecision(4) << class_precision[ii][jj];
+      map_results << fixed << setw(6) << setprecision(4) << class_precision[ii][jj];
       if (jj < (class_precision[ii].size() - 1)) {
         map_results << ", ";
       }
@@ -122,7 +125,7 @@ void test_swim_detect_network::save_network_results(string file_name)
     cout << "could not open " << new_file_name << endl;
   }
   map_results << "Classes: 0 == on_block, 1 == diving, 2 == swimming, 3 == underwater, 4 == turning, 5 == finishing" << endl;
-  map_results << "Avgerage detection rate per class and per lane:" << endl;
+  map_results << "Avgerage and std dev of detection rate per class and per lane:" << endl;
   for (ii = 0; ii < 6; ii++) {//class num
     map_results << "Class " << ii << ": ";
     for (jj = 0; jj < 10; jj++) {//lane num
@@ -130,7 +133,7 @@ void test_swim_detect_network::save_network_results(string file_name)
       //calculate avg finding rate per lane
       num_good = 0;
       num_total = 0;
-      
+      //getting mean
       for (kk = 0; kk < swimmer_in_lane_per_class[ii].size(); kk++) {
         if (swimmer_in_lane_per_class[ii][kk][jj] == true) {
           num_good++;
@@ -140,8 +143,21 @@ void test_swim_detect_network::save_network_results(string file_name)
           num_total++;
         }
       }
-      if (num_total != 0) {
-        map_results <<setw(4) << setprecision(2) << double(num_good) / double(num_total);
+      if (num_total > 1 ) {
+        mean_val = double(num_good) / double(num_total);
+        //getting std dev
+        for (kk = 0; kk < swimmer_in_lane_per_class[ii].size(); kk++) {
+          if (swimmer_in_lane_per_class[ii][kk][jj] == true) {
+            std_dev = std_dev + pow((1 - mean_val), 2);
+          }
+          else {
+            std_dev = std_dev + pow((0 - mean_val), 2);
+          }
+        }
+        std_dev = std_dev / (double(num_total)-1);
+
+        map_results << fixed << setw(4) << setprecision(2) << mean_val << " (";
+        map_results << fixed << setw(6) << setprecision(4) << std_dev << ")";
       }
       else {
         map_results << "NoDA";
@@ -154,6 +170,15 @@ void test_swim_detect_network::save_network_results(string file_name)
       }
     }
   }
+  map_results.close();
+
+  //Save lane results for each class
+  new_file_name.clear();
+  new_file_name = file_name;
+  new_file_name.replace(new_file_name.end() - 4, new_file_name.end(), "README.txt");
+  map_results.open(new_file_name);
+  map_results << "Results are calculated with IOU = " << IOU_val << endl;
+
   map_results.close();
 }
 
@@ -301,7 +326,7 @@ void test_swim_detect_network::find_AP_function_for_swimmer_tracking(list<hold_d
         index_of_high_iou = jj;
       }
     }
-    if ((highest_iou) > .5) {
+    if ((highest_iou) > IOU_val) {
       //tp found
       tp++;
       grounds.at(index_of_high_iou) = Rect(0, 0, 1, 1); //make the box zero so it wont be used again
@@ -539,7 +564,7 @@ void test_swim_detect_network::get_network_results(string file_name)
       compare_results_with_ground(frame_num / get_skip_size());
       //add ground to the video for testing
       //class 0: Brown, class 1: Red, class 2: Green, class 3: Orange, class 4: Yellow, class 5: Purple
-      //add_ground_to_video(frame, frame_num / get_skip_size());
+      add_ground_to_video(frame, frame_num / get_skip_size());
     }
 
     // Write the frame with the detection boxes
@@ -548,11 +573,12 @@ void test_swim_detect_network::get_network_results(string file_name)
     video.write(detectedFrame);
     imshow(kWinName, frame);
     
-
-    //Ends work early for debuging 
+    //Ends work early for debuging
+    /*
     if ((frame_num % 50) == 49) {
       break;
     }
+    //*/
   }
 
   cap.release();

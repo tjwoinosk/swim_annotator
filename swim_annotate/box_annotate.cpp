@@ -224,7 +224,7 @@ bool box_annotate::load_video_for_boxing(string video_file)
       write_to_header << "#Data x, y, h, w, c, and l always in this order, for each lane. Sorted in order." << endl;
       write_to_header.close();
       //set class member field
-      num_possible_data_lines = get_num_frames() / get_skip_size();
+      num_possible_data_lines = floor((get_num_frames() - 1) / get_skip_size()) + 1;
 
       //init data holder
       swim_data init_swimmer;
@@ -328,7 +328,6 @@ bool box_annotate::annotation_options(char reply)
         break;
       }
     }
-    cout << "ROI failed to save" << endl;
     break;
   case 'r'://Create ROI
     if (fast_ROI_mode) {//loop for faster ROI creation
