@@ -529,7 +529,7 @@ void test_swim_detect_network::get_network_results(string file_name)
     cout << "What IOU value would you like to do the mAP calcualtions with (1 - 99)? ";
     cin >> iou_val_user;
     cout << endl;
-  } while ((iou_val_user < 100) & (iou_val_user > 0));
+  } while ((iou_val_user > 99) & (iou_val_user < 1));
   IOU_val = float(iou_val_user) / 100;
 
   //Set the starting frame to be analized 
