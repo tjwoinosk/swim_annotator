@@ -44,5 +44,11 @@ public:
   //produce analytics for the current detection network
   bool analize_swimmer_detection_netowrk();
 
+  //produce video of what netowrk sees
+  //produce a summary of results
+  //if interactive mode iou is not used
+  //iou is the inter value of the iou desired muliptied by 100 
+  bool analize_swimmer_detection_netowrk_non_inter(int iou);
+
 };
 

@@ -208,8 +208,24 @@ bool annotate_engine::ship_data_for_yolo(bool func_update_JPEG)
 
 //produce video of what netowrk sees
 //produce a summary of results
+//if interactive mode iou is not used
+//iou is the inter value of the iou desired muliptied by 100 
+bool annotate_engine::analize_swimmer_detection_netowrk_non_inter(int iou)
+{
+
+  test_swim_detect_network tester(iou);
+
+  tester.get_network_results(file_name);
+  tester.save_network_results(file_name);
+
+  return false;
+}
+
+//produce video of what netowrk sees
+//produce a summary of results 
 bool annotate_engine::analize_swimmer_detection_netowrk()
 {
+
   test_swim_detect_network tester;
 
   tester.get_network_results(file_name);
@@ -217,4 +233,5 @@ bool annotate_engine::analize_swimmer_detection_netowrk()
 
   return false;
 }
+
 

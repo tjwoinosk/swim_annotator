@@ -4,6 +4,7 @@
 //This application labels swimming videos quicker
 
 #include <iostream>
+#include <string.h>
 #include "annotate_engine.h"
 
 #include <opencv2/videoio/videoio.hpp> //displaying video
@@ -18,7 +19,7 @@ int main(int argc, char* argv[])
   if (argc == 1) {
     cout << "Need a file to work on!\ngood bye." << endl;
   }
-  else if(argc > 2) {
+  else if(argc > 4) {
     cout << "Too many input files!\ngood bye." << endl;
   }
   else {
@@ -39,10 +40,31 @@ int main(int argc, char* argv[])
 
       annotate_engine app(argv[1]);
 
-      //get user input
-      while (!app.is_app_finished()) {
-        while (!app.print_general_lab_options());
-        app.service_next_request();
+      if (argc == 2) {
+        //get user input
+        while (!app.is_app_finished()) {
+          while (!app.print_general_lab_options());
+          app.service_next_request();
+        }
+      }
+      else {
+        if (strcmp(argv[2], "-a") == 0) {
+          if (argc == 4) {
+            if ((stoi(argv[3]) < 100) && (stoi(argv[3]) > 0)) {
+              cout << "testing network with iou of " << float(stoi(argv[3])) / 100 << endl;
+              app.analize_swimmer_detection_netowrk_non_inter(stoi(argv[3]));
+            }
+            else {
+              cout << "iou value must be exculsivly between 0 and 100" << endl;
+            }
+          }
+          else {
+            app.analize_swimmer_detection_netowrk_non_inter(25);
+          }
+        }
+        else {
+          cout << "Incorrrect flag used" << endl;
+        }
       }
       
       app.kill_app();

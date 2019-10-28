@@ -21,6 +21,9 @@ class test_swim_detect_network :
 
 private:
 
+  //option flags
+  bool interactive_mode = true;
+
   //Class paramiters
   float IOU_val = 0.25; //For calculating mAP values
   float confThreshold = 0.5; // Confidence threshold
@@ -69,9 +72,9 @@ private:
 public:
 
   test_swim_detect_network();
+  test_swim_detect_network(int map_val);
 
   void get_network_results(string file_name);
-
   void save_network_results(string file_name);
 
 };

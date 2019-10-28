@@ -11,6 +11,13 @@ test_swim_detect_network::test_swim_detect_network()
 }
 
 
+test_swim_detect_network::test_swim_detect_network(int map_val)
+{
+  IOU_val = float(map_val) / 100;
+  interactive_mode = false;
+}
+
+
 bool compare_hold_data(const hold_data& first, const hold_data& second)
 {
   if (first.good_conf > second.good_conf) {
@@ -90,16 +97,22 @@ void test_swim_detect_network::save_network_results(string file_name)
   map_results << "mAP value of finding a swimmer in each class is: " << endl;
   for (ii = 0; ii < 6; ii++) {
     track_mAP = 0;
-    for (jj = 0; jj < class_precision[ii].size(); jj++) track_mAP += class_precision[ii][jj];
-    if (class_precision[ii].size() == 0) {
+    int total_mAP = 0;//used to remove true negitives from mAP calculations
+    for (jj = 0; jj < class_precision[ii].size(); jj++) {
+      if (class_precision[ii][jj] > 0) {//if class_precision[ii][jj] == -1 then true negivtive was found
+        track_mAP += class_precision[ii][jj];
+        total_mAP++;
+      }
+    }
+    if (total_mAP == 0) {
       map_results << ii << ". NOdata";
     }
     else {
-      map_results << ii << ". " << track_mAP / float(class_precision[ii].size()) << endl;
+      map_results << ii << ". " << track_mAP / float(total_mAP) << endl;
     }
   }
   map_results << "Skip size is " << get_skip_size() << endl;
-  map_results << "AP per frame for each class:" << endl;
+  map_results << "AP per frame for each class (-1 represents true negitive):" << endl;
 
   for (ii = 0; ii < class_precision[0].size(); ii++) map_results << setw(8) << ii*get_skip_size();
   map_results << endl;
@@ -279,7 +292,7 @@ void test_swim_detect_network::compare_results_with_ground(int frame_num)
       swimmer_in_lane_per_class[ii].push_back(lane_results);
       //save AP value for this frame and class
       if (sub_pred.size() == 0) {
-        class_precision[ii].push_back(1);//If the model says there is nothing in the frame when there is nothing
+        class_precision[ii].push_back(-1);//If the model says there is nothing in the frame when there is nothing
       }
       else {
         class_precision[ii].push_back(0);//if it predicts there is somthing when there is nothing
@@ -336,7 +349,7 @@ void test_swim_detect_network::find_AP_function_for_swimmer_tracking(list<hold_d
     recall->push_back(float(tp) / num_tp);
     ii++;
   }
-  //Edit the precision vector it remove the "wiggel" in the PR curve
+  //Edit the precision vector it removes the "wiggel" in the PR curve
   for (ii = (precision->size() - 2); ii >= 0; ii--) {//dont worry about the last value becuase it has no value to its right
     if (precision->at(ii) < precision->at(ii + 1)) {
       precision->at(ii) = precision->at(ii + 1);
@@ -420,6 +433,8 @@ float test_swim_detect_network::integrate_PR_curve(vector<float> precision, vect
 }
 
 
+//Used to test how the predicted resutls look against the ground results
+//comment in get_network_results to remove/add this function
 void test_swim_detect_network::add_ground_to_video(Mat& frame, int frame_num)
 {
   vector<swim_data>* ground;//used to load the ground truth into ground swimmers, ground classes, and ground lanes
@@ -477,6 +492,7 @@ void test_swim_detect_network::add_ground_to_video(Mat& frame, int frame_num)
 }
 
 
+//Main working fuction!! every other fuction is used in this definition. 
 void test_swim_detect_network::get_network_results(string file_name)
 {
   // Load names of classes
@@ -524,13 +540,15 @@ void test_swim_detect_network::get_network_results(string file_name)
   namedWindow(kWinName, WINDOW_NORMAL);
 
   //Get mAP value to compute with
-  do
-  {
-    cout << "What IOU value would you like to do the mAP calcualtions with (1 - 99)? ";
-    cin >> iou_val_user;
-    cout << endl;
-  } while ((iou_val_user > 99) & (iou_val_user < 1));
-  IOU_val = float(iou_val_user) / 100;
+  if (interactive_mode) {
+    do
+    {
+      cout << "What IOU value would you like to do the mAP calcualtions with (1 - 99)? ";
+      cin >> iou_val_user;
+      cout << endl;
+    } while ((iou_val_user > 99) & (iou_val_user < 1));
+    IOU_val = float(iou_val_user) / 100;
+  }
 
   //Set the starting frame to be analized 
   //cap.set(CAP_PROP_POS_FRAMES, 0);
@@ -575,7 +593,7 @@ void test_swim_detect_network::get_network_results(string file_name)
       compare_results_with_ground(frame_num / get_skip_size());
       //add ground to the video for testing
       //class 0: Brown, class 1: Red, class 2: Green, class 3: Orange, class 4: Yellow, class 5: Purple
-      add_ground_to_video(frame, frame_num / get_skip_size());
+      //add_ground_to_video(frame, frame_num / get_skip_size());
     }
 
     // Write the frame with the detection boxes
@@ -600,7 +618,7 @@ void test_swim_detect_network::get_network_results(string file_name)
 }
 
 
-// Remove the bounding boxes with low confidence using non-maxima suppression
+//Remove the bounding boxes with low confidence using non-maxima suppression
 void test_swim_detect_network::postprocess(Mat& frame, const vector<Mat>& outs)
 {
   vector<int> classIds;
@@ -660,7 +678,7 @@ void test_swim_detect_network::postprocess(Mat& frame, const vector<Mat>& outs)
 }
 
 
-// Draw the predicted bounding box
+//Draw the predicted bounding box
 void test_swim_detect_network::drawPred(int classId, float conf, int left, int top, int right, int bottom, Mat& frame)
 {
   //Draw a rectangle displaying the bounding box
@@ -683,7 +701,7 @@ void test_swim_detect_network::drawPred(int classId, float conf, int left, int t
 }
 
 
-// Get the names of the output layers
+//Get the names of the output layers
 vector<String> test_swim_detect_network::getOutputsNames(const Net& net)
 {
   static vector<String> names;
