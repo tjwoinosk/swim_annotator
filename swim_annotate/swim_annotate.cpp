@@ -48,6 +48,9 @@ int main(int argc, char* argv[])
         }
       }
       else {
+        //Alows program to be run many times automaticly given correct files... see \test_network\automate
+        //Ex.
+        //swim_annotate.exe video.mp4 -a iou_val
         if (strcmp(argv[2], "-a") == 0) {
           if (argc == 4) {
             if ((stoi(argv[3]) < 100) && (stoi(argv[3]) > 0)) {
@@ -59,6 +62,7 @@ int main(int argc, char* argv[])
             }
           }
           else {
+            //Defalt iou value
             app.analize_swimmer_detection_netowrk_non_inter(25);
           }
         }

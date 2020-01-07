@@ -7,7 +7,8 @@
 
 using namespace std;
 
-enum input_options {make_boxes, count_strokes, exit_opt, err_val, waiting_for_request, ship_data, ship_data_with_pics, analize_swim_detect};
+enum input_options {make_boxes, count_strokes, exit_opt, err_val, waiting_for_request, 
+  ship_data, ship_data_with_pics, analize_swim_detect, make_subvid};
 
 class annotate_engine {
 
@@ -49,6 +50,9 @@ public:
   //if interactive mode iou is not used
   //iou is the inter value of the iou desired muliptied by 100 
   bool analize_swimmer_detection_netowrk_non_inter(int iou);
+
+  //Using annotations of swimmers make subvideo of each swimmer
+  void make_sub_vid_from_annotations();
 
 };
 

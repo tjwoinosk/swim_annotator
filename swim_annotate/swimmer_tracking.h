@@ -1,45 +1,56 @@
 #pragma once
-#include "supper_annotator.h"
-#include <iomanip>
+#include "box_annotate.h"
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/types.hpp> //for the rect object
 #include <vector>
 
 using namespace std;
 using namespace cv;
 
-//----------------------------- 0 --------- 1 ------ 2 ----------- 3 ---------- 4 --------- 5 --------------------
-const string CLASSES[6] = { "On_Block", "Diving", "Swimming", "Underwater", "Turning", "Finishing" }; //the six possible classes
-
-struct swim_data
-{
-  Rect swimmer_box;
-  int box_class;
-  int lane_num;
+//this will be used to create subvideo
+struct track_data {
+  int frame_num;
+  int object_ID;
+  Rect frame_pos;
+  double conf_score;
+  int class_id;
 };
 
-class box_annotate :
-  public supper_annotator
+const int MAX_SORT = 100000;
+
+class swimmer_tracking :
+  public box_annotate
 {
+
 private:
-
-  //stuff for box annotator
-  Rect current_box;
-  int current_box_num;//zero indexed 
-  int num_possible_data_lines;
-  int current_class;
-
-  //tracker data
-  Ptr<TrackerKCF> tracker;
-  bool good_track;
-  bool fast_ROI_mode;
-
-  //Annotation data
-  vector<swim_data>** all_data;
-
-  //data for annotation stats
-  int class_stats[6];
+  //var that holds all tracking results for a video
+  vector<track_data> results;
+  //holds pointers to desired values in results
+  track_data *sorted_data[MAX_SORT];//his can hold up to 5 minutes of frames @30 fps
 
 public:
 
+  swimmer_tracking();
+
+  //Accessors
+  track_data** get_track_data() { return sorted_data; }
+
+  //Returns an in order array of pointers that point to the lane number requested 
+  void make_res_values(int lane_number);
+
+  //Do tracking using annotations
+  //Fill the vector call results with structs representing objects for each swimmer in each frame
+  //This fuction will try to ignore swimmers who are not in the race even when
+  // they were annotated. The racer should be in vector position 0.
+  void annotation_tracking(string file_name);
+  
+
+  //Do tracking... Use other peoples work as much as possible
+
+
+
+
+  /*inharated class (Box annotate)------
   //default constructor
   box_annotate();
 
@@ -58,7 +69,6 @@ public:
   vector<swim_data>* get_swim_data(int frame_no, int lane_no);
 
   //displays the current frame with or without annotation
-  //works
   bool display_current_frame();
 
   //move to next frame 
@@ -71,6 +81,7 @@ public:
 
   //prints the annotation options
   //Is used in display current frame automaticly
+  //finished
   bool annotation_options(char reply);
 
   //saves the current_box rect object in the class to the all_data and the text file 
@@ -107,14 +118,13 @@ public:
   //picture_num is the name of the file
   //Update text flage updates the text files
   //Update JPEG flage updates the JPEG files
-  bool create_training_set(int *picture_num, bool update_text, bool update_JPEG);
+  bool create_training_set(int* picture_num, bool update_text, bool update_JPEG);
 
   //changes the current box number
   //Creates a new swimmer in the frame if ROI is selected
   void change_current_box_num();
 
-  /*inharated class------
-
+  Inharated Inharated class (supper annotater)--- 
   //acsessors
   VideoCapture get_video_data() { return an_video; }
   int get_num_frames() { return number_of_frames; }
@@ -135,15 +145,12 @@ public:
   void select_lane_number();
 
   //moves to the next frame
-  //finished
   void next_frame();
 
   //move to the last frame
-  //finished
   void last_frame();
 
   //Go to the frame num specified
-  //finished
   void go_to_frame();
 
   //changes the current class lable for the box created
@@ -155,6 +162,5 @@ public:
   //returns a Mat object holding the current frame
   Mat get_current_Mat();
   */// ---------------------- END
-
 };
 

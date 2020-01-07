@@ -99,13 +99,13 @@ void test_swim_detect_network::save_network_results(string file_name)
     track_mAP = 0;
     int total_mAP = 0;//used to remove true negitives from mAP calculations
     for (jj = 0; jj < class_precision[ii].size(); jj++) {
-      if (class_precision[ii][jj] > 0) {//if class_precision[ii][jj] == -1 then true negivtive was found
+      if (class_precision[ii][jj] >= 0) {//if class_precision[ii][jj] == -1 then true negivtive was found
         track_mAP += class_precision[ii][jj];
         total_mAP++;
       }
     }
     if (total_mAP == 0) {
-      map_results << ii << ". NOdata";
+      map_results << ii << ". -1\n";
     }
     else {
       map_results << ii << ". " << track_mAP / float(total_mAP) << endl;
@@ -114,13 +114,13 @@ void test_swim_detect_network::save_network_results(string file_name)
   map_results << "Skip size is " << get_skip_size() << endl;
   map_results << "AP per frame for each class (-1 represents true negitive):" << endl;
 
-  for (ii = 0; ii < class_precision[0].size(); ii++) map_results << setw(8) << ii*get_skip_size();
+  for (ii = 0; ii < class_precision[0].size(); ii++) map_results << setw(9) << ii*get_skip_size();
   map_results << endl;
 
   for (ii = 0; ii < 6; ii++) {
     map_results << ii << ". ";
     for (jj = 0; jj < class_precision[ii].size(); jj++) {
-      map_results << fixed << setw(6) << setprecision(4) << class_precision[ii][jj];
+      map_results << fixed << setw(7) << setprecision(4) << class_precision[ii][jj];
       if (jj < (class_precision[ii].size() - 1)) {
         map_results << ", ";
       }
@@ -492,7 +492,7 @@ void test_swim_detect_network::add_ground_to_video(Mat& frame, int frame_num)
 }
 
 
-//Main working fuction!! every other fuction is used in this definition. 
+//Main working fuction!! Every other fuction is used in this definition. 
 void test_swim_detect_network::get_network_results(string file_name)
 {
   // Load names of classes
@@ -537,7 +537,9 @@ void test_swim_detect_network::get_network_results(string file_name)
 
   // Create a window
   static const string kWinName = "Deep learning object detection in OpenCV";
-  namedWindow(kWinName, WINDOW_NORMAL);
+  if (interactive_mode) {
+    namedWindow(kWinName, WINDOW_NORMAL);
+  }
 
   //Get mAP value to compute with
   if (interactive_mode) {
@@ -593,14 +595,17 @@ void test_swim_detect_network::get_network_results(string file_name)
       compare_results_with_ground(frame_num / get_skip_size());
       //add ground to the video for testing
       //class 0: Brown, class 1: Red, class 2: Green, class 3: Orange, class 4: Yellow, class 5: Purple
-      //add_ground_to_video(frame, frame_num / get_skip_size());
+      if (interactive_mode) add_ground_to_video(frame, frame_num / get_skip_size());
     }
 
     // Write the frame with the detection boxes
     Mat detectedFrame;
     frame.convertTo(detectedFrame, CV_8U);
     video.write(detectedFrame);
-    imshow(kWinName, frame);
+    if (interactive_mode) {
+      imshow(kWinName, frame);
+    }
+
     
     //Ends work early for debuging
     /*
@@ -612,7 +617,9 @@ void test_swim_detect_network::get_network_results(string file_name)
 
   cap.release();
   video.release();
-  destroyWindow(kWinName);
+  if (interactive_mode) {
+    destroyWindow(kWinName);
+  }
 
   return;
 }

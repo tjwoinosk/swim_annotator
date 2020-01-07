@@ -4,6 +4,7 @@
 
 #include "annotate_engine.h"
 #include "test_swim_detect_network.h"
+#include "sub_video.h"
 
 using namespace std;
 
@@ -78,6 +79,7 @@ bool annotate_engine::print_general_lab_options() {
   cout << "To create data for YOLO and EXCLUDE JPEG images, press (4)" << endl;
   cout << "To create data for YOLO WITH JPEG images, press (5)" << endl;
   cout << "To analize swimmer detection network with current video, press (6)" << endl;
+  cout << "To create sub-video, press (7)" << endl;
   cout << "\nlab>> ";
   cin >> answer;
 
@@ -100,11 +102,13 @@ bool annotate_engine::print_general_lab_options() {
     break;
   case 6: current_request = analize_swim_detect;
     break;
+  case 7: current_request = make_subvid;
+    break;
   default: current_request = err_val;
     cout << "An unrecognised value was input\n";
     return false;
   }
-
+  
   return true;
 }
 
@@ -232,6 +236,14 @@ bool annotate_engine::analize_swimmer_detection_netowrk()
   tester.save_network_results(file_name);
 
   return false;
+}
+
+
+//Using annotations of swimmers make subvideo of each swimmer
+void annotate_engine::make_sub_vid_from_annotations() {
+  sub_video make_subvid;
+
+
 }
 
 

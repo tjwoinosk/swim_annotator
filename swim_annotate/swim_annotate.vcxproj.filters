@@ -33,6 +33,12 @@
     <ClCompile Include="test_swim_detect_network.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sub_video.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="swimmer_tracking.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="annotate_engine.h">
@@ -48,6 +54,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="test_swim_detect_network.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sub_video.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="swimmer_tracking.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

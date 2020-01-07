@@ -699,6 +699,8 @@ vector<swim_data>* box_annotate::get_swim_data(int frame_no, int lane_no)
 
 
 //sets up the app for start
+//Lets the user select lane number
+//Puts the user at the most recent annotation in that lane
 void box_annotate::start_up() {
   select_lane_number();
   find_latest_annotation(true);
@@ -795,7 +797,12 @@ void box_annotate::reset_tracker()
   }
 }
 
-
+//Create files good for yolo training
+//Data saved in hard coaded location
+//    C:/Users/tim_w/Downloads/yolo_swim/JPEGImages/
+//picture_num is the name of the file
+//Update text flage updates the text files
+//Update JPEG flage updates the JPEG files
 bool box_annotate::create_training_set(int* picture_num, bool update_text, bool update_JPEG)
 {
   ofstream frame_data;
@@ -832,7 +839,7 @@ bool box_annotate::create_training_set(int* picture_num, bool update_text, bool 
         jj = 0;
         while (all_data[ii][jj][0].lane_num != -1) {
           for (zz = 0; zz < all_data[ii][jj].size(); zz++) {
-            if (all_data[ii][jj][zz].swimmer_box.area() != 0) {//For situlation where in my application I noted that the swimmer was not visable
+            if (all_data[ii][jj][zz].swimmer_box.area() != 0) {//For situation where in my application I noted that the swimmer was not visable
               //do convertion calculations for yolo 
               //yolo wants the center of the box rather than the top left corner
               box_width = float(all_data[ii][jj][zz].swimmer_box.width - ((1 + all_data[ii][jj][zz].swimmer_box.width) % 2));
