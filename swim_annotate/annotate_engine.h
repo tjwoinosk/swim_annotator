@@ -15,6 +15,13 @@ class annotate_engine {
   string file_name;
   input_options current_request;
 
+private:
+
+  //Change file name
+  void change_video_file_name(string new_file_name) {
+    file_name = new_file_name;
+  }
+
 public:
 
   //constructors

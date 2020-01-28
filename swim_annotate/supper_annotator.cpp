@@ -32,9 +32,9 @@ supper_annotator::supper_annotator(int class_skip_size) {
 bool supper_annotator::load_video(string video_file)
 {
   video_file_name = "";
-  an_video = NULL;
   current_frame = 0;
   number_of_frames = -1;
+  an_video = NULL;
   skip_size = 3;//how many frames to skip every new frame
   current_swimmer = -1;//lane number of swimmer
   video_file_open = false;
@@ -42,20 +42,46 @@ bool supper_annotator::load_video(string video_file)
   hight = 0;
   width = 0;
 
-  video_file_name = video_file;
-  if (an_video.open(video_file)) {
+  string temp = video_file;
+  int ii = 0;
+  ifstream f(temp);
+  
+  while (!f.is_open()) {
+    if (ii == 0) {
+      temp.replace(temp.end() - 4, temp.end(), ".avi");
+      f.open(temp);
+      ii++;
+    }
+    else if (ii == 1) {
+      temp.replace(temp.end() - 4, temp.end(), ".mp4");
+      f.open(temp);
+      ii++;
+    }
+    else {
+      break;
+    }
+  }
+  
+
+  if (f.is_open()) {
+    an_video.open(temp);
+    video_file_name = temp;
     number_of_frames = int(an_video.get(CAP_PROP_FRAME_COUNT));
     FPS_vid = an_video.get(CAP_PROP_FPS);
     hight = an_video.get(CAP_PROP_FRAME_HEIGHT);
     width = an_video.get(CAP_PROP_FRAME_WIDTH);
     namedWindow(AN_WINDOW_NAME, WINDOW_NORMAL);
     video_file_open = true;
+
+    f.close();
+
     return true;
   }
-  else {
-    video_file_open = false;
-    return false;
-  }
+  
+  f.close();
+  video_file_open = false;
+  return false;
+  
 }
 
 

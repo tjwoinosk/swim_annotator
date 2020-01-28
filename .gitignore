@@ -345,3 +345,17 @@ healthchecksdb
 /swim_annotate/yolov3.weights
 /swim_annotate/10.mp4
 /swim_annotate/10.txt
+/sort-cpp-master/sort-c++/data/2_detection_file.txt
+/sort-cpp-master/sort-c++/data_test/ADL-Rundle-6/det.txt
+/sort-cpp-master/sort-c++/data_test/ADL-Rundle-8/det.txt
+/sort-cpp-master/sort-c++/data_test/ETH-Bahnhof/det.txt
+/sort-cpp-master/sort-c++/data_test/ETH-Pedcross2/det.txt
+/sort-cpp-master/sort-c++/data_test/ETH-Sunnyday/det.txt
+/swim_annotate/data/ground
+/swim_annotate/data
+/swim_annotate/det
+/swim_annotate/full_model
+/swim_annotate/ground
+/swim_annotate/output
+/swim_annotate/tiny_model
+/sort-cpp-master

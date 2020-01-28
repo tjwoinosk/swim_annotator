@@ -49,16 +49,16 @@ bool box_annotate::load_video_for_boxing(string video_file)
     ifstream get_from_header;
     ofstream write_to_header;
     string header_filename = video_file;
+    size_t pos;
 
     //Change file name to end it .txt
-    size_t pos = header_filename.find_first_of('.', 0);//no need to be carfull as the file was already opened
-    header_filename.erase(pos + 1, 3);
-    header_filename.append("txt");
+    header_filename.replace(header_filename.end() - 4, header_filename.end(), ".txt");
 
     //Check if header already has been created
     //A data file will be mapped to its name, this data file will initially contain header with, 
     //video frame rate, video resolution, the frame skip size, and total number of frames in video. 
     get_from_header.open(header_filename);
+
     if (get_from_header.is_open()) {
       char line[500];
       string find;
@@ -75,7 +75,7 @@ bool box_annotate::load_video_for_boxing(string video_file)
       pos = find.find_first_of(' ', 0);
       num = find.substr(pos + 1, (find.size() - pos - 1));
       if (abs(stod(num) - get_FPS_vid()) > .01) { //to remove any rounding errors from the text file
-        cout << "FPS dont match file, open failed" << endl;
+        cout <<"FPS = "<< get_FPS_vid() <<" FPS dont match file, open failed" << endl;
         return false;
       }
       get_from_header.getline(line, 500);//get Hight and width

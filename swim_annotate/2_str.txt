@@ -1,0 +1,9 @@
+#header{ right_s, left_s, stroke_class }, Frames Per Second, Resolution (hight, width), Total Number Frames
+#stroke classes fly == 1, back == 2, breast == 3, free == 4 this is number 3
+#stroke is symmetrical numbers 1 and 2 are same
+#stroke is asymmetrical numbers of one numbers 1 or 2 will be - 1
+#lane 0 starts at line 10
+#lane 9 starts at line 19
+FPS: 29.97
+RES: 720 1280
+TNF: 804

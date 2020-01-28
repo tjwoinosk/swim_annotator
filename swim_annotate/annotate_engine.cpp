@@ -44,6 +44,9 @@ void annotate_engine::service_next_request() {
   case analize_swim_detect:
     analize_swimmer_detection_netowrk();
     break;
+  case make_subvid:
+    make_sub_vid_from_annotations();
+    break;
   case exit_opt:
     current_request = exit_opt;
     break;
@@ -241,8 +244,45 @@ bool annotate_engine::analize_swimmer_detection_netowrk()
 
 //Using annotations of swimmers make subvideo of each swimmer
 void annotate_engine::make_sub_vid_from_annotations() {
+ 
   sub_video make_subvid;
+  //swimmer_tracking testing;
+  string str = file_name;
+  char resp = '0', temp = '0';
 
+
+  //make_subvid.calculate_proc_noise_covs();
+
+  //make_subvid.annotation_tracking(file_name);
+  make_subvid.make_subvideo(file_name);
+
+
+  /*
+  do
+  {
+    cout << "Would you like to update the detection file? (y/n)" << endl;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    cin >> temp;
+    if ((temp == 'n') || (temp == 'y')) {
+      resp = temp;
+    }
+  } while (resp == '0');
+
+  //make_subvid.make_subvideo(file_name);
+
+  if (resp == 'y') make_subvid.make_detection_file(file_name);
+
+
+  str.replace(str.end() - 4, str.end(), "_detection_data.txt");
+  make_subvid.sort_tracking(str);
+
+  make_subvid.show_video_of_tracking(file_name);
+  //make_subvid.make_subvideo(file_name);
+
+  //make_subvid.make_subvideo(file_name);
+
+  //*/
+  return;
 
 }
 

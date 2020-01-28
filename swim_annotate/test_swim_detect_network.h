@@ -8,6 +8,13 @@ using namespace dnn;
 using namespace std;
 using namespace cv;
 
+struct data_for_file {
+  Rect box;
+  float conf;
+  int class_name;
+  int frame;
+};
+
 struct hold_data
 {
   Rect good_box;
@@ -15,6 +22,8 @@ struct hold_data
   int good_ID;
 };
 
+//!!! Must fix mAP calculation befor using the results again
+//Currently not correct :(
 class test_swim_detect_network :
   public box_annotate
 {
@@ -40,6 +49,8 @@ private:
   vector<float> class_precision[6]; //0 == on_block, 1 == diving, 2 == swimming, 3 == underwater, 4 == turning, 5 == finsihing
   vector<array<bool,10>> swimmer_in_lane;
   vector<array<bool,10>> swimmer_in_lane_per_class[6];
+
+  vector<data_for_file> detect;
 
   // Remove the bounding boxes with low confidence using non-maxima suppression
   void postprocess(Mat& frame, const vector<Mat>& out);
@@ -69,6 +80,12 @@ private:
   //class 0: Brown, class 1: Red, class 2: Green, class 3: Orange, class 4: Yellow, class 5: Purpel
   void add_ground_to_video(Mat& frame, int frame_num);
 
+  //Makes a files that contain all detection results
+  void make_map_files_det(string file_name);
+
+  //Makes a files that contain all detection results
+  void make_map_files_ground(string file_name);
+
 public:
 
   test_swim_detect_network();
@@ -76,6 +93,8 @@ public:
 
   void get_network_results(string file_name);
   void save_network_results(string file_name);
+
+
 
 };
 

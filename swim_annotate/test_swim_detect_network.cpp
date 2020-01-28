@@ -5,6 +5,9 @@
 #include <iomanip>
 #include <math.h>
 
+#include <sstream>
+#include <iomanip>
+
 test_swim_detect_network::test_swim_detect_network()
 {
   
@@ -219,6 +222,17 @@ void test_swim_detect_network::compare_results_with_ground(int frame_num)
   int num_tp = 0;
   float average_precision = 0;
   array<bool,10> lane_results;
+
+  data_for_file file_data;
+
+  //add to detect var in class
+  for (ii = 0; ii < good_boxes.size(); ii++) {
+    file_data.box = good_boxes[ii];
+    file_data.class_name = good_class_IDs[ii];
+    file_data.conf = good_confs[ii];
+    file_data.frame = frame_num;
+    detect.push_back(file_data);
+  }
 
   //make a list of found boxes from most confident to least
   if ((good_boxes.size() == good_class_IDs.size()) && (good_class_IDs.size() == good_confs.size())) {
@@ -553,7 +567,7 @@ void test_swim_detect_network::get_network_results(string file_name)
   }
 
   //Set the starting frame to be analized 
-  //cap.set(CAP_PROP_POS_FRAMES, 0);
+  cap.set(CAP_PROP_POS_FRAMES, 0);
 
   //Process frames.
   while (waitKey(1) < 0)
@@ -590,7 +604,7 @@ void test_swim_detect_network::get_network_results(string file_name)
     putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
 
     //For dealing with the fact that we skip frames when lableing data
-    frame_num = cap.get(CAP_PROP_POS_FRAMES);
+    frame_num = (cap.get(CAP_PROP_POS_FRAMES) - 1);
     if ((frame_num % get_skip_size()) == 0) {
       compare_results_with_ground(frame_num / get_skip_size());
       //add ground to the video for testing
@@ -609,7 +623,8 @@ void test_swim_detect_network::get_network_results(string file_name)
     
     //Ends work early for debuging
     /*
-    if ((frame_num % 50) == 49) {
+    int stop = 5;
+    if ((frame_num % stop) == (stop - 1)) {
       break;
     }
     //*/
@@ -619,6 +634,11 @@ void test_swim_detect_network::get_network_results(string file_name)
   video.release();
   if (interactive_mode) {
     destroyWindow(kWinName);
+  }
+
+  if (!interactive_mode) {
+    make_map_files_det(file_name);
+    make_map_files_ground(file_name);
   }
 
   return;
@@ -729,4 +749,125 @@ vector<String> test_swim_detect_network::getOutputsNames(const Net& net)
 }
 
 
+//Makes a files that contain all detection results
+void test_swim_detect_network::make_map_files_det(string file_name)
+{
+  string top_path = "C:\\Users\\tim_w\\Downloads\\yolo_swim\\git_map_calc";
 
+  fstream save_data;
+  int ii = 0, jj = 0;
+  string frame;
+  char buff[10];
+  string str = file_name;
+
+  size_t pos = str.find_last_of("\\");
+  if (!(pos < 0)) {
+    str.replace(str.begin() + pos, str.end(), "\\det\\");
+  }
+  else {
+    str.append("\\det\\");
+  }
+
+  //Put detections into text files
+  jj = -1;
+  for (ii = 0; ii < detect.size(); ii++) {
+
+    if (detect[ii].frame != jj) {
+      if (save_data.is_open()) {
+        save_data.close();
+      }
+      jj++;
+      //convert jj to zero padded string
+      sprintf(buff,"%.4d", jj);
+      frame = string(buff);
+      //save_data.open(top_path + "\\det\\" + frame + ".txt", std::fstream::out);
+      save_data.open(str + frame + ".txt", std::fstream::out);
+    }
+
+    if (save_data.is_open()) {
+      save_data << detect[ii].class_name << " ";
+      save_data << detect[ii].conf << " ";
+      save_data << detect[ii].box.x << " ";
+      save_data << detect[ii].box.y << " ";
+      save_data << (detect[ii].box.width + detect[ii].box.x) << " ";
+      save_data << (detect[ii].box.height + detect[ii].box.y) << endl;
+    }
+    else {
+      cout << "Error, could not open file " << frame << ".txt for detect" << endl;
+    }
+
+  }
+
+}
+
+//Makes a files that contain all ground
+void test_swim_detect_network::make_map_files_ground(string file_name) {
+
+  string top_path = "C:\\Users\\tim_w\\Downloads\\yolo_swim\\git_map_calc";
+
+  fstream save_data;
+  int number_frames = get_num_frames();
+  int skip_size = get_skip_size();
+  vector<data_for_file> ground;
+  vector<swim_data>* ground_temp;
+  data_for_file temp_hold;
+  int ii = 0, jj = 0, kk = 0;
+  string frame;
+  char buff[10];
+  string str = file_name;
+
+  size_t pos = str.find_last_of("\\");
+  if (!(pos < 0)) {
+    str.replace(str.begin() + pos, str.end(), "\\ground\\");
+  }
+  else {
+    str.append("\\ground\\");
+  }
+
+  //Fill ground_truth
+  for (ii = 0; ii < (number_frames / skip_size + 1); ii++) {
+    for (jj = 0; jj < 10; jj++) {
+      ground_temp = get_swim_data(ii, jj);
+      if (ground_temp != nullptr) {
+        for (kk = 0; kk < ground_temp->size(); kk++) {
+          if ((ground_temp->at(kk).box_class != -1) && (!ground_temp->at(kk).swimmer_box.empty())) {
+            temp_hold.box = ground_temp->at(kk).swimmer_box;
+            temp_hold.conf = 1;
+            temp_hold.class_name = ground_temp->at(kk).box_class;
+            temp_hold.frame = ii;
+            ground.push_back(temp_hold);
+          }
+        }
+      }
+    }
+  }
+
+  //Put ground data in text files
+  jj = -1;
+  for (ii = 0; ii < ground.size(); ii++) {
+
+    if (ground[ii].frame != jj) {
+      if (save_data.is_open()) {
+        save_data.close();
+      }
+      jj++;
+      //convert jj to zero padded string
+      sprintf(buff, "%.4d", jj);
+      frame = string(buff);
+      //save_data.open(top_path + "\\ground\\" + frame + ".txt", std::fstream::out);
+      save_data.open(str + frame + ".txt", std::fstream::out);
+    }
+
+    if (save_data.is_open()) {
+      save_data << ground[ii].class_name << " ";
+      save_data << ground[ii].box.x << " ";
+      save_data << ground[ii].box.y << " ";
+      save_data << (ground[ii].box.width + ground[ii].box.x) << " ";
+      save_data << (ground[ii].box.height + ground[ii].box.y) << endl;
+    }
+    else {
+      cout << "Error, could not open file " << frame << ".txt for ground" << endl;
+    }
+  }
+
+}

@@ -3,7 +3,14 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/types.hpp> //for the rect object
 #include <vector>
+#include <fstream>
 
+#include "sort_tracker.h"
+#include <Eigen/Dense>
+
+using namespace Eigen;
+
+using namespace dnn;
 using namespace std;
 using namespace cv;
 
@@ -16,37 +23,82 @@ struct track_data {
   int class_id;
 };
 
-const int MAX_SORT = 100000;
 
 class swimmer_tracking :
   public box_annotate
 {
 
 private:
+
   //var that holds all tracking results for a video
-  vector<track_data> results;
-  //holds pointers to desired values in results
-  track_data *sorted_data[MAX_SORT];//his can hold up to 5 minutes of frames @30 fps
+  vector <track_data> results;
+
+  //Get the names of the output layers
+  //This fuction is used in the make detection file system
+  vector<String> getOutputsNames(const Net& net);
+
+  //For detection system
+  float confThreshold = 0.5; // Confidence threshold
+  float nmsThreshold = 0.3;  // Non-maximum suppression threshold
+  int inpWidth = 416;  // Width of network's input image
+  int inpHeight = 416; // Height of network's input image
+
+protected:
+  //Accessors
+  vector<track_data>* get_results() { return &results; }
 
 public:
 
   swimmer_tracking();
 
-  //Accessors
-  track_data** get_track_data() { return sorted_data; }
-
-  //Returns an in order array of pointers that point to the lane number requested 
-  void make_res_values(int lane_number);
-
   //Do tracking using annotations
   //Fill the vector call results with structs representing objects for each swimmer in each frame
   //This fuction will try to ignore swimmers who are not in the race even when
   // they were annotated. The racer should be in vector position 0.
-  void annotation_tracking(string file_name);
+  bool annotation_tracking(string file_name);
+  
+  //Makes a detection file for tracking algorithums to work with
+  //file contains detection information on each frame
+  //see MOT2016 challenge for detection file details
+  void make_detection_file(string file_name);
+
+  //Remove the bounding boxes with low confidence using non-maxima suppression
+  //saves the detection results into the classes reuslts var
+  //This fuction is used in the maek detection file system 
+  void postprocess(Mat& frame, const vector<Mat>& outs, int frame_num);
+
+  //Save the contents of results into a text file with input name
+  //Used by the make detection file fuction to save the contence of results into text file name
+  void save_results_in_text_file(string text_file_name);
+
+  //Use SORT algorithum
+  //Reads the contence of the detection file and saves the tracked
+  //data into the classes reuslts var
+  //Needs work as currently the same swimmer get tracked multiple times
+  void sort_tracking(string text_file_name);
+
+  //Used for testing and evaluating the tracking algorithum
+  //Will produce video of all tracked swimmers results
+  void show_video_of_tracking(string file_name);
+
+  //Find the cov mats for kalman filter from ground truth
+  //Mat 1 is the cov of the prosess noise denoted as Q
+  //Mat 2 is the cov of the observation noise denoted as R
+  Mat_<float> calculate_proc_noise_covs();
+  //Matrix<float, Dynamic, Dynamic> calculate_proc_noise_covs();
+
+  //Take data and replace all values with accellerations
+  //this is used in the noise covs fuction
+  //state_num, number of values in the vector of data to find the covariance mat of
+  //t, finite difference value for calculating acceleration
+  void calc_accelerations(vector<vector<float>> &data, int state_num, float t);
+
   
 
-  //Do tracking... Use other peoples work as much as possible
-
+  //Use opencv TLD tracking algorithum to track swimmers
+  //Use detection to give algorithum an ROI 
+  //If tracker fails give new ROI with detection
+  //void preform_TLD_tracking(string text_file_name);
 
 
 

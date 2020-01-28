@@ -1,0 +1,8 @@
+The amout of data for each class is the following:
+On_Block count: 0
+Diving count: 0
+Swimming count: 0
+Underwater count: 0
+Turning count: 0
+Finishing count: 0
+Total annotations collected: 0

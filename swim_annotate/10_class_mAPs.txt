@@ -1,0 +1,17 @@
+Classes: 0 == on_block, 1 == diving, 2 == swimming, 3 == underwater, 4 == turning, 5 == finishing
+mAP value of finding a swimmer in each class is: 
+0. -1
+1. -1
+2. 0.142857
+3. -1
+4. -1
+5. -1
+Skip size is 3
+AP per frame for each class (-1 represents true negitive):
+        0        3
+0. -1.0000, -1.0000
+1. -1.0000, -1.0000
+2.  0.1429,  0.1429
+3. -1.0000, -1.0000
+4. -1.0000, -1.0000
+5. -1.0000, -1.0000
