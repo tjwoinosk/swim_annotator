@@ -58,8 +58,13 @@ public:
   //iou is the inter value of the iou desired muliptied by 100 
   bool analize_swimmer_detection_netowrk_non_inter(int iou);
 
-  //Using annotations of swimmers make subvideo of each swimmer
-  void make_sub_vid_from_annotations();
+  //Using tracking of swimmers make subvideo of each swimmer
+  void make_sub_vid_using_tracking();
+
+  //needs files localy named "data" and "output"
+  //data holds the pre SORT detection files
+  //output holds the post SORT detection file and the subvideo
+  void make_sub_vid_using_tracking_auto_detect(bool update_detection_file);
 
 };
 

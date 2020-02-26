@@ -1,115 +1,87 @@
 #pragma once
-#include "supper_annotator.h"
-#include <list>
+
+#include <opencv2/videoio/videoio.hpp> //displaying video
+#include <opencv2/opencv.hpp> //displaying video
+#include <math.h>
+
+#include "graph_drawing.h"
+#include "sinusoid_maker.h"
+#include "SA_file_mannager.h"
 
 using namespace std;
 using namespace cv;
 
-struct swim_data_stroke {
-  int cycle;//frame number
-  int stroke_spec; //fly == 1, back_right == 2, back_left == 20,  breast == 3, free_right == 4, free_left == 40
-};
-
-class stroke_annotate :
-  public supper_annotator
+class stroke_annotate 
 {
+
 private:
 
-  //Viewing variables
-  int video_speed;//speed at which video plays (1x, 1/2x, 1/3x, ...)
-  int max_speed;
-  int min_speed;
+  VideoCapture cap;
+  SA_file_mannager man_file;
+  graph_drawing grapher;
 
-  //Annotation data
-  list<swim_data_stroke> stroke_data[10];
-  int current_class;
+  string video_file = "uninit.mp4";
+
+  //video display
+  string video_window_name = "uninit_name.mp4";
+  double video_speed = 1;//A fraction of the original FPS of the video
+  const int num_skip_back = 5;
+  const double min_speed = 6; //equivilant to 16x slower (must be grater than zero)
+  const double max_speed = 1; //equivilant to 2x faster (must be grater than zero)
+
+  //data
+  bool swimmer_is_swimming = false;
+
+  //Show options for vid once
+  //wait for user to choose one
+  //Also display in video options
+  void print_vid_dialog();
+
+  //Start annotating video (edit mode)
+  //Fist ask if swimming is swimming or not, set swimmer_is_swimming accordingly (edit mode)
+  //View any annotations and/or watch video (view mode)
+  void annotate_video(bool is_edit_mode);
+
+  //Specify stroke being prefomed in video (If not already spcifed ask to change)
+  //Save all work in file
+  //kill all windows
+  void quit_stroke_annotator();
+
+  //prints options when editing or viewing stroke annotations
+  void print_video_options(bool in_view_mode);
+
+  //asks user to input if swimmer is swimming or not
+  void get_swimmer_stait();
+
+  void change_speed(bool speed_up);
+
+  //flips the swimmer_is_swimming flag
+  void toggel_swimming();
+
+  //Changes cntr_end and cntr_star aproprately
+  //Modifies the data in the grapher object
+  void skip_back(int n_storkes, int &cntr_end, int &cntr_start, bool in_edit_mode);
+
+  //pause the video
+  void toggel_pause() { while (waitKey(0) != 'p'); }
+
+  //Tells the grapher object that a stroke occured
+  //Upates the grapher accordingly
+  void mark_stroke(int& cntr_start, int& cntr_end);
+
 
 public:
 
-  //default constructor
-  stroke_annotate();
+  //constructors
 
-  //loads the video in video file into the video object 
-  //sets the number_of_frames, current_frame to zero, and opens the VideoCapture object
-  //must be called second
-  bool load_video_for_stroke_counting(string video_file);
+  //exmple for how to use the graphing class
+  void graph_example();
 
-  //displays the current frame with or without annotation
-  //works
-  bool play_video();
+  //exmpale for how to use the file class
+  void file_example();
 
-  //change annotation class 
-  void change_class();
-
-  //exit supper annotator
-  bool quit_and_save_data();
-
-  //saves the current_box rect object in the class to the all_data and the text file 
-  void save_annotation(bool is_right);
-
-  //load completed work onto the textfile
-  bool update_text_file();
-
-  //sets up the app for start
-  void start_up();
-
-  //pause video
-  void pause_video();
-
-  //change the viewing speed of the video 
-  void change_video_speed(bool increase_speed);
-
-  //search of the annotation and deletes it if and_delete is true
-  bool check_for_annotation(int input_current_lane, int input_current_frame, bool and_delete);
-
-  //goes to the most recently annotated frame
-  void go_to_most_recent_annotation();
-
-  void print_play_vid_dialog();
-
-
-  /*inharated class------
-
-  //acsessors
-  VideoCapture get_video_data() { return an_video; }
-  int get_num_frames() { return number_of_frames; }
-  int get_current_frame() { return current_frame; }
-  string get_video_file() { return video_file_name; }
-  int get_skip_size() { return skip_size; }
-  int get_current_swimmer() { return current_swimmer; }
-  double get_FPS_vid() { return FPS_vid; }
-  int get_hight() { return hight; }
-  int get_width() { return width; }
-  int get_current_class() { return current_class; }
-
-  //loads relavant video information into class
-  bool load_video(string video_file);
-
-  //select the lane number of the swimmer you are annotating
-  //must be called first
-  void select_lane_number();
-
-  //moves to the next frame
-  //finished
-  void next_frame();
-
-  //move to the last frame
-  //finished
-  void last_frame();
-
-  //Go to the frame num specified
-  //finished
-  void go_to_frame();
-
-  //changes the current class lable for the box created
-  void change_class();
-
-  //Create ROI
-  bool create_ROI_in_pool(Rect* current_box);
-
-  //returns a Mat object holding the current frame
-  Mat get_current_Mat();
-  */// ---------------------- END
-
+  //loads and opens all objects required for stroke annotation 
+  //Display all windows
+  void start_stroke_counting(string video_file);
+  
 };
-

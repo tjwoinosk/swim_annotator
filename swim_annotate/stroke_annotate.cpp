@@ -1,537 +1,368 @@
 #include "stroke_annotate.h"
 
-//compare fuction for sorting list
-bool cmp(const swim_data_stroke& a, const swim_data_stroke& b) {
-  if (a.cycle < b.cycle) return true;
-  return false;
-}
 
-
-stroke_annotate::stroke_annotate()
+void stroke_annotate::graph_example()
 {
-  set_skip_size(1);
-  video_speed = 32;
-  max_speed = 1;
-  min_speed = 500;
-  current_class = 1;
-}
 
+  char end = '0';
+  char responce = '0';
+  int cntr_start = 0, cntr_end = 0;
+  double time_slice = double(1) / double(30);
+  double vid_time = 22.5;
 
-bool stroke_annotate::load_video_for_stroke_counting(string video_file)
-{
-  if (load_video(video_file)) {
+  //stroke_annotate stroke_work;
+  graph_drawing tester("test window", vid_time, time_slice);
 
-    ifstream read_strokes;
-    ofstream create_stokes;
-    size_t pos = 0;
-    string header_filename = video_file;
-    int number_frames = get_num_frames();
-    int n = get_hight();
-    int m = get_width();
-    double FPS = get_FPS_vid();
-    int ii = 0;
+  tester.start_graph_drawer();
 
-    //create stroke file name
-    pos = header_filename.find_first_of('.', 0);
-    header_filename.erase(pos, 4);
-    header_filename.append("_str.txt");
-
-
-    read_strokes.open(header_filename);//try to open file 
-    if (read_strokes.is_open()) {//video has been anotated before read in data
-      char line[500];
-      string find;
-      string num;
-      string::size_type sz;
-
-      for (ii = 0; ii < 6; ii++) {
-        read_strokes.getline(line, 500);
-        if (line[0] != '#') {
-          cout << "Missing initial # on line " << ii+1 << " , file open failed!" << endl;
-          return false;
-        }
-      }
-      
-      read_strokes.getline(line, 500);//get FPS
-      find = line;
-      pos = find.find_first_of(' ', 0);
-      num = find.substr(pos + 1, (find.size() - pos - 1));
-      if (abs(stod(num) - get_FPS_vid()) > .01) { //to remove any rounding errors from the text file
-        cout << "FPS dont match file, open failed" << endl;
-        return false;
-      }
-      read_strokes.getline(line, 500);//get Hight and width
-      find = line;
-      pos = find.find_first_of(' ', 0);
-      num = find.substr(pos + 1, (find.size() - pos - 1));
-      if (stoi(num, &sz) != n) {
-        cout << stoi(num, &sz) << endl;
-        cout << "hight dose not match file, open failed" << endl;
-        return false;
-      }
-      else if (stoi(num.substr(sz)) != m) {
-        cout << stoi(num.substr(sz)) << endl;
-        cout << "width dose not match file, open failed" << endl;
-        return false;
-      }
-      read_strokes.getline(line, 500);//get #of frames 
-      find = line;
-      pos = find.find_first_of(' ', 0);
-      num = find.substr(pos + 1, (find.size() - pos - 1));
-      if (stoi(num) != get_num_frames()) {
-        cout << stoi(num) << endl;
-        cout << "number of frames dose not match file, open failed" << endl;
-        return false;
-      }
-
-      //start loading data
-      //the data line string is roughly the size of the number of frames because at most there will be
-      //2.5 swim cycles per second wich traslates to 2.5 annotaions per 30 frames and if at most 
-      //8 chars worth of data make up one annotation then 2.5*8 < 30 => number_frames is sufficent in size 
-      char* data_line = new char[number_frames];//create string for holding stroke data
-
-      size_t pos_num = 0;
-      size_t pos_num_check = 0;
-      size_t pos_num_end = 0;
-      int num_val = 0;
-      int jj = 0;
-      swim_data_stroke temp_insert = { -1, -1 };
-
-      for (ii = 0; ii < 10; ii++) {//look for each lane
-
-        read_strokes.getline(data_line, number_frames);
-        
-        find = data_line;
-        pos_num = 0;
-        pos_num_end = 0;
-        pos_num_check = find.find_first_of('}',0);
-
-        while (pos_num_check != string::npos) {
-
-          pos_num = find.find_first_of('{', pos_num);
-          if (pos_num > pos_num_check) {
-            cout << "Error in brakets in lane " << ii << endl;
-            delete[] data_line;
-            return false;
-          }
-          pos_num_end = find.find_first_of(',', pos_num);
-          if (pos_num_end > pos_num_check) {
-            cout << "Error in braket syntax in lane " << ii <<", no \",\" after number." <<  endl;
-            delete[] data_line;
-            return false;
-          }
-          //insert first value
-          num_val = stoi(find.substr(pos_num + 1, pos_num_end - pos_num - 1));
-          temp_insert.cycle = num_val;
-
-          pos_num = find.find_first_of(' ', pos_num);
-          if (pos_num > pos_num_check) {
-            cout << "Error in braket syntax in lane " << ii << ", no \" \" after number." << endl;
-            delete[] data_line;
-            return false;
-          }
-          //insert second val
-          num_val = stoi(find.substr(pos_num + 1, pos_num_check - pos_num - 1));
-          temp_insert.stroke_spec = num_val;
-
-          stroke_data[ii].push_front(temp_insert);//add text data to memroy
-          pos_num = pos_num_check;
-          pos_num_check = find.find_first_of('}', pos_num_check+1);
-        } 
-        if (read_strokes.eof()) { //If not all lanes have annotations stop looking for data
-          cout << "out of data at lane " << ii << endl;
-          break;
-        }
-      }
-      
-      delete[] data_line;
+  while (end == '0') {
+    responce = waitKey(25);
+    if (responce == 't') {
+      sinusoid_maker swim_data(cntr_end - cntr_start);
+      tester.input_data(swim_data.get_interp());
+      cntr_start = cntr_end;
     }
-    else { //video has not been anotated before create new one
-      create_stokes.open(header_filename);
-      if (!create_stokes.is_open()) {
-        cout << "Could not create strokes file!" << endl;
-        return false;
-      }
-      create_stokes << "#header{ right_s, left_s, stroke_class }, Frames Per Second, Resolution (hight, width), Total Number Frames\n";
-      create_stokes << "#stroke classes fly == 1, back == 2, breast == 3, free == 4 this is number 3\n";
-      create_stokes << "#stroke is symmetrical numbers 1 and 2 are same\n";
-      create_stokes << "#stroke is asymmetrical numbers of one numbers 1 or 2 will be - 1\n";
-      create_stokes << "#lane 0 starts at line 10\n";
-      create_stokes << "#lane 9 starts at line 19\n";
-      create_stokes << "FPS: " << FPS << endl;
-      create_stokes << "RES: " << n << " " << m << endl;
-      create_stokes << "TNF: " << number_frames;
+    else if (responce == 27) {
+      end++;//break
     }
-    return true;
+    else if (cntr_end == int(vid_time / time_slice)) {
+      end++;//break
+    }
+    tester.draw_graph(double(cntr_end) * time_slice);
+    cntr_end++;
   }
 
-  return false;
+  tester.kill_graph_drawer();
 }
 
 
-void stroke_annotate::print_play_vid_dialog()
+void stroke_annotate::file_example()
 {
-  cout << "\nAnnotation options" << endl;
-  cout << "For left half cycel, press l" << endl;
-  cout << "For right half cycel, press r" << endl;
-  cout << "To slow video speed, press s" << endl;
-  cout << "To speed up video speed, press f" << endl;
+  string test_file_name = "2_str.txt";
+
+  SA_file_mannager tester(test_file_name);
+
+  if (!tester.read_file()) {
+    cout << "An error occured, could not read stroke annotation file in stroke_annoate.cpp" << endl;
+  }
+
+  if (!tester.save_file()) {
+    cout << "An error occured, could not save stroke annotation file in stroke_annoate.cpp" << endl;
+  }
+
+}
+
+
+//loads and opens all objects required for stroke annotation 
+//Display all windows
+void stroke_annotate::start_stroke_counting(string intput_video_file)
+{
+
+  video_file = intput_video_file;
+  video_window_name = video_file + " video player";
+  double FPS = 1;
+  int frame_count = 0;
+  int hight  = 0;
+  int width = 0;
+  Mat frame;
+
+  string vf_text = video_file;
+  char resp = '0';
+
+
+  //Video stuff
+  cap.open(video_file);
+  if (!cap.isOpened()) {
+    cout << "Could not open video file for stroke counting" << endl;
+    return;
+  }
+  FPS = cap.get(CAP_PROP_FPS); frame_count = cap.get(CAP_PROP_FRAME_COUNT);
+  hight = cap.get(CAP_PROP_FRAME_HEIGHT); width = cap.get(CAP_PROP_FRAME_WIDTH);
+  waitKey(0);
+  cap >> frame;
+  if (frame.empty()) {
+    cout << "Error, Could not read first frame of video" << endl;
+    return;
+  }
+  namedWindow(video_window_name, WINDOW_NORMAL);
+  imshow(video_window_name, frame);
+
+
+  //File stuff
+  vf_text.replace(vf_text.end() - 4, vf_text.end(), "_str.txt");
+  //Get video paramiters
+  man_file.input_info(vf_text, FPS, frame_count, hight, width);
+  //look for files related to video file name
+  if (!man_file.read_file()) {
+    cout << "An error occured, when reading a stroke annotation file" << endl;
+    return;
+  }
+
+  //Grapher stuff
+  grapher.change_window_name(intput_video_file + " Stroke Visualization");
+  grapher.input_data(man_file.return_y_values());
+  grapher.input_varibales(double(frame_count)/FPS, double(1)/FPS);
+  grapher.start_graph_drawer();
+
+  print_vid_dialog();
+
+  return;
+}
+
+
+//Show options for vid once
+//wait for user to choose one
+//Also display in video options
+void stroke_annotate::print_vid_dialog()
+{
+  char resp = '0';
+
+  while (1) {
+
+    cout << "\nAnnotation options:" << endl;
+    cout << "To start annotating (edit mode), press 1" << endl;
+    cout << "To view any annotations and/or video (view mode), press 2" << endl;
+    cout << "To quit, press 3" << endl << endl;
+
+    cin.clear();
+    cin.ignore(INT_MAX, '\n');
+    cin >> resp;
+    if (resp == '1') {
+      //start annotating 
+      annotate_video(true);
+    }
+    else if (resp == '2') {
+      //view annotations
+      annotate_video(false);
+    }
+    else if (resp == '3') {
+      //quit
+      quit_stroke_annotator();
+      break;
+    }
+  }
+}
+
+
+//Start annotating video (edit mode)
+//View any annotations and/or watch video (view mode)
+//Fist ask if swimming is swimming or not, set swimmer_is_swimming accordingly
+void stroke_annotate::annotate_video(bool is_edit_mode)
+{
+  Mat frame;
+  char resp = '0';
+  int cntr_end = 0, cntr_start = 0;
+  double frame_rate = cap.get(CAP_PROP_FPS);
+  vector<stroke_data> temp;
+  stroke_data element;
+
+  //Find out what swimmer is doing
+  if(is_edit_mode) get_swimmer_stait();
+
+  print_video_options(is_edit_mode);
+
+  cout << "Video paused, press any key to start..." << endl;
+  while (waitKey(0) < 0);
+
+  //Main loop for annotation
+  while (1) {
+
+    resp = waitKey(int(frame_rate * video_speed));//video speed controle
+
+    if (resp == 'p') {
+      cout << "video paused" << endl;
+      toggel_pause();
+    }
+    else if (resp == 't') {
+      if(is_edit_mode) mark_stroke(cntr_start, cntr_end);
+    }
+    else if (resp == 'b') {
+      skip_back(num_skip_back, cntr_end, cntr_start, is_edit_mode);
+    }
+    else if (resp == 'd') {//speed down
+      change_speed(false);
+    }
+    else if (resp == 'u') {//speed up
+      change_speed(true);
+    }
+    else if(resp == 'm') {//mark swimming
+      if (is_edit_mode) {
+        mark_stroke(cntr_start, cntr_end);//you must start and finish swimming on a stroke
+        toggel_swimming();
+      }
+    }
+    else if (resp == 27) {
+      break;
+    }
+    
+    cntr_end++;
+
+    element.frame_num = cntr_end;
+    element.is_swimming = swimmer_is_swimming;
+
+    temp.push_back(element);
+    
+    //display next window frames;
+    grapher.draw_graph(double(cap.get(CAP_PROP_POS_MSEC)) / double(1000));
+    cap >> frame;
+    if (frame.empty()) {
+      cout << "Finished video" << endl;
+      return;
+    }
+    imshow(video_window_name, frame);
+  }
+
+  return;
+}
+
+
+//prints options when editing or viewing stroke annotations
+void stroke_annotate::print_video_options(bool is_edit_mode)
+{
+  cout << "In video options:" << endl << endl;
+  
+  //t option (mark stroke occuring)
+  if(is_edit_mode) cout << "To mark a stroke, press t" << endl;
+
+  //p option (pause)
   cout << "To toggle pause, press p" << endl;
-  cout << "To quit, press esc" << endl;
-  cout << "Play>> ";
-}
 
-
-bool stroke_annotate::play_video()
-{
-  Mat frame;
-  int num_frames = get_num_frames();
-  int ii = get_current_frame();
-  int input = -1;
-  int skip_size = get_skip_size();
-  char window_text[45];
-  print_play_vid_dialog();
-  sprintf(window_text, "Current lane number: %i, Current Class: %i", get_current_swimmer(), current_class);
-
-  while (ii < (num_frames - skip_size)) {
-    frame = get_current_Mat();
-    //dispaly current lane, and current class
-    putText(frame, window_text, Point(100, 20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0, 0, 255), 2);
-    imshow(AN_WINDOW_NAME, frame);
-    input = waitKey(video_speed);
-
-    switch (input)
-    {
-    case 144://r
-      save_annotation(true);
-      cout << char(input) << endl;
-      print_play_vid_dialog();
-      break;
-    case 108://l
-      save_annotation(false);
-      cout << char(input) << endl;
-      print_play_vid_dialog();
-      break;
-    case 115://s
-      change_video_speed(false);
-      cout << char(input) << endl;
-      print_play_vid_dialog();
-      break;
-    case 102://f
-      change_video_speed(true);
-      cout << char(input) << endl;
-      print_play_vid_dialog();
-      break;
-    case 112://p
-      pause_video();
-      print_play_vid_dialog();
-      sprintf(window_text, "Current lane number: %i, Current Class: %i", get_current_swimmer(), current_class);
-      break;
-    case 27://esc
-      cout << char(input) << endl;
-      if (quit_and_save_data()) {
-        cout << "Quiting app" << endl;
-        destroyWindow(AN_WINDOW_NAME);
-        return true;
-      }
-      print_play_vid_dialog();
-      break;
-    default:
-      next_frame();//get the next frame
-      break;
-    }
-    if (ii == (num_frames - 2*skip_size)) {
-      cout << "\nwould you like to exit? (y/n)" << endl;
-      frame = get_current_Mat();
-      imshow(AN_WINDOW_NAME, frame);
-      input = waitKey(0);
-      if (input != 'y') {
-        cout << "\nvideo over, automaticly paused" << endl;
-        pause_video();
-        last_frame();
-      }
-    }
-    ii = get_current_frame();
+  //b option (move back n strokes)
+  if (!is_edit_mode) {
+    cout << "To go back " << num_skip_back << " strokes without changing annotations, press b" << endl;
+  }
+  else {
+    cout << "To go back " << num_skip_back << " strokes to change annotations, press b" << endl;
   }
 
-  destroyWindow(AN_WINDOW_NAME);
-  return true;
-}
+  //m option (mark when swimmer is swimming and when they are not)
+  if (is_edit_mode) cout << "To toggal swimmer swimming, press m" << endl;
 
-
-void stroke_annotate::save_annotation(bool is_right)
-{
-  int current_frame = get_current_frame();
-  swim_data_stroke temp_data = { -1, -1 };
-  int current_lane = get_current_swimmer();
-  current_lane = get_current_swimmer();
+  //d option (slow Down video playback)
+  cout << "To slow down video, press d" << endl;
   
-  temp_data.cycle = current_frame;
-  if (is_right) {
-    temp_data.stroke_spec = current_class;
-    temp_data.stroke_spec = current_class;
-  }
-  else {//is left
-    if ((current_class == 2) || (current_class == 4)) {
-      temp_data.stroke_spec = current_class * 10;
-    }
-    temp_data.stroke_spec = current_class;
-  }
-  stroke_data[current_lane].push_back(temp_data);
-  return;
+  //u option (speed Up video playback)
+  cout << "To speed up video, press u" << endl;
+  
+  //quit option 
+  cout << "To quit, press esc" << endl << endl;
 }
 
 
-//changes the current class lable for the box created
-void stroke_annotate::change_class()
+//asks user to input if swimmer is swimming or not
+void stroke_annotate::get_swimmer_stait()
 {
-  char class_num = '0';
-  int num = -1;
-  bool done;
-  Mat frame;
+  char resp = '0';
 
-  //select lane number
-  do {
-    cout << "What class are we lableing? Options are..." << endl;
-    cout << "Fly (1), Back (2), Brest (3), Free (4)" << endl;
-    cout << "Class: ";
+  while (1) {
+    cout << "What is the swimmer doing right now? (swimming (s) or not (n))" << endl;
+    cin.clear();
+    cin.ignore(INT_MAX, '\n');
+    cin >> resp;
+    if (resp == 's') {
+      swimmer_is_swimming = true;
+    }
+    else if (resp == 'n') {
+      swimmer_is_swimming = false;
+    }
+  }
+}
 
-    //Get the key from the window
-    frame = get_current_Mat();
-    imshow(AN_WINDOW_NAME, frame);
-    class_num = waitKey(0);
-    cout << class_num << endl;
 
-    if (!isdigit(class_num)) {
-      num = -1;
+//double or half the speed every time (to a limit)
+void stroke_annotate::change_speed(bool speed_up)
+{
+  double conv = log2(video_speed) + 2;
+
+  if (speed_up) {
+    if(conv > max_speed) {
+      video_speed /= 2;
     }
     else {
-      num = int(class_num) - 48;//convert to int
-    }
-
-    if ((num > 4) || (num < 1)) {
-      cout << "\nAn invalid class number was selected" << endl;
-      done = false;
-    }
-    else {
-      current_class = num;
-      done = true;
-    }
-  } while (!done);
-
-  return;
-}
-
-
-void stroke_annotate::pause_video()
-{
-  Mat frame;
-  int input = -1;
-  char window_text[45];
-  int current_swimmer = get_current_swimmer();
-  
-  //sort the lists into assending order
-  for (int ii = 0; ii < 10; ii++) stroke_data[ii].sort(cmp);
-
-  while (input != 112) {//p == 112
-
-    cout << "\nPaused annotation options" << endl;
-    cout << "Go foward, press d" << endl;
-    cout << "Go back, press a" << endl;
-    cout << "For left half cycel, press l" << endl;
-    cout << "For right half cycel, press r" << endl;
-    cout << "To delete annotation, press b" << endl;
-    cout << "To change lane, press c" << endl;
-    cout << "To change class, press t" << endl;
-    cout << "To toggle pause, press p" << endl;
-    cout << "Pause>> ";
-
-    frame = get_current_Mat();
-    sprintf(window_text, "Current lane number: %i, Current Class: %i", current_swimmer, current_class);
-    putText(frame, window_text, Point(100, 20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0, 0, 255), 2);
-    if (check_for_annotation(current_swimmer, get_current_frame(),false)) {
-      putText(frame, "ANNOTATION PRESSENT", Point(100, 80), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0, 0, 255), 2);
-    }
-    imshow(AN_WINDOW_NAME, frame);
-    input = waitKey(0);
-    cout << char(input) << endl;
-
-    switch(input)
-    {
-    case 100://d
-      next_frame();
-      break;
-    case 144://r
-      save_annotation(true);
-      break;
-    case 108://l
-      save_annotation(false);
-      break;
-    case 98://b
-      if(!check_for_annotation(current_swimmer, get_current_frame(),true)) {
-        cout << "Annotation does not exist!" << endl;
-      }
-      break;
-    case 99://c
-      select_lane_number();
-      current_swimmer = get_current_swimmer();
-      go_to_most_recent_annotation();
-      break;
-    case 97://a
-      last_frame();
-      break;
-    case 116://t
-      change_class();
-      break;
-    default:
-      break;
-    }
-  }
-
-  last_frame();
-
-  update_text_file();
-}
-
-
-void stroke_annotate::change_video_speed(bool increase_speed)
-{
-  int old_speed = video_speed;
-
-  if (increase_speed) {
-    video_speed /= 2;
-    if (video_speed < max_speed) {
-      video_speed = old_speed;
-      cout << "Cant increase speed any more!" << endl;
+      cout << "Cant speed up video any more!" << endl;
     }
   }
   else {
-    video_speed *= 2;
-    if (video_speed > min_speed) {
-      video_speed = old_speed;
-      cout << "Cant decrease speed any more!" << endl;
-    }
-  }
-}
-
-
-bool stroke_annotate::check_for_annotation(int input_current_lane, int input_current_frame, bool and_delete)
-{
-  //check for out of bounds lane number
-  if ((input_current_lane > 9) || (input_current_lane < 0)) return false;
-
-  list<swim_data_stroke>::iterator point_data = stroke_data[input_current_lane].begin();
-  int ii = 0;
-
-  for (ii = 0; ii < stroke_data[input_current_lane].size(); ii++) {
-    if (point_data->cycle == input_current_frame) {
-      if (and_delete) {
-        stroke_data[input_current_lane].erase(point_data);
-      }
-      return true;
-    }
-    point_data++;
-  }
-
-  return false;
-}
-
-
-void stroke_annotate::go_to_most_recent_annotation()
-{
-  int current_lane = get_current_swimmer();
-
-  //sort the lists into assending order
-  for (int ii = 0; ii < 10; ii++) stroke_data[ii].sort(cmp);
-
-  list<swim_data_stroke>::iterator point_data;
-  point_data = stroke_data[current_lane].end();
-  point_data--;//dont know why this is nesasary (must be because the next of the list is pointing at NULL)
-  set_current_frame(point_data->cycle);
-}
-
-
-bool stroke_annotate::update_text_file()
-{
-  ofstream update_header;
-  string header_filename = get_video_file();
-  char line[500];
-  string header_data;
-  double FPS = get_FPS_vid();
-  int n = get_hight();
-  int m = get_width();
-  int number_frames = get_num_frames();
-
-  //sort the lists into assending order
-  for (int ii = 0; ii < 10; ii++) stroke_data[ii].sort(cmp);
-
-  update_header.open("_app_str.txt");//temp file
-
-  //make a new text file called _app_str.txt and then when created change the file names
-  if (update_header.is_open()) {//if file opened start updating 
-    int ii = 0;//frame number
-    int jj = 0;//lane number
-
-    list<swim_data_stroke>::iterator point_data;
-    update_header << "#header{ right_s, left_s, stroke_class }, Frames Per Second, Resolution (hight, width), Total Number Frames\n";
-    update_header << "#stroke classes fly == 1, back == 2, breast == 3, free == 4 this is number 3\n";
-    update_header << "#stroke is symmetrical numbers 1 and 2 are same\n";
-    update_header << "#stroke is asymmetrical numbers of one numbers 1 or 2 will be - 1\n";
-    update_header << "#lane 0 starts at line 10\n";
-    update_header << "#lane 9 starts at line 19\n";
-    update_header << "FPS: " << FPS << endl;
-    update_header << "RES: " << n << " " << m << endl;
-    update_header << "TNF: " << number_frames << endl;
-
-    for (ii = 0; ii < 10; ii++) {//look at each frame
-      point_data = stroke_data[ii].begin();
-      for (jj = 0; jj < stroke_data[ii].size(); jj++) {
-        update_header << "{" << point_data->cycle << ", " << point_data->stroke_spec << "}";
-        point_data++;
-      }
-      update_header << endl;
-    }
-    update_header.close();
-
-    //rename the files
-    //Change file name to end it .txt
-    size_t pos = header_filename.find_first_of('.', 0);
-    header_filename.erase(pos, 4);
-    header_filename.append("_str.txt");
-    std::remove("back_up_str.txt");//remove any file if exists
-    if (rename(header_filename.c_str(), "back_up_str.txt") == 0) {//create a backup file
-      if (rename("_app_str.txt", header_filename.c_str()) == 0) {
-        return true;
-      }
-      else {
-        perror("Error renaming file");
-        return false;
-      }
+    if (conv < min_speed) {
+      video_speed *= 2;
     }
     else {
-      perror("Error renaming file");
-      return false;
+      cout << "Cant slow down video any more!" << endl;
     }
   }
-  else {//if file does not open
-    return false;
+  return;
+}
+
+
+//flips the swimmer_is_swimming flag
+void stroke_annotate::toggel_swimming()
+{
+  if (swimmer_is_swimming) {
+    cout << "Swimmer stoped swimming!" << endl;
+    swimmer_is_swimming = !swimmer_is_swimming;
+  }
+  else {
+    cout << "Swimmer started swimming!" << endl;
+    swimmer_is_swimming = !swimmer_is_swimming;
   }
 }
 
 
-void stroke_annotate::start_up()
+//Changes cntr_end and cntr_star aproprately
+//Modifies the data in the grapher object
+void stroke_annotate::skip_back(int n_strokes, int &cntr_end, int &cntr_start, bool in_edit_mode)
 {
-  select_lane_number();
-  change_class();
-  go_to_most_recent_annotation();
-  pause_video();
-}
+  Mat frame;
+  
+  if (in_edit_mode) {
+    cntr_end = cap.get(CAP_PROP_POS_FRAMES) - grapher.undo_work(n_strokes);
+    cap.set(CAP_PROP_POS_FRAMES, cntr_end - 1);
+    cntr_start = cntr_end;
+    cap >> frame;
 
-
-bool stroke_annotate::quit_and_save_data()
-{
-  if (update_text_file()) {
-    return true;
+    imshow(video_window_name, frame);
+    grapher.draw_graph(double(cap.get(CAP_PROP_POS_MSEC)) / double(1000));
+    cout << "Video paused, press any key to start" << endl;
+    while (waitKey(0) < 0);
   }
-  return false;
+  else {
+    cntr_end = grapher.look_back(n_strokes, cntr_end);
+    cntr_start = cntr_end;
+    cap.set(CAP_PROP_POS_FRAMES, cntr_end);
+    grapher.draw_graph(double(cap.get(CAP_PROP_POS_MSEC)) / double(1000));
+  }
+
+  return;
 }
+
+
+//Tells the grapher object that a stroke occured
+//needs two integers that will be subtracked
+//Upates the grapher accordingly
+void stroke_annotate::mark_stroke(int &cntr_start, int &cntr_end)
+{
+  //need to accout for the situation when swimmer is not swimming
+  sinusoid_maker swim_data(cntr_end - cntr_start);
+  if (!swimmer_is_swimming) {
+    grapher.input_data(swim_data.get_interp());
+  }
+  else {
+    grapher.input_data(swim_data.get_flat());
+    
+  }
+  cntr_start = cntr_end;
+}
+
+
+
+//Specify stroke being prefomed in video (If not already spcifed ask to change)
+//Save all work in file
+//kill all windows
+void stroke_annotate::quit_stroke_annotator()
+{
+  
+  destroyWindow(video_window_name);
+  man_file.save_file();
+  grapher.kill_graph_drawer();
+}
+

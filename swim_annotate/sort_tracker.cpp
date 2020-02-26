@@ -1,5 +1,5 @@
 #include "sort_tracker.h"
-
+#include "swimmer_tracking.h"
 
 sort_tracker::sort_tracker() {
 	
@@ -21,6 +21,7 @@ double sort_tracker::GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt)
 
 //Implementation used from 
 //https://github.com/mcximing/sort-cpp
+//requires 
 void sort_tracker::TestSORT(string seqName, double iou)
 {
 	cout << "Processing " << seqName << "..." << endl;
@@ -78,11 +79,17 @@ void sort_tracker::TestSORT(string seqName, double iou)
 
 	// 3. update across frames
 	int frame_count = 0;
-	int max_age = 1;
-	int min_hits = 3;
-	double iouThreshold = iou;
+	int max_age = 1;//var for killing a tracker should be changed, in paper max_age = 1;
+	int min_hits = 3;//min hits is min number of hits for it to be an object originaly min_hits = 3;
+	double iouThreshold = iou;//Orignaly this value was 0.30
 	vector<KalmanTracker> trackers;
 	KalmanTracker::kf_count = 0; // tracking id relies on this, so we have to reset it in each seq.
+
+	/*
+	swimmer_tracking calc;
+	Mat_<float> process_mat = calc.calculate_proc_noise_covs();
+	Mat_<float> obser_mat = calc.calculate_obser_noise();
+	//*/
 
 	// variables used in the for-loop
 	vector<Rect_<float>> predictedBoxes;
@@ -129,6 +136,7 @@ void sort_tracker::TestSORT(string seqName, double iou)
 			// initialize kalman trackers using first detections.
 			for (unsigned int i = 0; i < detFrameData[fi].size(); i++)
 			{
+				//KalmanTracker trk = KalmanTracker(detFrameData[fi][i].box, process_mat, obser_mat);
 				KalmanTracker trk = KalmanTracker(detFrameData[fi][i].box);
 				trackers.push_back(trk);
 			}
@@ -244,6 +252,7 @@ void sort_tracker::TestSORT(string seqName, double iou)
 		// create and initialise new trackers for unmatched detections
 		for (auto umd : unmatchedDetections)
 		{
+			//KalmanTracker tracker = KalmanTracker(detFrameData[fi][umd].box, process_mat, obser_mat);
 			KalmanTracker tracker = KalmanTracker(detFrameData[fi][umd].box);
 			trackers.push_back(tracker);
 		}
@@ -252,7 +261,7 @@ void sort_tracker::TestSORT(string seqName, double iou)
 		frameTrackingResult.clear();
 		for (auto it = trackers.begin(); it != trackers.end();)
 		{
-			if (((*it).m_time_since_update < 1) &&
+			if (((*it).m_time_since_update < max_age) &&
 				((*it).m_hit_streak >= min_hits || frame_count <= min_hits))
 			{
 				TrackingBox res;

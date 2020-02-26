@@ -1,8 +1,15 @@
 #include "swimmer_tracking.h"
 #include <random>
 #include <chrono>
+#include <math.h>
+#include <algorithm>// std::sort
+
+#include "sort_tracker.h"//For the iouMatrix fuction
+#include "HungarianAlgorithm.h"
 
 using namespace std;
+
+bool res_sort_rule(track_data i, track_data j) { return (i.frame_num < j.frame_num); }
 
 swimmer_tracking::swimmer_tracking()
 {
@@ -113,58 +120,27 @@ bool swimmer_tracking::annotation_tracking(string file_name)
 }
 
 
-//Save the contents of results into a text file with input name
-//Used by the make detection file fuction to save the contence of results into text file name
-void swimmer_tracking::save_results_in_text_file(string text_file_name)
-{
-
-  //file line ex...
-  //1, -1, 794.2, 47.5, 71.2, 174.8, 67.5, -1, -1
-  //frame#, Object_ID, box_x, box_y, width, hight, detection_confidence, -1, -1
-  string str = ".\\data\\";
-  int ii = 0;
-  str.append(text_file_name);
-
-  fstream results_file(str,std::fstream::out);
-
-  if (results_file.is_open()) {
-    for (ii = 0; ii < results.size(); ii++) {
-      results_file << results[ii].frame_num << ", "
-        << "-1, "
-        << results[ii].frame_pos.x << ", "
-        << results[ii].frame_pos.y << ", "
-        << results[ii].frame_pos.width << ", "
-        << results[ii].frame_pos.height << ", "
-        << results[ii].conf_score << ", "
-        << results[ii].class_id << ", "
-        << "-1, "
-        << "-1"
-        << endl;
-    }
-  }
-  else {
-    cout << "Could not open results text file!" << endl;
-  }
-
-  results_file.close();
-}
-
-
 //Use SORT algorithum
 //Reads the contence of the detection file and saves the tracked
 //data into the classes reuslts var
 //Needs work as currently the same swimmer get tracked multiple times
+//Requires an output file to read 
 void swimmer_tracking::sort_tracking(string text_file_name)
 {
   sort_tracker track_swimmers;
   track_data hold_data;
   int ii = 0;
   string temp_str;
-  track_swimmers.TestSORT(text_file_name, .05);
   char ch;
   float tpx, tpy, tpw, tph;
 
-  fstream results_file(".\\output\\"+text_file_name, std::fstream::in);
+  string detection_file = text_file_name;
+  detection_file.replace(detection_file.end() - 4, detection_file.end(), "_detection_data.txt");
+  track_swimmers.TestSORT(detection_file, .05);
+
+ 
+  detection_file = ".\\output\\" + detection_file;
+  fstream results_file(detection_file, std::fstream::in);
   istringstream ss;
 
   if (!results_file.is_open()) {
@@ -191,10 +167,8 @@ void swimmer_tracking::sort_tracking(string text_file_name)
 
   }
 
-  //Need to edit results file so to link objects when fragmentation occures
-  //If no detections exist for three entire frames then there is a scene change
-  //Give each scene its own data
-  //When an object disapears 
+  //Ensure the results are in order by frame 
+  //sort(results.begin(), results.end(), res_sort_rule);
 
   return;
 }
@@ -277,6 +251,11 @@ void swimmer_tracking::show_video_of_tracking(string file_name)
         blue = temp_color.blue; 
         green = temp_color.green; 
         red = temp_color.red; 
+        if (results[ii].object_ID == 20) {//isolate an object ID
+          blue = 0;
+          green = 0;
+          red = 0;
+        }
         rectangle(frame, results[ii].frame_pos, Scalar(blue, green, red), 2, 2);
       }
     }
@@ -442,7 +421,24 @@ Mat_<float> swimmer_tracking::calculate_proc_noise_covs()
       }
     }
 
-    
+    //sanity check for the covmat
+    /*
+    vector<float> tester(accel.size(), 0);
+    long float test_mean = 0, test_var = 0;
+    const int vec_pos = 2;
+    tester.resize(accel.size(), NoChange);
+
+    for (ii = 0; ii < accel.size(); ii++) {
+      test_mean += accel[ii][vec_pos];
+    }
+    test_mean = test_mean / float(accel.size());
+    for (ii = 0; ii < accel.size(); ii++) {
+      test_var += pow((accel[ii][vec_pos] - test_mean), 2);
+    }
+    test_var =  test_var / float(accel.size());
+    cout << "Checking Variance... frist go" << endl;
+    cout << test_var << endl;
+    //*/
 
     //calculate covariant matrix of process Q
     ones_vec.resize(accel.size());
@@ -455,15 +451,269 @@ Mat_<float> swimmer_tracking::calculate_proc_noise_covs()
       cout << "Could not calculate cov mat Q for kalman filter, div by zero" << endl;
     }
   }
+  //cout << cov_mat << endl;
 
   for (ii = 0; ii < state_num; ii++) {
     for (jj = 0; jj < state_num; jj++) {
-      final.at<float>(ii, jj) = cov_mat(ii, jj);
+      final.at<float>(ii, jj) = cov_mat(ii, jj)/float(get_skip_size());
     }
   }
  
   return final;
   
+}
+
+
+//Run detection on ground truth calculate error in
+// detection vs ground truth
+//The cov of the observation noise denoted as R
+Mat_<float> swimmer_tracking::calculate_obser_noise()
+{
+  string ground = ".\\data\\ground\\all_vids.mp4";
+  const int mesure_num = 4;
+  string str;
+  track_data hold_data;
+  int ii = 0, jj = 0, kk = 0;
+  string temp_str;
+  char ch;
+  float tpx, tpy, tpw, tph;
+  vector<track_data> detect_data;
+  vector<track_data> ground_frame;
+  vector<track_data> detect_frame;
+  Mat_<float> final(mesure_num, mesure_num, float(0));
+  char resp = '0', temp = '0';
+  vector<vector<double>> iouMatrix;
+  vector<int> assignment;
+  unsigned int trkNum = 0;
+  unsigned int detNum = 0;
+  sort_tracker func_needed;
+  vector<swim_data>* frame_data;
+  track_data temp_swimmer;
+
+  vector<float> cov_rows(4, 0);
+  vector<vector<float>> cov_data;
+
+  str = ground;
+  str.replace(str.end() - 4, str.end(), "_detection_data.txt");
+
+  //Save time, ask if user would like to update detection file
+  fstream results_file(str, std::fstream::in);
+  if (results_file.is_open()) {
+    do
+    {
+      cout << "Would you like to update the detection file? (y/n)" << endl;
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      cin >> temp;
+      if ((temp == 'n') || (temp == 'y')) {
+        resp = temp;
+      }
+    } while (resp == '0');
+    if (resp == 'y') make_detection_file(ground);
+  }
+  else {
+    make_detection_file(ground);
+    results_file.open(str, std::fstream::in);
+  }
+
+  //read in detection file
+  istringstream ss;
+  if (!results_file.is_open()) {
+    cout << "Could not open detection results file" << endl;
+    return final;
+  }
+
+  while (getline(results_file, temp_str)) {
+    ss.str(temp_str);
+    ss >> hold_data.frame_num >> ch;
+    ss >> hold_data.object_ID >> ch;
+    ss >> tpx >> ch;
+    ss >> tpy >> ch;
+    ss >> tpw >> ch;
+    ss >> tph >> ch;
+    hold_data.conf_score = -1;
+    
+    hold_data.frame_pos = Rect(int(tpx), int(tpy), int(tpw), int(tph));
+
+    detect_data.push_back(hold_data);
+  }
+
+
+  //Get ground truth data
+  if (!load_video_for_boxing(ground)) {
+    cout << "Could not open ground truth data for detection analysis" << endl;
+    return final;
+  }
+  int skip_size = get_skip_size();
+  int num_frames = get_num_frames();
+
+  /*for testing... three things to comment
+  int blue = 0, green = 0, red = 0;
+  Mat test_image;
+  int match_cnt = 0;
+  VideoCapture cap(ground);
+  if (!cap.isOpened()) {
+    cout << "Could not open video capture object for testing observation mat" << endl;
+    return final;
+  }
+  // Create a window
+  static const string kWinName = "Tracking Testing Results Window";
+  namedWindow(kWinName, WINDOW_NORMAL);
+  //*/
+
+  //loop threw the annotated frames
+  for (ii = 0; ii < num_frames / skip_size; ii++) {
+    
+    ground_frame.clear();
+    //loop threw the annotated lanes to collect them in the frame
+    for (jj = 0; jj < 10; jj++) {
+      frame_data = get_swim_data(ii, jj);
+      if ((frame_data != nullptr) && (frame_data->at(0).swimmer_box.area() > 2)) {
+        
+        temp_swimmer.frame_pos = frame_data->at(0).swimmer_box;//use the swimmer racing in the pool
+        temp_swimmer.frame_num = ii;
+        ground_frame.push_back(temp_swimmer);
+      }
+    }
+    
+    //loop threw the detections in this frame to collect them
+    //remember that the annotated frame is different then the actual frame number
+    // this is becuase frames are skipped when annotating
+    detect_frame.clear();
+    vector<track_data>::iterator location = detect_data.begin();
+    while ((location != detect_data.end()) && (location->frame_num <= (ii*skip_size))) {
+      if (location->frame_num == (ii * skip_size)) {
+        detect_frame.push_back(*location);
+      }
+      location++;
+    }
+
+    //Associate detections to tracked object (both represented as bounding boxes)
+    // for this frame
+    trkNum = ground_frame.size();
+    detNum = detect_frame.size();
+    iouMatrix.clear();
+    iouMatrix.resize(trkNum, vector<double>(detNum, 0));
+
+    for (kk = 0; kk < trkNum; kk++) // compute iou matrix as a distance matrix
+    {
+      for (jj = 0; jj < detNum; jj++)
+      {
+        // use 1-iou because the hungarian algorithm computes a minimum-cost assignment.
+        iouMatrix[kk][jj] = 1 - func_needed.GetIOU(ground_frame[kk].frame_pos, detect_frame[jj].frame_pos);
+      }
+    }
+
+    // solve the assignment problem using hungarian algorithm.
+    // the resulting assignment is [track(prediction) : detection], with len=preNum
+    HungarianAlgorithm HungAlgo;
+    assignment.clear();
+
+    //Assignment is a vector of int where in assignment[i] is the mapping from a
+    // ground_frame item to a detected_frame item
+    //The size of assignment is the number of ground_frame items
+    // if a ground frame has no assignment it is skipped
+    HungAlgo.Solve(iouMatrix, assignment);
+    float holder = 0;
+
+    //Fill cov_data for the observation matrix 
+    for (jj = 0; jj < trkNum; jj++) {
+      if ((assignment[jj] < 0) || (assignment[jj] >= detNum)) {
+        continue;
+      }
+      if (1 - iouMatrix[jj][assignment[jj]] < 0.001) {//something small
+        continue;
+      }
+      cov_rows[0] = float(ground_frame[jj].frame_pos.x - detect_frame[assignment[jj]].frame_pos.x);
+      cov_rows[1] = float(ground_frame[jj].frame_pos.y - detect_frame[assignment[jj]].frame_pos.y);
+      cov_rows[2] = float(ground_frame[jj].frame_pos.area() - detect_frame[assignment[jj]].frame_pos.area());
+      holder = float(ground_frame[jj].frame_pos.width) / float(ground_frame[jj].frame_pos.height);
+      cov_rows[3] =  holder - float(detect_frame[assignment[jj]].frame_pos.width) / float(detect_frame[assignment[jj]].frame_pos.height);
+      cov_data.push_back(cov_rows);
+    }
+
+    /*for testing...
+    int bigger_num;
+    if (waitKey(70) >= 0) {
+      break;
+    }
+    cap.set(CAP_PROP_POS_FRAMES, ii * skip_size);
+    cap >> test_image;
+    //Get all the boxes
+    if (detNum < trkNum) bigger_num = trkNum;
+    else bigger_num = detNum;
+    match_cnt = 0;
+    char corn_text[20];
+    for (jj = 0; jj < bigger_num; jj++) {
+      blue = 0; green = 0; red = 0;
+      //put in all boxes
+      if(trkNum > jj) rectangle(test_image, ground_frame[jj].frame_pos, Scalar(blue, green, red), 1, 1);
+      if(detNum > jj) rectangle(test_image, detect_frame[jj].frame_pos, Scalar(blue, green, red), 1, 1);
+
+      //Put boxes that have been matched on frame 
+      if (jj < trkNum) {//range of assignments
+        //put in matched boxes
+        blue = 50; green = 10; red = 200;
+        if ((assignment[jj] < 0) || (assignment[jj] >= detNum)) {
+          continue;
+        }
+        if (1 - iouMatrix[jj][assignment[jj]] < 0.001) {//something small
+          continue;
+        }
+        sprintf(corn_text, "Match number %d", match_cnt);
+        rectangle(test_image, ground_frame[jj].frame_pos, Scalar(blue, green, red), 2, 1);
+        //putText(test_image,string(corn_text), Point(ground_frame[jj].frame_pos.x+2, ground_frame[jj].frame_pos.y+2), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0, 0, 0), 1);
+        rectangle(test_image, detect_frame[assignment[jj]].frame_pos, Scalar(blue, green, red), 2, 1);
+        //putText(test_image, string(corn_text), Point(detect_frame[assignment[jj]].frame_pos.x + 2, detect_frame[assignment[jj]].frame_pos.y + 2), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0, 0, 0), 1);
+        match_cnt++; 
+      }
+    }
+    imshow(kWinName, test_image);
+    //*/
+
+  }
+
+  /*for testing
+  cap.release();
+  destroyWindow(kWinName);
+  //*/
+  
+  //calc covariance mat
+  Matrix<float, mesure_num, mesure_num> cov_mat;
+  Matrix<float, Dynamic, 1> ones_vec;
+  Matrix<float, Dynamic, mesure_num> eig_data;
+  
+  eig_data.resize(cov_data.size(), NoChange);
+
+  for (ii = 0; ii < cov_data.size(); ii++) {
+    for (jj = 0; jj < mesure_num; jj++) {
+      eig_data(ii, jj) = cov_data[ii][jj];
+    }
+  }
+
+
+  //cout << cov_data.size() << endl;
+  //cout << eig_data << endl << endl;
+
+  //calculate covariant matrix of detection R
+  ones_vec.resize(cov_data.size());
+  ones_vec.setOnes();
+  eig_data = eig_data - ((ones_vec * (ones_vec.transpose() * eig_data)) / float(cov_data.size()));
+  if (cov_data.size() > 1) {
+    cov_mat = (eig_data.transpose() * eig_data) / (float(cov_data.size()) - 1);
+  }
+  else {
+    cout << "Could not calculate cov mat R for kalman filter, div by zero" << endl;
+  }
+
+  //cout << cov_mat << endl;
+
+  for (ii = 0; ii < mesure_num; ii++) {
+    for (jj = 0; jj < mesure_num; jj++) {
+      final.at<float>(ii, jj) = cov_mat(ii, jj);
+    }
+  }
+
+  return final;
 }
 
 
@@ -608,6 +858,46 @@ void swimmer_tracking::make_detection_file(string file_name)
 
   return;
 
+}
+
+
+//Save the contents of results into a text file with input name
+//Used by the make detection file fuction to save the contence of results into text file name
+void swimmer_tracking::save_results_in_text_file(string text_file_name)
+{
+
+  //file line ex...
+  //1, -1, 794.2, 47.5, 71.2, 174.8, 67.5, -1, -1
+  //frame#, Object_ID, box_x, box_y, width, hight, detection_confidence, -1, -1
+  string str = ".\\data\\";
+  int ii = 0;
+  str.append(text_file_name);
+
+  fstream results_file(str, std::fstream::out);
+  if (!results_file.is_open()) {
+    results_file.open(text_file_name, std::fstream::out);
+  }
+
+  if (results_file.is_open()) {
+    for (ii = 0; ii < results.size(); ii++) {
+      results_file << results[ii].frame_num << ","
+        << "-1,"
+        << results[ii].frame_pos.x << ","
+        << results[ii].frame_pos.y << ","
+        << results[ii].frame_pos.width << ","
+        << results[ii].frame_pos.height << ","
+        << results[ii].conf_score << ","
+        << results[ii].class_id << ","
+        << "-1,"
+        << "-1"
+        << endl;
+    }
+  }
+  else {
+    cout << "Could not open results text file!" << endl;
+  }
+
+  results_file.close();
 }
 
 

@@ -35,10 +35,10 @@ private:
 	int total_frames = 0;
 	double total_time = 0.0;
 
+public:
+
 	// Computes IOU between two bounding boxes
 	double GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt);
-
-public:
 
 	sort_tracker();
 	void TestSORT(string seqName, double iou);

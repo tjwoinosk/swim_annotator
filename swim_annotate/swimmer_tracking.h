@@ -45,7 +45,7 @@ private:
 
 protected:
   //Accessors
-  vector<track_data>* get_results() { return &results; }
+  vector<track_data> get_results() { return results; }
 
 public:
 
@@ -82,10 +82,13 @@ public:
   void show_video_of_tracking(string file_name);
 
   //Find the cov mats for kalman filter from ground truth
-  //Mat 1 is the cov of the prosess noise denoted as Q
-  //Mat 2 is the cov of the observation noise denoted as R
+  //The cov of the prosess noise denoted as Q
   Mat_<float> calculate_proc_noise_covs();
-  //Matrix<float, Dynamic, Dynamic> calculate_proc_noise_covs();
+
+  //Run detection on ground truth calculate error in
+  // detection vs ground truth
+  //The cov of the observation noise denoted as R
+  Mat_<float> calculate_obser_noise();
 
   //Take data and replace all values with accellerations
   //this is used in the noise covs fuction
@@ -94,11 +97,6 @@ public:
   void calc_accelerations(vector<vector<float>> &data, int state_num, float t);
 
   
-
-  //Use opencv TLD tracking algorithum to track swimmers
-  //Use detection to give algorithum an ROI 
-  //If tracker fails give new ROI with detection
-  //void preform_TLD_tracking(string text_file_name);
 
 
 

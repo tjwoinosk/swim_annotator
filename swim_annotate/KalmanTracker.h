@@ -32,6 +32,16 @@ public:
 		m_id = kf_count;
 		kf_count++;
 	}
+	KalmanTracker(StateType initRect, Mat_<float> process_mat, Mat_<float> obser_mat)
+	{
+		init_kf(initRect, process_mat, obser_mat);
+		m_time_since_update = 0;
+		m_hits = 0;
+		m_hit_streak = 0;
+		m_age = 0;
+		m_id = kf_count;
+		kf_count++;
+	}
 
 	~KalmanTracker()
 	{
@@ -55,10 +65,7 @@ public:
 private:
 
 	void init_kf(StateType stateMat);
-	int stateNum = 7;
-	int measureNum = 4;
-
-	Mat_<float> process_mat(stateNum, stateNum);
+	void init_kf(StateType stateMat, Mat_<float> process_mat, Mat_<float> obser_mat);
 
 	cv::KalmanFilter kf;
 	cv::Mat measurement;

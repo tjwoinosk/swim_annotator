@@ -66,15 +66,22 @@ int main(int argc, char* argv[])
             app.analize_swimmer_detection_netowrk_non_inter(25);
           }
         }
+        else if (strcmp(argv[2], "-s") == 0) {//-s for sub-video creation
+          if ((argc == 4) && (strcmp(argv[3], "-d") == 0)) {//-d for don't update detection files
+            cout << "Creating subvideo without updating detection file" << endl;
+            app.make_sub_vid_using_tracking_auto_detect(false);
+          } 
+          else {
+            cout << "Creating subvideo and updating detection file" << endl;
+            app.make_sub_vid_using_tracking_auto_detect(true);
+          }
+        }
         else {
           cout << "Incorrrect flag used" << endl;
         }
       }
-      
       app.kill_app();
-      
     }
- 
   }
 
   return 0;

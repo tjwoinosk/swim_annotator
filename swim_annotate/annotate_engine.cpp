@@ -5,6 +5,8 @@
 #include "annotate_engine.h"
 #include "test_swim_detect_network.h"
 #include "sub_video.h"
+#include "graph_drawing.h"
+#include "sinusoid_maker.h"
 
 using namespace std;
 
@@ -45,7 +47,7 @@ void annotate_engine::service_next_request() {
     analize_swimmer_detection_netowrk();
     break;
   case make_subvid:
-    make_sub_vid_from_annotations();
+    make_sub_vid_using_tracking();
     break;
   case exit_opt:
     current_request = exit_opt;
@@ -134,18 +136,13 @@ bool annotate_engine::run_box_annotator() {
 
 bool annotate_engine::run_stroke_annotator() {
 
-  stroke_annotate stroke_work;
+  stroke_annotate test;
+  //test.graph_example();
+  //test.file_example();
+  test.start_stroke_counting(file_name);
+  test.print_vid_dialog();
 
-  if (!stroke_work.load_video_for_stroke_counting(file_name)) {
-    cout << "could not load video for stroke counting" << endl;
-    return false;
-  }
-  else {
-    cout << "Loading file for stroke annotation!" << endl;
-    stroke_work.start_up();
-    stroke_work.play_video();
-    return true;
-  }
+  return true;
 }
 
 
@@ -243,21 +240,13 @@ bool annotate_engine::analize_swimmer_detection_netowrk()
 
 
 //Using annotations of swimmers make subvideo of each swimmer
-void annotate_engine::make_sub_vid_from_annotations() {
+void annotate_engine::make_sub_vid_using_tracking() {
  
   sub_video make_subvid;
   //swimmer_tracking testing;
   string str = file_name;
   char resp = '0', temp = '0';
 
-
-  //make_subvid.calculate_proc_noise_covs();
-
-  //make_subvid.annotation_tracking(file_name);
-  make_subvid.make_subvideo(file_name);
-
-
-  /*
   do
   {
     cout << "Would you like to update the detection file? (y/n)" << endl;
@@ -272,18 +261,22 @@ void annotate_engine::make_sub_vid_from_annotations() {
 
   if (resp == 'y') make_subvid.make_detection_file(file_name);
 
-
-  str.replace(str.end() - 4, str.end(), "_detection_data.txt");
-  make_subvid.sort_tracking(str);
-
-  make_subvid.show_video_of_tracking(file_name);
-  //make_subvid.make_subvideo(file_name);
-
-  //make_subvid.make_subvideo(file_name);
-
-  //*/
+  make_subvid.make_subvideo_using_sort_tracker(file_name);
+ 
   return;
+}
 
+
+//needs files localy named "data" and "output"
+void annotate_engine::make_sub_vid_using_tracking_auto_detect(bool update_detection_file)
+{
+  sub_video make_subvid;
+  if (update_detection_file) {
+    make_subvid.make_detection_file(file_name);
+  }
+  make_subvid.make_subvideo_using_sort_tracker(file_name);
+
+  return;
 }
 
 
