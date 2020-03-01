@@ -30,6 +30,33 @@ graph_drawing::graph_drawing(string window_name, double time_length, double time
 }
 
 
+bool graph_drawing::remove_all_data()
+{
+  char resp = '0';
+
+  if (hold_data.empty()) {
+    return true;
+  }
+
+  while (1) {
+    cout << "Are you sure you would you like to delete all your data?? (y/n)" << endl;
+
+    cin >> resp;
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    if (resp == 'y') {
+      hold_data.clear();
+      return true;
+    }
+    if (resp == 'n') {
+      return false;
+    }
+
+  }
+}
+
+
 //Create a window for graph
 void graph_drawing::start_graph_drawer()
 {
@@ -39,6 +66,7 @@ void graph_drawing::start_graph_drawer()
   make_grid(y_grid_lines);
   plot_data();
   imshow(name_of_window, current_graph);
+  waitKey(1);//must prossed imshow
 }
 
 
@@ -135,11 +163,11 @@ void graph_drawing::plot_data()
   int ii = 0;
   double step = time_slice;
   double temp = 0;
-  if (graph_data.size() > 0) {
-    for (ii = 0; ii < (graph_data.size() - 1); ii++) {
-      line_start = to_graph(temp, graph_data[ii]);
+  if (hold_data.size() > 0) {
+    for (ii = 0; ii < (hold_data.size() - 1); ii++) {
+      line_start = to_graph(temp, hold_data[ii].y_val);
       temp += step;
-      line_end = to_graph(temp, graph_data[ii + 1]);
+      line_end = to_graph(temp, hold_data[ii + 1].y_val);
       line(current_graph, line_start, line_end, Scalar(225), 1);
     }
   }
@@ -159,31 +187,46 @@ Point graph_drawing::to_graph(double x_point, double y_point)
 {
   Point map_point(0, 0);
   
-  if ((x_point <= double(x_max)) && (x_point >= 0) && (y_point >= 0) && (y_point <= 1)) {
+  if ((x_point <= double(x_max)) && (x_point >= 0)) {
     map_point.x = int(x_point/double(x_max)*double(num_pixels_x-double(axis_start)-double(top_border))) + axis_start;
-    map_point.y = int(double(num_pixels_y - axis_start - top_border)*(1-y_point)) + top_border;
   }
   else {
-    cout << "Out of range point!" << endl;
+    if (x_point > 0) {//biger than x_max
+      map_point.x = double(x_max);
+    }
+    else { map_point.x = double(0); }//smaller than zero
+    //cout << "Out of range point!" << endl;
+  }
+
+  if ((y_point >= 0) && (y_point <= 1)) {
+    map_point.y = int(double(num_pixels_y - axis_start - top_border) * (1 - y_point)) + top_border;
+  }
+  else {
+    if (y_point > 0) {
+      map_point.y = double(top_border);
+    }
+    else { map_point.y = double(num_pixels_y - axis_start); }
+    //cout << "Out of range point!" << endl;
   }
 
   return map_point;
 }
 
 
+//use in edit mode
 void graph_drawing::draw_graph()
 {
-  if (image_changed) {
-    current_graph = Mat::zeros(num_pixels_y, num_pixels_x, CV_8U);
-    make_axis();
-    make_grid(y_grid_lines);
-    plot_data();
-    imshow(name_of_window, current_graph);
-    image_changed = false;
-  }
+  current_graph = Mat::zeros(num_pixels_y, num_pixels_x, CV_8U);
+  make_axis();
+  make_grid(y_grid_lines);
+  plot_data();
+  make_position_line(time_slice*double(hold_data.size()));
+  imshow(name_of_window, current_graph);
+  image_changed = false;
 }
 
 
+//use in view mode
 void graph_drawing::draw_graph(double time_position)
 {
   current_graph = Mat::zeros(num_pixels_y, num_pixels_x, CV_8U);
@@ -195,15 +238,10 @@ void graph_drawing::draw_graph(double time_position)
 }
 
 
-void graph_drawing::input_data(vector<double> data)
+void graph_drawing::input_data(vector<stroke_data> data)
 {
   image_changed = true;
-  int ii = 0;
-  
-  for (ii = 0; ii < data.size(); ii++) {
-    graph_data.push_back(data[ii]);
-  }
-
+  hold_data = data;
 }
 
 
@@ -213,36 +251,77 @@ void graph_drawing::kill_graph_drawer()
 }
 
 
-//reuturs the number of data points reomved
-//lookes for values of 1 
-int graph_drawing::undo_work(unsigned int number_of_strokes_back)
+//returns true if the new frame is the last frame to input
+bool graph_drawing::input_new_frame(bool is_stroke, bool is_swimming, strokes input_stroke)
 {
-  //graph_data
-  int ii = 0, cntr = 0;
-  vector<double> new_data;
+  stroke_data temp;
+  vector<double> int_vals;
+  int cnt_data = 0, ii = 0, num_frames = 0;
+  temp.frame_num = hold_data.size();
+  temp.is_swimming = is_swimming;
+  temp.stroke_spec = input_stroke;
   
-  vector<double>::iterator look;
-  vector<double>::iterator temp;
 
-  for (look = graph_data.end(); graph_data.begin() != look; look--) {
-    if (*look == 1) ii++;
+  if (is_stroke) {
 
-    if (ii == number_of_strokes_back) {
-      temp = look;
-      break;
+    if ((--hold_data.end())->is_swimming) {//If swimmer is swimming already
+      //add the stroke
+      temp.y_val = double(1);
+      hold_data.push_back(temp);
+      num_frames = hold_data.size();
+      cnt_data = look_back(2, (num_frames - 1));
+      
+      //update the y val data
+      sinusoid_maker y_vals(cnt_data);
+      int_vals = y_vals.get_interp();
+      for (int ii = 0; ii < cnt_data; ii++) {
+        hold_data[num_frames + ii - cnt_data - 1].y_val = int_vals[ii];
+      }
+      
     }
-    cntr++;
+    else {//If swimmer just started swimming
+      //add the stroke
+      temp.y_val = double(1);
+      hold_data.push_back(temp);
+    }
+  }
+  else {
+    temp.y_val = 0.5;//defalt flat value
+    hold_data.push_back(temp);
   }
 
-  for (look = graph_data.begin(); look != temp; look++) {
-    new_data.push_back(*look);
+  if (hold_data.size() > (x_max / time_slice)) {
+    return true;
   }
+  else {
+    return false;
+  }
+}
 
-  graph_data.clear();
-  graph_data = new_data;
+
+//Reuturns the number of data points reomved
+//Lookes for values of 1 
+//Returns true if undo brings footage back to start of video
+bool graph_drawing::undo_work(unsigned int number_of_strokes_back)
+{
+  int ii = 0;
+  vector<stroke_data>::reverse_iterator look;
+  vector<stroke_data> new_vec;
+
+  for (look = hold_data.rbegin(); look != hold_data.rend(); ++look) {
+    if (look->y_val == 1) ii++;
+    if (ii >= number_of_strokes_back) {
+      new_vec.insert(new_vec.begin(), *look);
+    }
+  }
+  hold_data.clear();
+  hold_data = new_vec;
+
+  if (hold_data.empty()) {
+    return true;
+  }
+  return false;
   
-  
-  return cntr;
 }
 
 
@@ -253,16 +332,18 @@ int graph_drawing::look_back(unsigned int number_of_strokes_back, int current_fr
   int ii = 0, jj = 0, cntr = 0;
   int start = current_frame_number;
 
-  vector<double>::iterator look;
-  vector<double>::iterator temp;
-
-  if (current_frame_number > (graph_data.size()-1)) {
-    start = graph_data.size()-1;
+  if (hold_data.size() == 0) {
+    //Just go back ~5 seconds
+    if (current_frame_number > 150) cntr = 150;
+    else cntr = current_frame_number;
   }
 
-  for (ii = start; ii >= 0; look--) {
-    if (graph_data[ii] == 1) jj++;
+  if (current_frame_number > hold_data.size()) {
+    start = hold_data.size();
+  }
 
+  for (ii = start; ii > 0; --ii) {
+    if (hold_data[ii].y_val == 1) jj++;
     if (jj == number_of_strokes_back) {
       break;
     }

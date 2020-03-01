@@ -1,12 +1,15 @@
 #include "stroke_annotate.h"
 
+stroke_annotate::stroke_annotate() {
+
+}
 
 void stroke_annotate::graph_example()
 {
 
   char end = '0';
   char responce = '0';
-  int cntr_start = 0, cntr_end = 0;
+  int cntr_end = 0;
   double time_slice = double(1) / double(30);
   double vid_time = 22.5;
 
@@ -18,17 +21,23 @@ void stroke_annotate::graph_example()
   while (end == '0') {
     responce = waitKey(25);
     if (responce == 't') {
-      sinusoid_maker swim_data(cntr_end - cntr_start);
-      tester.input_data(swim_data.get_interp());
-      cntr_start = cntr_end;
+      //tester.find_not_swimming();
+      tester.input_new_frame(true, true, fly);
+    }
+    else if (responce == 'b') {
+      tester.undo_work(3);
+    }
+    else if (responce == 'p') {
+      toggel_pause();
     }
     else if (responce == 27) {
       end++;//break
     }
-    else if (cntr_end == int(vid_time / time_slice)) {
-      end++;//break
+
+    if (tester.input_new_frame(false, true, fly)) {
+      end++;
     }
-    tester.draw_graph(double(cntr_end) * time_slice);
+    tester.draw_graph();
     cntr_end++;
   }
 
@@ -76,17 +85,18 @@ void stroke_annotate::start_stroke_counting(string intput_video_file)
     cout << "Could not open video file for stroke counting" << endl;
     return;
   }
+  namedWindow(video_window_name, WINDOW_NORMAL);
   FPS = cap.get(CAP_PROP_FPS); frame_count = cap.get(CAP_PROP_FRAME_COUNT);
   hight = cap.get(CAP_PROP_FRAME_HEIGHT); width = cap.get(CAP_PROP_FRAME_WIDTH);
-  waitKey(0);
-  cap >> frame;
+  if (!cap.read(frame)) {
+    cout << "Could not peek" << endl;
+  }
   if (frame.empty()) {
     cout << "Error, Could not read first frame of video" << endl;
     return;
   }
-  namedWindow(video_window_name, WINDOW_NORMAL);
   imshow(video_window_name, frame);
-
+  waitKey(1);
 
   //File stuff
   vf_text.replace(vf_text.end() - 4, vf_text.end(), "_str.txt");
@@ -95,12 +105,13 @@ void stroke_annotate::start_stroke_counting(string intput_video_file)
   //look for files related to video file name
   if (!man_file.read_file()) {
     cout << "An error occured, when reading a stroke annotation file" << endl;
+    destroyWindow(video_window_name);
     return;
   }
 
   //Grapher stuff
   grapher.change_window_name(intput_video_file + " Stroke Visualization");
-  grapher.input_data(man_file.return_y_values());
+  grapher.input_data(man_file.return_data());
   grapher.input_varibales(double(frame_count)/FPS, double(1)/FPS);
   grapher.start_graph_drawer();
 
@@ -122,17 +133,26 @@ void stroke_annotate::print_vid_dialog()
     cout << "\nAnnotation options:" << endl;
     cout << "To start annotating (edit mode), press 1" << endl;
     cout << "To view any annotations and/or video (view mode), press 2" << endl;
-    cout << "To quit, press 3" << endl << endl;
+    cout << "To quit, press 3" << endl << ">>";
 
-    cin.clear();
-    cin.ignore(INT_MAX, '\n');
+    cap.set(CAP_PROP_POS_FRAMES, 0);
+
     cin >> resp;
+    if (cin.fail()) {
+      cin.clear();
+      cin.ignore(numeric_limits<streamsize>::max(), '\n');
+      continue;
+    }
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
     if (resp == '1') {
       //start annotating 
-      annotate_video(true);
+      namedWindow(video_window_name);
+      if (grapher.remove_all_data()) annotate_video(true);
     }
     else if (resp == '2') {
       //view annotations
+      namedWindow(video_window_name);
       annotate_video(false);
     }
     else if (resp == '3') {
@@ -156,8 +176,11 @@ void stroke_annotate::annotate_video(bool is_edit_mode)
   vector<stroke_data> temp;
   stroke_data element;
 
+  while (waitKey(1) > 0);//clear this windows iostream buffer
+
   //Find out what swimmer is doing
   if(is_edit_mode) get_swimmer_stait();
+  if (is_edit_mode) get_swimmer_stroke();
 
   print_video_options(is_edit_mode);
 
@@ -170,14 +193,11 @@ void stroke_annotate::annotate_video(bool is_edit_mode)
     resp = waitKey(int(frame_rate * video_speed));//video speed controle
 
     if (resp == 'p') {
-      cout << "video paused" << endl;
+      //cout << "video paused" << endl;
       toggel_pause();
     }
-    else if (resp == 't') {
-      if(is_edit_mode) mark_stroke(cntr_start, cntr_end);
-    }
     else if (resp == 'b') {
-      skip_back(num_skip_back, cntr_end, cntr_start, is_edit_mode);
+      skip_back(num_skip_back, is_edit_mode);
     }
     else if (resp == 'd') {//speed down
       change_speed(false);
@@ -187,23 +207,31 @@ void stroke_annotate::annotate_video(bool is_edit_mode)
     }
     else if(resp == 'm') {//mark swimming
       if (is_edit_mode) {
-        mark_stroke(cntr_start, cntr_end);//you must start and finish swimming on a stroke
         toggel_swimming();
       }
     }
     else if (resp == 27) {
       break;
     }
-    
-    cntr_end++;
 
-    element.frame_num = cntr_end;
-    element.is_swimming = swimmer_is_swimming;
+    //Add data to grapher
+    if (is_edit_mode) {
+      if (resp == 't') {
+        grapher.input_new_frame(true, swimmer_is_swimming, swimmer_stroke);
+      }
+      else {
+        grapher.input_new_frame(false, swimmer_is_swimming, swimmer_stroke);
+      }
+    }
 
-    temp.push_back(element);
+    if (is_edit_mode) {
+      grapher.draw_graph();
+    }
+    else {
+      grapher.draw_graph(double(cap.get(CAP_PROP_POS_MSEC)) / double(1000));
+    }
     
     //display next window frames;
-    grapher.draw_graph(double(cap.get(CAP_PROP_POS_MSEC)) / double(1000));
     cap >> frame;
     if (frame.empty()) {
       cout << "Finished video" << endl;
@@ -256,14 +284,38 @@ void stroke_annotate::get_swimmer_stait()
 
   while (1) {
     cout << "What is the swimmer doing right now? (swimming (s) or not (n))" << endl;
-    cin.clear();
-    cin.ignore(INT_MAX, '\n');
+
     cin >> resp;
+    if (cin.fail()) {
+      cin.clear();
+      continue;
+    }
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
     if (resp == 's') {
       swimmer_is_swimming = true;
+      break;
     }
     else if (resp == 'n') {
       swimmer_is_swimming = false;
+      break;
+    }
+  }
+}
+
+
+//ask the user to get the stroke of the swimmer
+void stroke_annotate::get_swimmer_stroke()
+{
+  while (1) {
+    cout << "What stroke is the swimmer swimming? (fly, back, brest, freestyle or mixed)" << endl;
+
+    cin >> swimmer_stroke;
+    if (cin.fail()) {
+      cin.clear();
+    }
+    else {
+      break;
     }
   }
 }
@@ -295,6 +347,7 @@ void stroke_annotate::change_speed(bool speed_up)
 
 
 //flips the swimmer_is_swimming flag
+//ask for the stroke swimmer is swimming
 void stroke_annotate::toggel_swimming()
 {
   if (swimmer_is_swimming) {
@@ -303,6 +356,7 @@ void stroke_annotate::toggel_swimming()
   }
   else {
     cout << "Swimmer started swimming!" << endl;
+    get_swimmer_stroke();
     swimmer_is_swimming = !swimmer_is_swimming;
   }
 }
@@ -310,25 +364,26 @@ void stroke_annotate::toggel_swimming()
 
 //Changes cntr_end and cntr_star aproprately
 //Modifies the data in the grapher object
-void stroke_annotate::skip_back(int n_strokes, int &cntr_end, int &cntr_start, bool in_edit_mode)
+void stroke_annotate::skip_back(int n_strokes, bool in_edit_mode)
 {
   Mat frame;
-  
-  if (in_edit_mode) {
-    cntr_end = cap.get(CAP_PROP_POS_FRAMES) - grapher.undo_work(n_strokes);
-    cap.set(CAP_PROP_POS_FRAMES, cntr_end - 1);
-    cntr_start = cntr_end;
-    cap >> frame;
+  int num_back = 0, crnt_pos = 0;
 
+  if (in_edit_mode) {
+    if (grapher.undo_work(n_strokes)) {
+      get_swimmer_stait();
+    }
+    cap.set(CAP_PROP_POS_FRAMES, grapher.get_current_frame_num());
+    cap >> frame;
     imshow(video_window_name, frame);
-    grapher.draw_graph(double(cap.get(CAP_PROP_POS_MSEC)) / double(1000));
+    while (waitKey(1) > 0);
     cout << "Video paused, press any key to start" << endl;
     while (waitKey(0) < 0);
   }
   else {
-    cntr_end = grapher.look_back(n_strokes, cntr_end);
-    cntr_start = cntr_end;
-    cap.set(CAP_PROP_POS_FRAMES, cntr_end);
+    crnt_pos = cap.get(CAP_PROP_POS_FRAMES) - 1;
+    num_back = grapher.look_back(n_strokes,crnt_pos);
+    cap.set(CAP_PROP_POS_FRAMES, crnt_pos - num_back);
     grapher.draw_graph(double(cap.get(CAP_PROP_POS_MSEC)) / double(1000));
   }
 
@@ -336,33 +391,16 @@ void stroke_annotate::skip_back(int n_strokes, int &cntr_end, int &cntr_start, b
 }
 
 
-//Tells the grapher object that a stroke occured
-//needs two integers that will be subtracked
-//Upates the grapher accordingly
-void stroke_annotate::mark_stroke(int &cntr_start, int &cntr_end)
-{
-  //need to accout for the situation when swimmer is not swimming
-  sinusoid_maker swim_data(cntr_end - cntr_start);
-  if (!swimmer_is_swimming) {
-    grapher.input_data(swim_data.get_interp());
-  }
-  else {
-    grapher.input_data(swim_data.get_flat());
-    
-  }
-  cntr_start = cntr_end;
-}
-
-
-
 //Specify stroke being prefomed in video (If not already spcifed ask to change)
 //Save all work in file
 //kill all windows
 void stroke_annotate::quit_stroke_annotator()
-{
-  
+{ 
+
   destroyWindow(video_window_name);
-  man_file.save_file();
+  man_file.add_data(grapher.retreive_work());
   grapher.kill_graph_drawer();
+  man_file.save_file();
+  
 }
 

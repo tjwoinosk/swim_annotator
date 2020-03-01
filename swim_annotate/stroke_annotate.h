@@ -31,6 +31,7 @@ private:
 
   //data
   bool swimmer_is_swimming = false;
+  strokes swimmer_stroke = mixed;
 
   //Show options for vid once
   //wait for user to choose one
@@ -53,6 +54,9 @@ private:
   //asks user to input if swimmer is swimming or not
   void get_swimmer_stait();
 
+  //ask the user to get the stroke of the swimmer
+  void get_swimmer_stroke();
+
   void change_speed(bool speed_up);
 
   //flips the swimmer_is_swimming flag
@@ -60,19 +64,15 @@ private:
 
   //Changes cntr_end and cntr_star aproprately
   //Modifies the data in the grapher object
-  void skip_back(int n_storkes, int &cntr_end, int &cntr_start, bool in_edit_mode);
+  void skip_back(int n_storkes, bool in_edit_mode);
 
   //pause the video
   void toggel_pause() { while (waitKey(0) != 'p'); }
 
-  //Tells the grapher object that a stroke occured
-  //Upates the grapher accordingly
-  void mark_stroke(int& cntr_start, int& cntr_end);
-
-
 public:
 
   //constructors
+  stroke_annotate();
 
   //exmple for how to use the graphing class
   void graph_example();

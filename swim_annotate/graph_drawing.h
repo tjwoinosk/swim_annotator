@@ -8,6 +8,8 @@
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 
+#include "SA_file_mannager.h"
+#include "sinusoid_maker.h"
 
 using namespace std;
 using namespace cv;
@@ -19,7 +21,6 @@ using namespace cv;
 class graph_drawing
 {
 
-
 private:
 
   Mat current_graph;
@@ -27,7 +28,7 @@ private:
 
   string name_of_window;
 
-  vector<double> graph_data;
+  vector<stroke_data> hold_data;
   double x_max;//time in seconds
   double time_slice;
 
@@ -47,6 +48,8 @@ private:
   //Fuction that maps points in graph to image representation
   Point to_graph(double x_point, double y_point);
 
+ 
+
 public:
 
   graph_drawing();
@@ -59,7 +62,8 @@ public:
 
   void change_window_name(string window_name) { name_of_window = window_name; }
 
-  void remove_all_data() { graph_data.clear(); }
+  //ask user if they want to remove thier data
+  bool remove_all_data();
 
   //opens a window so a graph can be drawn
   void start_graph_drawer();
@@ -70,23 +74,29 @@ public:
   //draws a time position line in the graph
   void draw_graph(double time_position);
 
-  void input_data(vector<double> data);
+  //replaces the hold_data with data
+  void input_data(vector<stroke_data> data);
 
   void set_graph_length(double total_time_of_vid) { x_max = total_time_of_vid; }
 
   //closes the graph window
   void kill_graph_drawer();
-  
+
+  //Add a data from a new frame
+  //returns true if the new frame is the last frame to input
+  bool input_new_frame(bool is_stroke, bool is_swimming, strokes input_stroke);
+
   //looks threw data for ones (signifys a stroke)
   //deletes data upto the point of the number of strokes back
-  //returns the position in the data
-  int undo_work(unsigned int number_of_strokes_back);
+  //returns true if undo brings footage back to start of video
+  bool undo_work(unsigned int number_of_strokes_back);
 
   //returns the number of frames n strokes back is
   int look_back(unsigned int number_of_strokes_back, int current_frame_number);
 
-  vector<double> retreive_work() { return graph_data; }
+  vector<stroke_data> retreive_work() { return hold_data; }
 
+  int get_current_frame_num() { return hold_data.size() - 1; }
 
 };
 

@@ -87,6 +87,8 @@ bool annotate_engine::print_general_lab_options() {
   cout << "To create sub-video, press (7)" << endl;
   cout << "\nlab>> ";
   cin >> answer;
+  if (cin.fail()) cin.clear();
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
   if (!isdigit(answer)) {
     return false;
@@ -140,7 +142,6 @@ bool annotate_engine::run_stroke_annotator() {
   //test.graph_example();
   //test.file_example();
   test.start_stroke_counting(file_name);
-  test.print_vid_dialog();
 
   return true;
 }

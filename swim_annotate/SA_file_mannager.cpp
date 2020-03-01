@@ -13,19 +13,37 @@ ostream& operator<<(ostream& out, strokes const& c)
 
 istream& operator>>(istream& in, strokes& c)
 {
-  char input[10] = "\n";
-  in.read(input, 10);
+  const char buf_size = 10;
+  char input[buf_size] = "\n";
+  int ii = 0;
+  in.read(input, buf_size);
+  string cmp;
 
-  if (strcmp(input, "fly") == 0) { c = fly; }
-  else if (strcmp(input, "back") == 0) { c = back; }
-  else if (strcmp(input, "brest") == 0) { c = brest; }
-  else if (strcmp(input, "freestyle") == 0) { c = freestyle; }
-  else if (strcmp(input, "mixed") == 0) { c = mixed; }
+  for (ii = 0; ii < buf_size; ii++) {
+    if (input[ii] != '\n') {
+      cmp.push_back(input[ii]);
+    }
+    if (input[ii] == '\n') {
+      break;
+    }
+  }
+
+  if (strcmp(cmp.c_str(), "fly") == 0) { c = fly; }
+  else if (strcmp(cmp.c_str(), "back") == 0) { c = back; }
+  else if (strcmp(cmp.c_str(), "brest") == 0) { c = brest; }
+  else if (strcmp(cmp.c_str(), "freestyle") == 0) { c = freestyle; }
+  else if (strcmp(cmp.c_str(), "mixed") == 0) { c = mixed; }
   else {
-    cout << "Error in file, unrecogized stroke" << endl;
+    cout << "unrecogized stroke" << endl;
     c = mixed;
+    cin.setstate(cin.failbit, true);
   }
   return in;
+}
+
+
+SA_file_mannager::SA_file_mannager() {
+
 }
 
 
@@ -48,6 +66,7 @@ bool SA_file_mannager::read_file()
   int h_read = 0, w_read = 0, nf_read = 0;
 
   file_stroke_data.clear();
+  file_to_read.clear();
 
   file_to_read.open(private_file_name);
   if (file_to_read.is_open()) {
@@ -115,13 +134,6 @@ bool SA_file_mannager::save_file()
 }
 
 
-vector<stroke_data> SA_file_mannager::return_file_data()
-{
-
-
-  return vector<stroke_data>();
-}
-
 vector<double> SA_file_mannager::return_y_values()
 {
   vector<double> data(file_stroke_data.size());
@@ -132,12 +144,5 @@ vector<double> SA_file_mannager::return_y_values()
   }
 
   return data;
-}
-
-
-void SA_file_mannager::add_data(stroke_data input)
-{
-  file_stroke_data.push_back(input);
-  return;
 }
 

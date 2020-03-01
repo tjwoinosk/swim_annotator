@@ -37,6 +37,8 @@ private:
 
 public:
 
+  SA_file_mannager();
+
   SA_file_mannager(string file_name);
 
   void input_info(string file_name, double fr, int num_fr, int h, int w) {
@@ -47,13 +49,15 @@ public:
 
   bool save_file();
 
-  //reteive data
-  vector<stroke_data> return_file_data();
+  vector<stroke_data> return_data() { return file_stroke_data; }
 
   vector<double> return_y_values();
 
   //add data so that it can be saved
-  void add_data(stroke_data input);
+  void add_data(vector<stroke_data> data_in) {
+    file_stroke_data.clear();
+    file_stroke_data = data_in;
+  }
 
 };
 
