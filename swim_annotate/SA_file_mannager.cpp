@@ -13,31 +13,26 @@ ostream& operator<<(ostream& out, strokes const& c)
 
 istream& operator>>(istream& in, strokes& c)
 {
-  const char buf_size = 10;
-  char input[buf_size] = "\n";
+  const int buf_size = 10;
+  char input[buf_size] = "";
   int ii = 0;
-  in.read(input, buf_size);
-  string cmp;
-
-  for (ii = 0; ii < buf_size; ii++) {
-    if (input[ii] != '\n') {
-      cmp.push_back(input[ii]);
-    }
-    if (input[ii] == '\n') {
-      break;
-    }
+  
+  in.getline(input, buf_size+1,'\n');
+  if ((input[0] != '\0') && (cin.gcount() > buf_size)) {
+    in.ignore(numeric_limits<streamsize>::max(), '\n');
   }
 
-  if (strcmp(cmp.c_str(), "fly") == 0) { c = fly; }
-  else if (strcmp(cmp.c_str(), "back") == 0) { c = back; }
-  else if (strcmp(cmp.c_str(), "brest") == 0) { c = brest; }
-  else if (strcmp(cmp.c_str(), "freestyle") == 0) { c = freestyle; }
-  else if (strcmp(cmp.c_str(), "mixed") == 0) { c = mixed; }
+  if (strncmp(input, "fly\0", 4) == 0) { c = fly; }
+  else if (strncmp(input, "back\0", 5) == 0) { c = back; }
+  else if (strncmp(input, "brest\0", 6) == 0) { c = brest; }
+  else if (strncmp(input, "freestyle\0", 10) == 0) { c = freestyle; }
+  else if (strncmp(input, "mixed\0", 6) == 0) { c = mixed; }
   else {
     cout << "unrecogized stroke" << endl;
     c = mixed;
     cin.setstate(cin.failbit, true);
   }
+
   return in;
 }
 
@@ -72,7 +67,6 @@ bool SA_file_mannager::read_file()
   if (file_to_read.is_open()) {
     getline(file_to_read, line);
     if (!file_to_read.eof()) {
-
       getline(file_to_read, line);
       reader.str(line);
       reader >> FR_read >> ch >> h_read >> ch >> w_read >> ch >> nf_read;
@@ -92,11 +86,15 @@ bool SA_file_mannager::read_file()
         file_stroke_data.push_back(input);
       }
     }
-    else {
-      is_new_file = false;
-    }
     file_to_read.close();
     return true;
+  } else{
+    file_to_read.open(private_file_name, fstream::out); 
+    if (file_to_read.is_open()) {
+      is_new_file = false;
+      file_to_read.close();
+      return true;
+    }
   }
   cout << "Could not open " << private_file_name << endl;
   file_to_read.close();

@@ -139,9 +139,53 @@ bool annotate_engine::run_box_annotator() {
 bool annotate_engine::run_stroke_annotator() {
 
   stroke_annotate test;
+  string mod_file_name = file_name;
+  char resp = '0';
+  char resp2 = '0';
+  size_t pos = 0;
+  int num = 0;
+  string lead = "";
+  char new_num[3] = "00";
   //test.graph_example();
   //test.file_example();
-  test.start_stroke_counting(file_name);
+
+  while (1) {
+    cout << "Would you like to do all lanes at once? (y/n)" << endl;
+    cin >> resp;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    if (resp == 'y') {
+      while (resp == 'y') {
+        if (!test.start_stroke_counting(mod_file_name)) {
+          while (1) {
+            cout << "Is this the last one? (y/n)" << endl;
+            cin >> resp2;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            if (resp2 == 'y') {
+              resp = '0';
+              break;
+            }
+            else if (resp2 == 'n') {
+              break;
+            }
+          }
+        }
+        //modify mod_file_name by adding one to the number after the first "_"
+        cout << "Old name... " << mod_file_name << endl;
+        pos = mod_file_name.find_first_of('_', 0);
+        num = stoi(mod_file_name.substr(pos + 1, 2));
+        lead = mod_file_name.substr(0, pos+1);
+        sprintf(new_num, "%2.2i", (num+1));
+        mod_file_name = lead + string(new_num) + mod_file_name.substr(pos + 3, (mod_file_name.size() - 1));
+        cout << "New name... " << mod_file_name << endl;
+      }
+      break;
+    }
+    else if (resp == 'n') {
+      test.start_stroke_counting(file_name);
+      break;
+    }
+  }
 
   return true;
 }
@@ -226,6 +270,7 @@ bool annotate_engine::analize_swimmer_detection_netowrk_non_inter(int iou)
   return false;
 }
 
+
 //produce video of what netowrk sees
 //produce a summary of results 
 bool annotate_engine::analize_swimmer_detection_netowrk()
@@ -240,7 +285,37 @@ bool annotate_engine::analize_swimmer_detection_netowrk()
 }
 
 
+//shows the boxes produced by annotated data and saves a file in //data//
+void annotate_engine::interpolate_annotated_boxes(bool show) {
+  
+  swimmer_tracking testing;
+
+  testing.annotation_tracking(file_name);
+  if(show)
+    testing.show_video_of_tracking(file_name);
+  string str = file_name;
+  str.replace(str.end() - 4, str.end(), "_gt.txt");
+  testing.save_results_in_text_file(str);
+
+}
+
+
+//given video and proper data cfg and weight files produces detections of that video, save in data//
+void annotate_engine::create_detection_files(bool show) {
+  
+  swimmer_tracking testing;
+
+  testing.make_detection_file(file_name);
+  if(show)
+    testing.show_video_of_tracking(file_name);
+  string str = file_name;
+  str.replace(str.end() - 4, str.end(), "_det.txt");
+  testing.save_results_in_text_file(str);
+
+}
+
 //Using annotations of swimmers make subvideo of each swimmer
+//this asks the user if you would like to update the detection file
 void annotate_engine::make_sub_vid_using_tracking() {
  
   sub_video make_subvid;
@@ -269,6 +344,7 @@ void annotate_engine::make_sub_vid_using_tracking() {
 
 
 //needs files localy named "data" and "output"
+//no user input
 void annotate_engine::make_sub_vid_using_tracking_auto_detect(bool update_detection_file)
 {
   sub_video make_subvid;

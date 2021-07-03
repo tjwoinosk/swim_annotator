@@ -32,7 +32,7 @@ void sub_video::make_subvideo_using_sort_tracker(string file_name)
   //Sort tracking needs uses the detection file
   sort_tracking(file_name);
 
-  vector<track_data> look_threw = get_results();
+  vector<track_data> look_threw = get_results(); //Unchanged...
 
   //list is in assending order by frame
   //look threw list to find all object ids they are in assending order
@@ -83,7 +83,14 @@ void sub_video::make_subvideo_using_sort_tracker(string file_name)
   }  
   //*/
 
-  make_video(file_name, final_swimmers);
+  //uncoment to make the video as well
+  //make_video(file_name, final_swimmers);
+  
+  //save tracking results in text file
+  //change_results(look_threw);
+  //change_name = file_name;
+  //change_name.replace(change_name.end() - 4, change_name.end(), "_tr.txt");
+  //save_results_in_text_file(change_name);
 
   return;
 }

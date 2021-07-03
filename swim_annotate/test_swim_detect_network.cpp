@@ -225,15 +225,6 @@ void test_swim_detect_network::compare_results_with_ground(int frame_num)
 
   data_for_file file_data;
 
-  //add to detect var in class
-  for (ii = 0; ii < good_boxes.size(); ii++) {
-    file_data.box = good_boxes[ii];
-    file_data.class_name = good_class_IDs[ii];
-    file_data.conf = good_confs[ii];
-    file_data.frame = frame_num;
-    detect.push_back(file_data);
-  }
-
   //make a list of found boxes from most confident to least
   if ((good_boxes.size() == good_class_IDs.size()) && (good_class_IDs.size() == good_confs.size())) {
     for (ii = 0; ii < good_confs.size(); ii++) {
@@ -247,6 +238,15 @@ void test_swim_detect_network::compare_results_with_ground(int frame_num)
   else {
     cout << "Error: the data collected in the vectors from frame " << frame_num << " is not consistant" << endl;
     return;
+  }
+
+  //add to detect var in class
+  for (ii = 0; ii < good_boxes.size(); ii++) {
+    file_data.box = good_boxes[ii];
+    file_data.class_name = good_class_IDs[ii];
+    file_data.conf = good_confs[ii];
+    file_data.frame = frame_num;
+    detect.push_back(file_data);
   }
 
   //get ground truth
@@ -532,6 +532,8 @@ void test_swim_detect_network::get_network_results(string file_name)
   Mat frame, blob;
   int frame_num = 0;
 
+  int ii = 0;
+
   str = file_name;
 
   if (load_video_for_boxing(str)) {
@@ -582,30 +584,33 @@ void test_swim_detect_network::get_network_results(string file_name)
       waitKey(3000);
       break;
     }
-    
-    // Create a 4D blob from a frame.
-    blobFromImage(frame, blob, 1 / 255.0, Size(inpWidth, inpHeight), Scalar(0, 0, 0), true, false);
 
-    //Sets the input to the network
-    net.setInput(blob);
 
-    // Runs the forward pass to get output of the output layers
-    vector<Mat> outs;
-    net.forward(outs, getOutputsNames(net));
-
-    // Remove the bounding boxes with low confidence
-    postprocess(frame, outs);
-    
-    // Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
-    vector<double> layersTimes;
-    double freq = getTickFrequency() / 1000;
-    double t = net.getPerfProfile(layersTimes) / freq;
-    string label = format("Inference time for a frame : %.2f ms", t);
-    putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
-
-    //For dealing with the fact that we skip frames when lableing data
     frame_num = (cap.get(CAP_PROP_POS_FRAMES) - 1);
     if ((frame_num % get_skip_size()) == 0) {
+
+      // Create a 4D blob from a frame.
+      blobFromImage(frame, blob, 1 / 255.0, Size(inpWidth, inpHeight), Scalar(0, 0, 0), true, false);
+
+      //Sets the input to the network
+      net.setInput(blob);
+
+      // Runs the forward pass to get output of the output layers
+      vector<Mat> outs;
+      net.forward(outs, getOutputsNames(net));
+
+      // Remove the bounding boxes with low confidence
+      postprocess(frame, outs); //makes changes to good_boxes, good_class_IDs and good_confs
+    
+      // Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
+      vector<double> layersTimes;
+      double freq = getTickFrequency() / 1000;
+      double t = net.getPerfProfile(layersTimes) / freq;
+      string label = format("Inference time for a frame : %.2f ms", t);
+      putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
+
+      //For dealing with the fact that we skip frames when lableing data
+
       compare_results_with_ground(frame_num / get_skip_size());
       //add ground to the video for testing
       //class 0: Brown, class 1: Red, class 2: Green, class 3: Orange, class 4: Yellow, class 5: Purple
@@ -776,7 +781,7 @@ void test_swim_detect_network::make_map_files_det(string file_name)
       if (save_data.is_open()) {
         save_data.close();
       }
-      jj++;
+      jj = int(detect[ii].frame);
       //convert jj to zero padded string
       sprintf(buff,"%.4d", jj);
       frame = string(buff);

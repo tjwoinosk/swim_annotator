@@ -62,6 +62,8 @@ void graph_drawing::start_graph_drawer()
 {
   current_graph = Mat::zeros(num_pixels_y, num_pixels_x, CV_8U);
   namedWindow(name_of_window, WINDOW_NORMAL);
+  moveWindow(name_of_window, 25, 575);
+  resizeWindow(name_of_window, Size(1225, 275));
   make_axis();
   make_grid(y_grid_lines);
   plot_data();
@@ -161,13 +163,10 @@ void graph_drawing::plot_data()
 {
   Point line_start, line_end;
   int ii = 0;
-  double step = time_slice;
-  double temp = 0;
   if (hold_data.size() > 0) {
     for (ii = 0; ii < (hold_data.size() - 1); ii++) {
-      line_start = to_graph(temp, hold_data[ii].y_val);
-      temp += step;
-      line_end = to_graph(temp, hold_data[ii + 1].y_val);
+      line_start = to_graph(double(hold_data[ii].frame_num) * time_slice, hold_data[ii].y_val);
+      line_end = to_graph(double(hold_data[ii + 1].frame_num) * time_slice, hold_data[ii + 1].y_val);
       line(current_graph, line_start, line_end, Scalar(225), 1);
     }
   }
@@ -343,7 +342,10 @@ int graph_drawing::look_back(unsigned int number_of_strokes_back, int current_fr
   }
 
   for (ii = start; ii > 0; --ii) {
-    if (hold_data[ii].y_val == 1) jj++;
+    if (hold_data[ii].y_val == 1 ) jj++;
+    if (!hold_data[ii].is_swimming) {
+      break;
+    }
     if (jj == number_of_strokes_back) {
       break;
     }

@@ -64,7 +64,7 @@ void stroke_annotate::file_example()
 
 //loads and opens all objects required for stroke annotation 
 //Display all windows
-void stroke_annotate::start_stroke_counting(string intput_video_file)
+bool stroke_annotate::start_stroke_counting(string intput_video_file)
 {
 
   video_file = intput_video_file;
@@ -83,9 +83,11 @@ void stroke_annotate::start_stroke_counting(string intput_video_file)
   cap.open(video_file);
   if (!cap.isOpened()) {
     cout << "Could not open video file for stroke counting" << endl;
-    return;
+    return false;
   }
   namedWindow(video_window_name, WINDOW_NORMAL);
+  moveWindow(video_window_name, 700, 25);
+  resizeWindow(video_window_name, Size(500, 500));
   FPS = cap.get(CAP_PROP_FPS); frame_count = cap.get(CAP_PROP_FRAME_COUNT);
   hight = cap.get(CAP_PROP_FRAME_HEIGHT); width = cap.get(CAP_PROP_FRAME_WIDTH);
   if (!cap.read(frame)) {
@@ -93,7 +95,7 @@ void stroke_annotate::start_stroke_counting(string intput_video_file)
   }
   if (frame.empty()) {
     cout << "Error, Could not read first frame of video" << endl;
-    return;
+    return false;
   }
   imshow(video_window_name, frame);
   waitKey(1);
@@ -106,7 +108,7 @@ void stroke_annotate::start_stroke_counting(string intput_video_file)
   if (!man_file.read_file()) {
     cout << "An error occured, when reading a stroke annotation file" << endl;
     destroyWindow(video_window_name);
-    return;
+    return false;
   }
 
   //Grapher stuff
@@ -117,7 +119,7 @@ void stroke_annotate::start_stroke_counting(string intput_video_file)
 
   print_vid_dialog();
 
-  return;
+  return true;
 }
 
 
@@ -147,12 +149,10 @@ void stroke_annotate::print_vid_dialog()
 
     if (resp == '1') {
       //start annotating 
-      namedWindow(video_window_name);
       if (grapher.remove_all_data()) annotate_video(true);
     }
     else if (resp == '2') {
       //view annotations
-      namedWindow(video_window_name);
       annotate_video(false);
     }
     else if (resp == '3') {
@@ -161,6 +161,7 @@ void stroke_annotate::print_vid_dialog()
       break;
     }
   }
+  return;
 }
 
 
@@ -179,8 +180,11 @@ void stroke_annotate::annotate_video(bool is_edit_mode)
   while (waitKey(1) > 0);//clear this windows iostream buffer
 
   //Find out what swimmer is doing
-  if(is_edit_mode) get_swimmer_stait();
-  if (is_edit_mode) get_swimmer_stroke();
+  if (is_edit_mode) {
+    if (get_swimmer_stait()) {
+      get_swimmer_stroke();
+    }
+  }
 
   print_video_options(is_edit_mode);
 
@@ -278,7 +282,7 @@ void stroke_annotate::print_video_options(bool is_edit_mode)
 
 
 //asks user to input if swimmer is swimming or not
-void stroke_annotate::get_swimmer_stait()
+bool stroke_annotate::get_swimmer_stait()
 {
   char resp = '0';
 
@@ -294,11 +298,11 @@ void stroke_annotate::get_swimmer_stait()
 
     if (resp == 's') {
       swimmer_is_swimming = true;
-      break;
+      return true;
     }
     else if (resp == 'n') {
       swimmer_is_swimming = false;
-      break;
+      return false;
     }
   }
 }
@@ -342,6 +346,11 @@ void stroke_annotate::change_speed(bool speed_up)
       cout << "Cant slow down video any more!" << endl;
     }
   }
+
+  if (video_speed == double(1)) {
+    cout << "normal speed" << endl;
+  }
+
   return;
 }
 
@@ -357,6 +366,9 @@ void stroke_annotate::toggel_swimming()
   else {
     cout << "Swimmer started swimming!" << endl;
     get_swimmer_stroke();
+    while (waitKey(1) > 0);
+    cout << "Press any key to start..." << endl;
+    while (waitKey(0) < 0);
     swimmer_is_swimming = !swimmer_is_swimming;
   }
 }

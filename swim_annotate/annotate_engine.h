@@ -66,5 +66,11 @@ public:
   //output holds the post SORT detection file and the subvideo
   void make_sub_vid_using_tracking_auto_detect(bool update_detection_file);
 
+  //shows the boxes produced by annotated data and saves a file in data//
+  void interpolate_annotated_boxes(bool show);
+
+  //given video and proper data cfg and weight files produces detections of that video, save in data//
+  void create_detection_files(bool show);
+
 };
 

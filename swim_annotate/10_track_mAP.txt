@@ -1,4 +1,0 @@
-mAP value of finding a swimmer in any class is: 0.142857
-Skip size is 3
-frame 0: 0.142857
-frame 3: 0.142857

@@ -76,6 +76,18 @@ int main(int argc, char* argv[])
             app.make_sub_vid_using_tracking_auto_detect(true);
           }
         }
+        else if (strcmp(argv[2], "-t") == 0) { //t for testing
+          app.interpolate_annotated_boxes(false);
+        }
+        else if (strcmp(argv[2], "-tv") == 0) { //t for testing
+          app.interpolate_annotated_boxes(true);
+        }
+        else if (strcmp(argv[2], "-d") == 0) { //t for testing
+          app.create_detection_files(false);
+        }
+        else if (strcmp(argv[2], "-dv") == 0) { //t for testing
+          app.create_detection_files(true);
+        }
         else {
           cout << "Incorrrect flag used" << endl;
         }

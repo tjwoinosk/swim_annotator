@@ -52,7 +52,7 @@ private:
   void print_video_options(bool in_view_mode);
 
   //asks user to input if swimmer is swimming or not
-  void get_swimmer_stait();
+  bool get_swimmer_stait();
 
   //ask the user to get the stroke of the swimmer
   void get_swimmer_stroke();
@@ -82,6 +82,6 @@ public:
 
   //loads and opens all objects required for stroke annotation 
   //Display all windows
-  void start_stroke_counting(string video_file);
+  bool start_stroke_counting(string video_file);
   
 };

@@ -17,7 +17,6 @@ swimmer_tracking::swimmer_tracking()
 }
 
 
-//!! need to acount for when swimmer gets occulded
 //Do tracking using annotations
 //Fill the vector call results with structs representing objects for each swimmer in each frame
 //This fuction will try to ignore swimmers who are not in the race even when
@@ -33,88 +32,170 @@ bool swimmer_tracking::annotation_tracking(string file_name)
   int width_step = 0;
   int x_step = 0;
   int y_step = 0;
+  double cent_delta = 0;//centroid delta
+  int num_occlu = 0;
+  const int const_num_occlu = 10;//controls how many occultions in a row get interpolated (5 == 5*skip_size real frames)
+  //if this get too low, the linnear intrepolations will stop happening
+  //this just allows us to remove big changes
+  const double delta_frac = 0.1; // if the centroid of a box moves more than 1/10 of the screen resolution
+
+  bool s_occlu = true;//flag for clipping start occlutions, dont change 
 
   track_data temp{0,0,Rect(0,0,0,0),0.0,0};
-  vector<swim_data>* frame_data;
-  vector<swim_data>* next_frame_data;
+  swim_data t_swim_data;
+  track_data frame_data;
+  track_data next_frame_data;
+  vector<track_data> skipped_data;
 
   if (load_video_for_boxing(file_name)) {
     destroyWindow(AN_WINDOW_NAME);
 
     int skip_size = get_skip_size();
     int num_frames = get_num_frames();
+    double res_hight = get_hight();
+    double res_width = get_width();
+    double screen_length = sqrt(pow(res_hight, 2) + pow(res_width, 2));
 
-    //Create objects
-    for (ii = 0; ii < int(num_frames / skip_size); ii++) {
-
-      //Each swimmer, ie. lane number
-      for (jj = 0; jj < 10; jj++) {
-        
-        //ii is a psudo frame number used for boxing and a skip size
-        frame_data = get_swim_data(ii, jj);
-        next_frame_data = get_swim_data(ii + 1, jj);
-        //Calcualtions for box predictions
-        //predictions use linear aproximation between annotated frame befor and after
-        if ((next_frame_data != nullptr) && (frame_data != nullptr)) {
-          //if ((next_frame_data->at(0).swimmer_box.area() != 0) && (frame_data->at(0).swimmer_box.area() != 0)) {
-          hight_step = next_frame_data->at(0).swimmer_box.height - frame_data->at(0).swimmer_box.height;
-          width_step = next_frame_data->at(0).swimmer_box.width - frame_data->at(0).swimmer_box.width;
-          x_step = next_frame_data->at(0).swimmer_box.x - frame_data->at(0).swimmer_box.x;
-          y_step = next_frame_data->at(0).swimmer_box.y - frame_data->at(0).swimmer_box.y;
-
-          hight_step /= (skip_size + 1);
-          width_step /= (skip_size + 1);
-          x_step /= (skip_size + 1);
-          y_step /= (skip_size + 1);
+    //Each swimmer, ie. lane number
+    for (jj = 0; jj < 10; jj++) {
+      
+      //fill skipped_data with all gt lables for that swimmer
+      //then fill in any gaps if there is occultions ie. swimmer_box area == 0
+      //Clip start occlutions, they are usless
+      skipped_data.clear();
+      s_occlu = true;//flag for clipping start occlutions, dont change
+      for (ii = 0; ii < int(num_frames / skip_size)+1; ii++) {
+        if (get_swim_data(ii, jj) != nullptr) {
+          t_swim_data = get_swim_data(ii, jj)->at(0);//get data from ground files
+          frame_data.class_id = t_swim_data.box_class;
+          frame_data.conf_score = 1;
+          frame_data.frame_num = ii*skip_size;
+          frame_data.frame_pos = t_swim_data.swimmer_box;
+          frame_data.object_ID = jj;
         }
+        else
+          continue;
 
-        //To account for frame skipping
-        for (kk = 0; kk < skip_size; kk++) {
-          if (kk == 0) {
-            //When swimmer position does not have to be infered
-            if (frame_data != nullptr) {
-              temp.frame_num = ii*skip_size;//must traslate frame number to acctual frame
-              temp.object_ID = jj;
-              temp.class_id = frame_data->at(0).box_class;//swimmer class, see fuction header for the use of index 0
-              temp.conf_score = 100;
-              temp.frame_pos = frame_data->at(0).swimmer_box;
-              //Add to vector
-              results.push_back(temp);
-            }
+        if ((frame_data.frame_pos.height < 2) || (frame_data.frame_pos.width < 2)) {
+          if (s_occlu)// ie. we have starting occultions
+            continue;//don't add frame_data
+        }
+        else
+          s_occlu = false;//set s_occle to false once a non occultion box is found
+
+        skipped_data.push_back(frame_data);
+      }
+
+      //look threw skipped_data in reverse and remove end occultions
+      for (ii = skipped_data.size() - 1; ii >= 0; ii--) {
+        frame_data = skipped_data[ii];
+        if ((frame_data.frame_pos.height < 2) || (frame_data.frame_pos.width < 2)) {
+          skipped_data.pop_back();
+        }
+        else
+          break;
+      }
+
+      //Deal with occultions in the middle
+      ii = 0;
+      while (ii < skipped_data.size()) {
+        frame_data = skipped_data[ii];
+
+        if ((frame_data.frame_pos.height < 2) || (frame_data.frame_pos.width < 2)) {
+          //look for next non occultion
+          for (kk = (ii+1); kk < skipped_data.size(); kk++) {
+            next_frame_data = skipped_data[kk];
+            if (!((next_frame_data.frame_pos.height < 2) || (next_frame_data.frame_pos.width < 2)))
+              break;
+          }
+
+          frame_data = skipped_data[ii - 1];//we can do this becuase skipped_data[0] is never occulded
+          //do math for interpolating
+          num_occlu = kk-ii;
+          hight_step = (next_frame_data.frame_pos.height - frame_data.frame_pos.height)/(num_occlu + 2);
+          width_step = (next_frame_data.frame_pos.width - frame_data.frame_pos.width)/(num_occlu + 2);
+          x_step = (next_frame_data.frame_pos.x - frame_data.frame_pos.x)/(num_occlu + 2);
+          y_step = (next_frame_data.frame_pos.y - frame_data.frame_pos.y)/(num_occlu + 2);
+          //find absolute difference in sentroide distance between two points
+          cent_delta = pow((double(x_step) + double(width_step) / 2) * double(skip_size + 1), 2);
+          cent_delta = cent_delta + pow((double(y_step) + double(hight_step) / 2) * double(skip_size + 1), 2);
+          cent_delta = sqrt(cent_delta);
+
+          //erase elements if there are too many occultions in a row
+          //erase elements if there is too big of a jump between two non occulded frames
+          //num occlus can be changed
+          if (((cent_delta / screen_length) > delta_frac) || (num_occlu > const_num_occlu)) {
+              for (kk = ii; kk < (num_occlu + ii); kk++) {
+                skipped_data.erase(skipped_data.begin() + ii);
+              }
           }
           else {
-            //When swimmer position must be predicted
-            if (((ii * skip_size + kk) < num_frames) && (next_frame_data != nullptr)) {
-              temp.frame_num = ii * skip_size + kk;
-              //temp.object_ID = jj;
-              //temp.class_id = frame_data->at(0).box_class;
-              //temp.conf_score = 100;
-              temp.frame_pos.height += hight_step;
-              temp.frame_pos.width += width_step;
-              temp.frame_pos.x += x_step;
-              temp.frame_pos.y += y_step;
-              results.push_back(temp);
+            //change occultions
+            for (kk = ii; kk < (num_occlu + ii); kk++) {
+              skipped_data[kk].frame_pos.height = hight_step + skipped_data[kk - 1].frame_pos.height;
+              skipped_data[kk].frame_pos.width = width_step + skipped_data[kk - 1].frame_pos.width;
+              skipped_data[kk].frame_pos.x = x_step + skipped_data[kk - 1].frame_pos.x;
+              skipped_data[kk].frame_pos.y = y_step + skipped_data[kk - 1].frame_pos.y;
             }
-            else if((ii * skip_size + kk) < num_frames && (next_frame_data == nullptr)) {
-              //Case when there are still frames but no next frame annotations to predict with
-              temp.conf_score = 50;
-              temp.frame_num = ii * skip_size + kk;
-              results.push_back(temp);
+            ii++;//increment
+            continue;//so we don't double increment
+          }
+        }
+        ii++;
+      }
+
+      //Now do stuff inbetween annotated frames
+      for (ii = 0; ii < skipped_data.size(); ii++) {
+
+        //When reached the last spot no more interpolation
+        //stops skipped_data[ii+1] from cauing problems
+        if (ii == (skipped_data.size() - 1)) {
+          //When swimmer position does not have to be infered
+          results.push_back(skipped_data[ii]);
+          break;
+        }
+
+        //ii is a psudo frame number used for boxing and a skip size
+        frame_data = skipped_data[ii];
+        next_frame_data = skipped_data[ii + 1];
+ 
+        //Calcualtions for box predictions
+        //predictions use linear aproximation between annotated frame befor and after
+        hight_step = (next_frame_data.frame_pos.height - frame_data.frame_pos.height)/(skip_size + 1);
+        width_step = (next_frame_data.frame_pos.width - frame_data.frame_pos.width)/(skip_size + 1);
+        x_step = (next_frame_data.frame_pos.x - frame_data.frame_pos.x)/(skip_size + 1);
+        y_step = (next_frame_data.frame_pos.y - frame_data.frame_pos.y)/(skip_size + 1);
+
+        for (kk = 0; kk < skip_size; kk++) {
+          if (kk == 0) 
+            results.push_back(frame_data);//this has already been anotated
+          else {
+            //When swimmer position must be predicted
+            if ((frame_data.frame_num + skip_size) < next_frame_data.frame_num) {
+              //dont make any predictions
             }
             else {
-              //push back nothing
-              //results.push_back(temp)
+              temp.frame_num = frame_data.frame_num + kk;//must traslate frame number to acctual frame
+              temp.object_ID = frame_data.object_ID;
+              temp.class_id = frame_data.class_id;//swimmer class, see fuction header for the use of index 0
+              temp.conf_score = 1;
+              //linear interpolation
+              temp.frame_pos.height = frame_data.frame_pos.height + hight_step * kk;
+              temp.frame_pos.width = frame_data.frame_pos.width + width_step * kk;
+              temp.frame_pos.x = frame_data.frame_pos.x + x_step * kk;
+              temp.frame_pos.y = frame_data.frame_pos.y + y_step * kk;
+              results.push_back(temp);
             }
           }
         }
       }
+
     }
   }
   else {
     cout << "Could not load video file for annotation tracking!" << endl;
     return false;
   }
-
 
   return true;
 }
@@ -135,7 +216,7 @@ void swimmer_tracking::sort_tracking(string text_file_name)
   float tpx, tpy, tpw, tph;
 
   string detection_file = text_file_name;
-  detection_file.replace(detection_file.end() - 4, detection_file.end(), "_detection_data.txt");
+  detection_file.replace(detection_file.end() - 4, detection_file.end(), "_det.txt");
   track_swimmers.TestSORT(detection_file, .05);
 
  
@@ -216,6 +297,8 @@ void swimmer_tracking::show_video_of_tracking(string file_name)
     if (results[ii].object_ID > number_objects) number_objects = results[ii].object_ID;
   }
   //randomly assinge colors to the objects 
+  if (number_objects == 0)
+    number_objects = 1;
   for (ii = 0; ii < number_objects; ii++) {
     temp_color.blue = (g1() % (128 + 64)) + 32;
     temp_color.red = (g1() % (128 + 64)) + 32;
@@ -247,15 +330,13 @@ void swimmer_tracking::show_video_of_tracking(string file_name)
     frame_num = (cap.get(CAP_PROP_POS_FRAMES));//(cap.get(CAP_PROP_FRAME_COUNT));
     for (ii = 0; ii < results.size(); ii++) {
       if (results[ii].frame_num == frame_num) {
-        temp_color = box_colors[results[ii].object_ID - 1];
+        if ((results[ii].object_ID - 1) < 0) {
+          temp_color = box_colors[0];
+        } else
+          temp_color = box_colors[results[ii].object_ID - 1];
         blue = temp_color.blue; 
         green = temp_color.green; 
         red = temp_color.red; 
-        if (results[ii].object_ID == 20) {//isolate an object ID
-          blue = 0;
-          green = 0;
-          red = 0;
-        }
         rectangle(frame, results[ii].frame_pos, Scalar(blue, green, red), 2, 2);
       }
     }
@@ -798,17 +879,18 @@ void swimmer_tracking::make_detection_file(string file_name)
   VideoCapture cap;
   VideoWriter video;
   Mat frame, blob;
-  int frame_num = 1;
+  
 
   str = file_name;
   cap.open(str);
-  str.replace(str.end() - 4, str.end(), "_detection_data.txt");
+  str.replace(str.end() - 4, str.end(), "_det.txt");
 
   int finaly = cap.get(CAP_PROP_FRAME_COUNT) / 10;
 
   //Set the starting frame to be analized 
   //cap.set(CAP_PROP_POS_FRAMES, 0);
 
+  int frame_num = cap.get(CAP_PROP_POS_FRAMES);
   //Process frames.
   while (waitKey(1) < 0)
   {
@@ -833,7 +915,6 @@ void swimmer_tracking::make_detection_file(string file_name)
     vector<Mat> outs;
     net.forward(outs, getOutputsNames(net));
 
-
     // Remove the bounding boxes with low confidence
     // Also saves the results in results
     postprocess(frame, outs, frame_num);
@@ -848,7 +929,7 @@ void swimmer_tracking::make_detection_file(string file_name)
       break;
     }
     //*/
-    frame_num++;
+    frame_num = cap.get(CAP_PROP_POS_FRAMES);
   }
 
   cap.release();
@@ -881,7 +962,7 @@ void swimmer_tracking::save_results_in_text_file(string text_file_name)
   if (results_file.is_open()) {
     for (ii = 0; ii < results.size(); ii++) {
       results_file << results[ii].frame_num << ","
-        << "-1,"
+        << results[ii].object_ID << ","
         << results[ii].frame_pos.x << ","
         << results[ii].frame_pos.y << ","
         << results[ii].frame_pos.width << ","

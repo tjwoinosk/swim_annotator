@@ -1,4 +1,0 @@
-Lane numbers (zero indexed) missed by the model per frame are:
-Skip size is 3
-frame 0: 
-frame 3: 

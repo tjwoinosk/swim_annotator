@@ -46,13 +46,14 @@ private:
 protected:
   //Accessors
   vector<track_data> get_results() { return results; }
+  void change_results(vector<track_data> new_results) { results = new_results; }
 
 public:
 
   swimmer_tracking();
 
   //Do tracking using annotations
-  //Fill the vector call results with structs representing objects for each swimmer in each frame
+  //Fill the vector called results with structs representing objects for each swimmer in each frame
   //This fuction will try to ignore swimmers who are not in the race even when
   // they were annotated. The racer should be in vector position 0.
   bool annotation_tracking(string file_name);
@@ -95,10 +96,7 @@ public:
   //state_num, number of values in the vector of data to find the covariance mat of
   //t, finite difference value for calculating acceleration
   void calc_accelerations(vector<vector<float>> &data, int state_num, float t);
-
   
-
-
 
   /*inharated class (Box annotate)------
   //default constructor

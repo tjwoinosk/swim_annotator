@@ -83,8 +83,9 @@ private:
   //Makes a files that contain all detection results
   void make_map_files_det(string file_name);
 
-  //Makes a files that contain all detection results
+  //Makes a file that contain all detection results
   void make_map_files_ground(string file_name);
+  
 
 public:
 
@@ -93,7 +94,6 @@ public:
 
   void get_network_results(string file_name);
   void save_network_results(string file_name);
-
 
 
 };
