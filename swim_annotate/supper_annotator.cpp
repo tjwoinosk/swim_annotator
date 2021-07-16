@@ -227,21 +227,22 @@ void supper_annotator::quit_app()
 //can only skip up to 9 frames
 void supper_annotator::prompt_skip_size() {
   
-  char num_skip;
+  char num_skip, num_skip2;
   int num = -1;
-  bool done;
+  int tempNum = 0;
+  bool done = false;
+  int numberLoops = 0;
   Mat frame;
 
   //select lane number
+  cout << "What skip size would you like? (1-99): ";
   do {
-    cout << "What skip size would you like? ";
-
     //Get the key from the window
     an_video.set(CAP_PROP_POS_FRAMES, current_frame);//CV_CAP_PROP_POS_FRAMES
     an_video >> frame;
     imshow(AN_WINDOW_NAME, frame);
     num_skip = waitKey(0);
-    cout << num_skip << endl;
+    cout << num_skip;
 
     if (!isdigit(num_skip)) {
       num = -1;
@@ -253,12 +254,22 @@ void supper_annotator::prompt_skip_size() {
     if ((num > 9) || (num < 1)) {
       cout << "\nAn invalid skip size was selected" << endl;
       done = false;
+      numberLoops = 0;
     }
     else {
-      skip_size = num;
-      done = true;
+      if (numberLoops == 1) {
+        tempNum += num;
+        done = true;
+      }
+      if (numberLoops == 0) {
+        tempNum = num * 10;
+        numberLoops++;
+      }
     }
   } while (!done);
+
+  cout << endl;
+  skip_size = tempNum;
 
   return;
 }
