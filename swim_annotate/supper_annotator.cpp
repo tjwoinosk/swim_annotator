@@ -235,7 +235,7 @@ void supper_annotator::prompt_skip_size() {
   Mat frame;
 
   //select lane number
-  cout << "What skip size would you like? (1-99): ";
+  cout << "What skip size would you like? (01-99): ";
   do {
     //Get the key from the window
     an_video.set(CAP_PROP_POS_FRAMES, current_frame);//CV_CAP_PROP_POS_FRAMES
@@ -251,7 +251,7 @@ void supper_annotator::prompt_skip_size() {
       num = int(num_skip) - 48;//convert to int
     }
 
-    if ((num > 9) || (num < 1)) {
+    if ((num > 9) || (num < 0)) {
       cout << "\nAn invalid skip size was selected" << endl;
       done = false;
       numberLoops = 0;
@@ -269,7 +269,13 @@ void supper_annotator::prompt_skip_size() {
   } while (!done);
 
   cout << endl;
-  skip_size = tempNum;
+  if (tempNum == 0)
+  {
+    cout << "Skip size of 0 is not allowed, setting skip size to 1.\n";
+    skip_size = 1;
+  }
+  else
+    skip_size = tempNum;
 
   return;
 }
