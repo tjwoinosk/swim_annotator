@@ -88,6 +88,12 @@ int main(int argc, char* argv[])
         else if (strcmp(argv[2], "-dv") == 0) { //t for testing
           app.create_detection_files(true);
         }
+        else if (strcmp(argv[2], "-m") == 0) { //show video of tracking
+          app.create_tracking_video();
+        }
+        else if (strcmp(argv[2], "-mu") == 0) { //show video of tracking and update detection file
+          app.create_tracking_video(true);
+        }
         else {
           cout << "Incorrrect flag used" << endl;
         }

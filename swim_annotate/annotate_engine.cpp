@@ -235,7 +235,8 @@ bool annotate_engine::ship_data_for_yolo(bool func_update_JPEG)
       box_work.~box_annotate();
     }
     else {
-      out_of_files = true;
+      if(file_num > 39) //hard coded number!! Hack!!
+        out_of_files = true;
     }
     file_num++;
   }
@@ -306,12 +307,13 @@ void annotate_engine::create_detection_files(bool show) {
   swimmer_tracking testing;
 
   testing.make_detection_file(file_name);
+  
   if(show)
     testing.show_video_of_tracking(file_name);
+
   string str = file_name;
   str.replace(str.end() - 4, str.end(), "_det.txt");
   testing.save_results_in_text_file(str);
-
 }
 
 //Using annotations of swimmers make subvideo of each swimmer
@@ -356,4 +358,13 @@ void annotate_engine::make_sub_vid_using_tracking_auto_detect(bool update_detect
   return;
 }
 
+//given video, proper data cfg, weight file and detection file, produce of that video, save in data//
+void annotate_engine::create_tracking_video(bool update_detection_file) {
 
+  swimmer_tracking testing;
+  if (update_detection_file) {
+    testing.make_detection_file(file_name);
+  }
+  testing.sort_tracking(file_name);
+  testing.show_video_of_tracking(file_name);
+}

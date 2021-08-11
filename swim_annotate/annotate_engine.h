@@ -72,5 +72,8 @@ public:
   //given video and proper data cfg and weight files produces detections of that video, save in data//
   void create_detection_files(bool show);
 
+  //given video, proper data cfg, weight file and detection file, produce of that video, save in data//
+  void create_tracking_video(bool show = false);
+
 };
 

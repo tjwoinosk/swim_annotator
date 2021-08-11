@@ -268,8 +268,8 @@ void box_annotate::change_class()
     cout << "Class: ";
 
     //Get the key from the window
-    frame = get_current_Mat();
-    imshow(AN_WINDOW_NAME, frame);
+    //frame = get_current_Mat();
+    //imshow(AN_WINDOW_NAME, frame);
     class_num = waitKey(0);
     cout << class_num;
 

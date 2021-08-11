@@ -204,7 +204,6 @@ bool swimmer_tracking::annotation_tracking(string file_name)
 //Use SORT algorithum
 //Reads the contence of the detection file and saves the tracked
 //data into the classes reuslts var
-//Needs work as currently the same swimmer get tracked multiple times
 //Requires an output file to read 
 void swimmer_tracking::sort_tracking(string text_file_name)
 {
@@ -338,6 +337,7 @@ void swimmer_tracking::show_video_of_tracking(string file_name)
         green = temp_color.green; 
         red = temp_color.red; 
         rectangle(frame, results[ii].frame_pos, Scalar(blue, green, red), 2, 2);
+        putText(frame, "ID: "+to_string(results[ii].object_ID), Point(results[ii].frame_pos.x, results[ii].frame_pos.y), FONT_HERSHEY_SIMPLEX, 0.6, Scalar(0, 0, 255), 2);
       }
     }
 
