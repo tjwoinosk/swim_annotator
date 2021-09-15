@@ -15,9 +15,20 @@ using namespace cv;
 
 int main(int argc, char* argv[])
 {
-  cout << "reading input file..." << endl;
   if (argc == 1) {
     cout << "Need a file to work on!\ngood bye." << endl;
+  }
+  else if (strcmp(argv[1], "-tm") == 0) { //show video of tracking and update detection file
+    if (argc == 4)
+    {
+      annotate_engine app;
+      cout << "Running SORT pipe test..." << endl;
+      cout << "Detection File: " << argv[2] << endl;
+      cout << "Ground Truth SORT File: " << argv[3] << endl << endl;
+      app.test_pipeline_tracker(argv[2], argv[3]);
+    }
+    else
+      cout << "Incorrect number of inputs for testing pipeline tracker, expecting two text files after -tm" << endl;
   }
   else if(argc > 4) {
     cout << "Too many input files!\ngood bye." << endl;
@@ -35,9 +46,10 @@ int main(int argc, char* argv[])
 
       cout << "\n\n\n";
       cout << "***************************************" << endl;
-      cout << "*  Welcome to the swiming annotator!  *" << endl;
+      cout << "*  Welcome to the swimming annotator!  *" << endl;
       cout << "***************************************" << "\n\n\n";
 
+      cout << "reading input file..." << endl;
       annotate_engine app(argv[1]);
 
       if (argc == 2) {
@@ -54,11 +66,11 @@ int main(int argc, char* argv[])
         if (strcmp(argv[2], "-a") == 0) {
           if (argc == 4) {
             if ((stoi(argv[3]) < 100) && (stoi(argv[3]) > 0)) {
-              cout << "testing network with iou of " << float(stoi(argv[3])) / 100 << endl;
+              cout << "testing network with IOU of " << float(stoi(argv[3])) / 100 << endl;
               app.analize_swimmer_detection_netowrk_non_inter(stoi(argv[3]));
             }
             else {
-              cout << "iou value must be exculsivly between 0 and 100" << endl;
+              cout << "IOU value must be excursively between 0 and 100" << endl;
             }
           }
           else {
@@ -68,11 +80,11 @@ int main(int argc, char* argv[])
         }
         else if (strcmp(argv[2], "-s") == 0) {//-s for sub-video creation
           if ((argc == 4) && (strcmp(argv[3], "-d") == 0)) {//-d for don't update detection files
-            cout << "Creating subvideo without updating detection file" << endl;
+            cout << "Creating sub-video without updating detection file" << endl;
             app.make_sub_vid_using_tracking_auto_detect(false);
           } 
           else {
-            cout << "Creating subvideo and updating detection file" << endl;
+            cout << "Creating sub-video and updating detection file" << endl;
             app.make_sub_vid_using_tracking_auto_detect(true);
           }
         }
@@ -82,10 +94,10 @@ int main(int argc, char* argv[])
         else if (strcmp(argv[2], "-tv") == 0) { //t for testing
           app.interpolate_annotated_boxes(true);
         }
-        else if (strcmp(argv[2], "-d") == 0) { //t for testing
+        else if (strcmp(argv[2], "-d") == 0) {
           app.create_detection_files(false);
         }
-        else if (strcmp(argv[2], "-dv") == 0) { //t for testing
+        else if (strcmp(argv[2], "-dv") == 0) {
           app.create_detection_files(true);
         }
         else if (strcmp(argv[2], "-m") == 0) { //show video of tracking
@@ -95,7 +107,7 @@ int main(int argc, char* argv[])
           app.create_tracking_video(true);
         }
         else {
-          cout << "Incorrrect flag used" << endl;
+          cout << "Incorrect flag used" << endl;
         }
       }
       app.kill_app();

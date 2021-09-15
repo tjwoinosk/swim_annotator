@@ -18,6 +18,10 @@
 using namespace std;
 using namespace cv;
 
+
+//Implementation used from 
+//https://github.com/mcximing/sort-cpp
+
 typedef struct TrackingBox
 {
 	int frame;

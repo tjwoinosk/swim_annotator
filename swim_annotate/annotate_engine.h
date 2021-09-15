@@ -75,5 +75,8 @@ public:
   //given video, proper data cfg, weight file and detection file, produce of that video, save in data//
   void create_tracking_video(bool show = false);
 
+  //Detection file, and groud truth tracking file required 
+  void test_pipeline_tracker(string detFile, string gtTrackingFile);
+
 };
 

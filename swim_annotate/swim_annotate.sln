@@ -5,14 +5,22 @@ VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "swim_annotate", "swim_annotate.vcxproj", "{2C2B5629-4535-4D38-BB3C-696A24BA934D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rtSwimTracker", "..\rtSwimTracker\rtSwimTracker.vcxproj", "{0F2E015C-3A24-4DCC-B82F-0B0868C36877}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug SwimTrackerTest|x64 = Debug SwimTrackerTest|x64
+		Debug SwimTrackerTest|x86 = Debug SwimTrackerTest|x86
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Debug SwimTrackerTest|x64.ActiveCfg = Release|x64
+		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Debug SwimTrackerTest|x64.Build.0 = Release|x64
+		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Debug SwimTrackerTest|x86.ActiveCfg = SwimTrackerTestBuild|Win32
+		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Debug SwimTrackerTest|x86.Build.0 = SwimTrackerTestBuild|Win32
 		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Debug|x64.ActiveCfg = Debug|x64
 		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Debug|x64.Build.0 = Debug|x64
 		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Debug|x86.ActiveCfg = Debug|Win32
@@ -21,6 +29,18 @@ Global
 		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Release|x64.Build.0 = Release|x64
 		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Release|x86.ActiveCfg = Release|Win32
 		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Release|x86.Build.0 = Release|Win32
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Debug SwimTrackerTest|x64.ActiveCfg = Debug SwimTrackerTest|x64
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Debug SwimTrackerTest|x64.Build.0 = Debug SwimTrackerTest|x64
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Debug SwimTrackerTest|x86.ActiveCfg = Debug SwimTrackerTest|Win32
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Debug SwimTrackerTest|x86.Build.0 = Debug SwimTrackerTest|Win32
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Debug|x64.ActiveCfg = Debug|x64
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Debug|x64.Build.0 = Debug|x64
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Debug|x86.ActiveCfg = Debug|Win32
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Debug|x86.Build.0 = Debug|Win32
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Release|x64.ActiveCfg = Release|x64
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Release|x64.Build.0 = Release|x64
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Release|x86.ActiveCfg = Release|Win32
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

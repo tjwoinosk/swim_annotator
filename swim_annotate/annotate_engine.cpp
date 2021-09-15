@@ -8,6 +8,8 @@
 #include "graph_drawing.h"
 #include "sinusoid_maker.h"
 
+#include <boost/filesystem.hpp>
+
 using namespace std;
 
 annotate_engine::annotate_engine() {
@@ -367,4 +369,42 @@ void annotate_engine::create_tracking_video(bool update_detection_file) {
   }
   testing.sort_tracking(file_name);
   testing.show_video_of_tracking(file_name);
+}
+
+void annotate_engine::test_pipeline_tracker(string detFile, string gtTrackingFile)
+{
+  boost::filesystem::path detFilePath(detFile);
+  boost::filesystem::path gtTrackingPath(gtTrackingFile);
+
+  cout << "Working in: " << boost::filesystem::current_path() << endl;
+
+  if (boost::filesystem::exists(detFilePath) && boost::filesystem::exists(gtTrackingPath)) {
+    cout << "Invalid file path input: " << detFilePath << " or " << gtTrackingPath << " do not exist." << endl;
+    return;
+  }
+  if (boost::filesystem::is_regular_file(detFilePath) && boost::filesystem::is_regular_file(gtTrackingPath)) {
+    cout << "Invalid file path input: " << detFilePath << " or " << gtTrackingPath << " are not regular files." << endl;
+    return;
+  }
+
+  //Add pipelined version of SORT that produces a file 
+  string pipedTrackingFile = "\output\pipeTest.txt";
+
+
+  //open the file
+  boost::filesystem::path pipedTrackingFilePath(pipedTrackingFile);
+  if (boost::filesystem::exists(pipedTrackingFilePath)) {
+    cout << "Pipe test file: " << pipedTrackingFilePath << " does not exist." << endl;
+    return;
+  }
+
+  uintmax_t result = file_size(detFilePath);
+  int diff = 0;// = static_cast<int>(boost::filesystem::file_size(detFilePath)) - static_cast<int>(boost::filesystem::file_size(gtTrackingPath));
+  if (diff > 10) {
+    cout << "files are different" << endl;
+  }
+  else {
+    cout << "files are the same!" << endl;
+  }
+
 }

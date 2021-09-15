@@ -21,7 +21,6 @@ double sort_tracker::GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt)
 
 //Implementation used from 
 //https://github.com/mcximing/sort-cpp
-//requires 
 void sort_tracker::TestSORT(string seqName, double iou)
 {
 	cout << "Processing " << seqName << "..." << endl;
