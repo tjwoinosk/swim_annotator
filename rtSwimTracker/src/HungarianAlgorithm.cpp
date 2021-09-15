@@ -34,6 +34,7 @@ double HungarianAlgorithm::Solve(vector<vector<double>>& DistMatrix, vector<int>
 
 	delete[] distMatrixIn;
 	delete[] assignment;
+
 	return cost;
 }
 
