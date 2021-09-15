@@ -1,5 +1,6 @@
 #include "HungarianAlgorithm.h"
 
+
 HungarianAlgorithm::HungarianAlgorithm() {}
 HungarianAlgorithm::~HungarianAlgorithm() {}
 
