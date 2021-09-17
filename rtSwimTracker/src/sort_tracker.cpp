@@ -26,8 +26,7 @@ void sort_tracker::sortTracker(string seqName, double iou)
 
 	// 1. read detection file
 	ifstream detectionFile;
-	string detFileName = ".\\data\\";
-	detFileName.append(seqName);
+	string detFileName = seqName;
 	detectionFile.open(detFileName);
 
 	if (!detectionFile.is_open())
@@ -102,7 +101,9 @@ void sort_tracker::sortTracker(string seqName, double iou)
 
 	// prepare result file.
 	ofstream resultsFile;
-	string resFileName = ".\\output\\" + seqName ;
+	string resFileName = seqName;
+	resFileName.replace(resFileName.end() - 4, resFileName.end(), "_det.txt");
+
 	resultsFile.open(resFileName);
 
 	if (!resultsFile.is_open())
