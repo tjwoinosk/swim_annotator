@@ -368,3 +368,5 @@ healthchecksdb
 /swim_annotate/22_05_sub_video.avi
 /swim_annotate/22_05_sub_video_str.txt
 /swim_annotate/yolov3-swim_final.weights
+/rtSwimTracker/rtSwimTracker.vcxproj
+/swim_annotate/swim_annotate.vcxproj
