@@ -47,6 +47,11 @@ public:
 	sort_tracker();
 	void sortTracker(string seqName, double iou);
 
+	//Added on functions for use in pipelining sortTracker
+	vector<TrackingBox> getDataFromDetectionFile(string detFileName);
+	vector<vector<TrackingBox>> groupingDetectionData(vector<TrackingBox> detData);
+	void trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<vector<TrackingBox>> detFrameData, int fi, ofstream& resultsFile, double iou, int max_age, int min_hits, int frame_count);
+	void sortTrackerUsingFunctions(string seqName, double iou);
 };
 
 
