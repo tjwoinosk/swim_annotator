@@ -290,8 +290,10 @@ void sort_tracker::sortTracker(string seqName, double iou)
 
 
 //Break sortTracker into various funtions so that we can then use them for pipelining
+//Implementation used from 
+//https://github.com/mcximing/sort-cpp
 
-vector<TrackingBox> sort_tracker::getDataFromDetectionFile(string detFileName)
+void sort_tracker::getDataFromDetectionFile(string detFileName, vector<TrackingBox>& detData)
 {
 	/*
 	The purpose of this function is to read in the file whose name is speciied by the input detFileName
@@ -299,7 +301,6 @@ vector<TrackingBox> sort_tracker::getDataFromDetectionFile(string detFileName)
 	*/
 	string detLine;
 	istringstream ss;
-	vector<TrackingBox> detData;
 	char ch;
 	float tpx, tpy, tpw, tph;
 	ifstream detectionFile;
@@ -309,7 +310,7 @@ vector<TrackingBox> sort_tracker::getDataFromDetectionFile(string detFileName)
 	if (!detectionFile.is_open())
 	{
 		cerr << "Error: can not find file " << detFileName << endl;
-		return detData;
+		return;
 	}
 
 
@@ -328,10 +329,10 @@ vector<TrackingBox> sort_tracker::getDataFromDetectionFile(string detFileName)
 	}
 	detectionFile.close();
 
-	return detData;
+	return;
 }
 
-vector<vector<TrackingBox>> sort_tracker::groupingDetectionData(vector<TrackingBox> detData)
+int sort_tracker::groupingDetectionData(vector<TrackingBox> detData, vector<vector<TrackingBox>>& detFrameData)
 {
 	/*
 	This function takes an input detData that is all the detection data stored in a vector of TrackingBox
@@ -340,7 +341,6 @@ vector<vector<TrackingBox>> sort_tracker::groupingDetectionData(vector<TrackingB
 	*/
 
 	int maxFrame = 0;
-	vector<vector<TrackingBox>> detFrameData;
 	vector<TrackingBox> tempVec;
 
 	for (auto tb : detData) // find max frame number
@@ -358,7 +358,7 @@ vector<vector<TrackingBox>> sort_tracker::groupingDetectionData(vector<TrackingB
 		detFrameData.push_back(tempVec);
 		tempVec.clear();
 	}
-	return detFrameData;
+	return maxFrame;
 }
 
 void sort_tracker::trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<vector<TrackingBox>> detFrameData, int fi, ofstream& resultsFile, double iou, int max_age, int min_hits, int frame_count)
@@ -559,27 +559,12 @@ void sort_tracker::sortTrackerUsingFunctions(string seqName, double iou)
 
 	vector<TrackingBox> detData;
 	vector<vector<TrackingBox>> detFrameData;
-	vector<TrackingBox> tempVec;
+	
 	int maxFrame = 0;
 
-	detData = getDataFromDetectionFile(seqName);
+	getDataFromDetectionFile(seqName, detData);
 
-	//detFrameData = groupingDetectionData(detData);
-	for (auto tb : detData) // find max frame number
-	{
-		if (maxFrame < tb.frame)
-			maxFrame = tb.frame;
-	}
-
-
-	for (int fi = 0; fi < maxFrame; fi++)
-	{
-		for (auto tb : detData)
-			if (tb.frame == fi + 1) // frame num starts from 1
-				tempVec.push_back(tb);
-		detFrameData.push_back(tempVec);
-		tempVec.clear();
-	}
+	maxFrame = groupingDetectionData(detData, detFrameData);
 
 
 	// 3. update across frames

@@ -24,7 +24,9 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
   sort_tracker testSORT;
   string seqName = "pipeTest.txt";
 
-  testSORT.sortTracker(seqName, 0.05);
+  //testSORT.sortTracker(seqName, 0.05);
+  testSORT.sortTrackerUsingFunctions(seqName, 0.05);
+
 
   //results file
   string outputName = seqName;
