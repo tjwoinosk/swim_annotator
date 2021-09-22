@@ -297,7 +297,7 @@ void sort_tracker::getDataFromDetectionFile(string detFileName, vector<TrackingB
 {
 	/*
 	The purpose of this function is to read in the file whose name is speciied by the input detFileName
-	and put the information of this file into a vector of TrackingBoxes
+	and put the information of this file into a vector of TrackingBoxes, which is the argument detData
 	*/
 	string detLine;
 	istringstream ss;
@@ -336,7 +336,8 @@ int sort_tracker::groupingDetectionData(vector<TrackingBox> detData, vector<vect
 {
 	/*
 	This function takes an input detData that is all the detection data stored in a vector of TrackingBox
-	and then grouping TrackingBoxes for a single frame into a vector, and storing this vector into another vector.
+	and then grouping TrackingBoxes for a single frame into a vector, and storing this vector into another 
+	vector which is the input detFrameData.
 	The result is a 2D array like vector where each element points to a vector of TrackingBoxes of the same frame.
 	*/
 
@@ -361,7 +362,7 @@ int sort_tracker::groupingDetectionData(vector<TrackingBox> detData, vector<vect
 	return maxFrame;
 }
 
-void sort_tracker::trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<vector<TrackingBox>> detFrameData, int fi, ofstream& resultsFile, double iou, int max_age, int min_hits, int frame_count)
+void sort_tracker::trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData, ofstream& resultsFile, double iou, int max_age, int min_hits, int frame_count)
 {
 	/*
 	This function will take trackers and data for a single frame (frame number fi) and produce predictions
@@ -393,16 +394,16 @@ void sort_tracker::trackingForSingleFrame(vector<KalmanTracker>& trackers, vecto
 	if (trackers.size() == 0) // the first frame met
 	{
 		// initialize kalman trackers using first detections.
-		for (unsigned int i = 0; i < detFrameData[fi].size(); i++)
+		for (unsigned int i = 0; i < detFrameData.size(); i++)
 		{
 			//KalmanTracker trk = KalmanTracker(detFrameData[fi][i].box, process_mat, obser_mat);
-			KalmanTracker trk = KalmanTracker(detFrameData[fi][i].box);
+			KalmanTracker trk = KalmanTracker(detFrameData[i].box);
 			trackers.push_back(trk);
 		}
 		// output the first frame detections
-		for (unsigned int id = 0; id < detFrameData[fi].size(); id++)
+		for (unsigned int id = 0; id < detFrameData.size(); id++)
 		{
-			TrackingBox tb = detFrameData[fi][id];
+			TrackingBox tb = detFrameData[id];
 			resultsFile << tb.frame << "," << id + 1 << "," << tb.box.x << "," << tb.box.y << "," << tb.box.width << "," << tb.box.height << ",1,-1,-1,-1" << endl;
 			//Save to results in swimmer_tracking.h
 
@@ -437,7 +438,7 @@ void sort_tracker::trackingForSingleFrame(vector<KalmanTracker>& trackers, vecto
 	// 3.2. associate detections to tracked object (both represented as bounding boxes)
 	// dets : detFrameData[fi]
 	trkNum = predictedBoxes.size();
-	detNum = detFrameData[fi].size();
+	detNum = detFrameData.size();
 
 	iouMatrix.clear();
 	iouMatrix.resize(trkNum, vector<double>(detNum, 0));
@@ -447,7 +448,7 @@ void sort_tracker::trackingForSingleFrame(vector<KalmanTracker>& trackers, vecto
 		for (unsigned int j = 0; j < detNum; j++)
 		{
 			// use 1-iou because the hungarian algorithm computes a minimum-cost assignment.
-			iouMatrix[i][j] = 1 - GetIOU(predictedBoxes[i], detFrameData[fi][j].box);
+			iouMatrix[i][j] = 1 - GetIOU(predictedBoxes[i], detFrameData[j].box);
 		}
 	}
 
@@ -510,14 +511,14 @@ void sort_tracker::trackingForSingleFrame(vector<KalmanTracker>& trackers, vecto
 	{
 		trkIdx = matchedPairs[i].x;
 		detIdx = matchedPairs[i].y;
-		trackers[trkIdx].update(detFrameData[fi][detIdx].box);
+		trackers[trkIdx].update(detFrameData[detIdx].box);
 	}
 
 	// create and initialise new trackers for unmatched detections
 	for (auto umd : unmatchedDetections)
 	{
 		//KalmanTracker tracker = KalmanTracker(detFrameData[fi][umd].box, process_mat, obser_mat);
-		KalmanTracker tracker = KalmanTracker(detFrameData[fi][umd].box);
+		KalmanTracker tracker = KalmanTracker(detFrameData[umd].box);
 		trackers.push_back(tracker);
 	}
 
@@ -596,9 +597,69 @@ void sort_tracker::sortTrackerUsingFunctions(string seqName, double iou)
 		//cout << frame_count << endl;
 
 		//call pipeline function
-		trackingForSingleFrame(trackers, detFrameData, fi, resultsFile, iou, max_age, min_hits, frame_count);
+		trackingForSingleFrame(trackers, detFrameData[fi], resultsFile, iou, max_age, min_hits, frame_count);
 	}
 
 	resultsFile.close();
+}
+
+void sort_tracker::sortTrackerPipelined(string outputFileName, double iou, vector<TrackingBox> detData)
+{
+	/*
+	This function will perform SORT on a single frame, whose detections are present in detData
+	Assumption: detData contains only the information of a single frame, and contains all the information for that frame
+
+	*/
+
+	// TODO check for if detData contains only information for that frame - if it doesnt, what do we want to do?
+
+	//TODO do we want to output to a file, or do we want to change this?
+
+	// 3. update across frames
+	int frame_count = 0;
+	int max_age = 1;//var for killing a tracker should be changed, in paper max_age = 1;
+	int min_hits = 3;//min hits is min number of hits for it to be an object originaly min_hits = 3;
+	//double iouThreshold = iou;//Orignaly this value was 0.30
+	vector<KalmanTracker> trackers;
+	KalmanTracker::kf_count = 0; // tracking id relies on this, so we have to reset it in each seq.
+
+	// prepare result file.
+	string resFileName = seqName;
+	resFileName.replace(resFileName.end() - 4, resFileName.end(), "_det.txt");
+	ofstream resultsFile;
+	resultsFile.open(resFileName);
+
+	if (!resultsFile.is_open())
+	{
+		cerr << "Error: can not create file " << resFileName << endl;
+		return;
+	}
+
+	//total_frames++;
+		//cout << frame_count << endl;
+
+	//call pipeline function
+	trackingForSingleFrame(trackers, detData, resultsFile, iou, max_age, min_hits, frame_count);
+
+	resultsFile.close();
+
+}
+
+void sort_tracker::sortLoopingPipelined(String outputFileName, double iou)
+{
+	/*
+	This function will wait for input as a vector from the detector, and apply SORT on it.
+	If there is no input for some time, then it will stop.
+	*/
+
+	//TODO deal with getting the input from the detector instead of the file
+
+
+	//TODO use https://stackoverflow.com/questions/728068/how-to-calculate-a-time-difference-in-c answer from Gabi Davar
+
+
+
+
+
 }
 

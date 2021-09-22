@@ -50,8 +50,12 @@ public:
 	//Added on functions for use in pipelining sortTracker
 	void getDataFromDetectionFile(string detFileName, vector<TrackingBox>& detData);
 	int groupingDetectionData(vector<TrackingBox> detData, vector<vector<TrackingBox>>& detFrameData);
-	void trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<vector<TrackingBox>> detFrameData, int fi, ofstream& resultsFile, double iou, int max_age, int min_hits, int frame_count);
+	void trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData, ofstream& resultsFile, double iou, int max_age, int min_hits, int frame_count);
 	void sortTrackerUsingFunctions(string seqName, double iou);
+
+	//Added on functions to implement pipelining sortTracker
+	void sortTrackerPipelined(string outputFileName, double iou, vector<TrackingBox> detData);
+	void sortLoopingPipelined(String outputFileName, double iou);
 };
 
 
