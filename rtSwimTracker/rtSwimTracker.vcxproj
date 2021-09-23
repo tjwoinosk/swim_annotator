@@ -240,6 +240,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="frameAnalysis.cpp" />
     <ClCompile Include="rtSwimTracker.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SwimTrackerTest|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -254,6 +255,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="frameAnalysis.h" />
     <ClInclude Include="include\addAnotherFile.h" />
     <ClInclude Include="include\HungarianAlgorithm.h" />
     <ClInclude Include="include\KalmanTracker.h" />

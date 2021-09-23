@@ -10,10 +10,11 @@
 
 BOOST_AUTO_TEST_SUITE(sortSubFunctions)
 
-BOOST_AUTO_TEST_CASE(subFunc1) 
+BOOST_AUTO_TEST_CASE(testVectorizedSORT) 
 {
 
 }
+
 
 BOOST_AUTO_TEST_SUITE_END()
 
@@ -25,7 +26,9 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
   string seqName = "pipeTest.txt";
 
   //testSORT.sortTracker(seqName, 0.05);
-  testSORT.sortTrackerUsingFunctions(seqName, 0.05);
+  //testSORT.sortTrackerUsingFunctions(seqName, 0.05);
+  //testSORT.sortWithFunctionsTest(seqName, 0.05);
+  testSORT.sortOnFrame(seqName, 0.05);
 
 
   //results file

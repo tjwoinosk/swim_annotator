@@ -52,10 +52,19 @@ public:
 	int groupingDetectionData(vector<TrackingBox> detData, vector<vector<TrackingBox>>& detFrameData);
 	void trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData, ofstream& resultsFile, double iou, int max_age, int min_hits, int frame_count);
 	void sortTrackerUsingFunctions(string seqName, double iou);
+	vector<TrackingBox> trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData, double iou, int max_age, int min_hits, int frame_count);
 
 	//Added on functions to implement pipelining sortTracker
 	void sortTrackerPipelined(string outputFileName, double iou, vector<TrackingBox> detData);
-	void sortLoopingPipelined(String outputFileName, double iou);
+	vector<TrackingBox> sortTrackerPipelined(double iou, vector<TrackingBox> detData, vector<KalmanTracker>& trackers);
+	void sortWithFunctionsTest(string seqName, double iou); //THIS IS FOR TESTING
+
+
+	//Redo functions for pipelining - trying a signification change TODO pick one method and delete the others
+	//THE FOLLOWING TWO SEEM TO WORK:
+	void sortOnFrame(string seqName, double iou);
+	vector<TrackingBox> singleFrameSORT(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData, double iou, int max_age, int min_hits, int frame_count);
+	//TODO CHANGE frame_count to frame_Num
 };
 
 
