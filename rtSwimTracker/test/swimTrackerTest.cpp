@@ -4,17 +4,30 @@
 
 #include "addAnotherFile.h"
 #include "sort_tracker.h"
+#include "frameAnalysis.h"
+
 
 #include <fstream>
 #include <iterator>
 
 BOOST_AUTO_TEST_SUITE(sortSubFunctions)
 
-BOOST_AUTO_TEST_CASE(testVectorizedSORT) 
+BOOST_AUTO_TEST_CASE(testVectorized) 
+{
+	string videoName = "0_01_sub_video.avi";
+	frameAnalysis mainfuncTest;
+	mainfuncTest.analyzeVideo(videoName); //TODO make a proper test case from this. maybe function returns bool?
+}
+
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(FrameAnalysisSubFunctions)
+
+BOOST_AUTO_TEST_CASE(testFrameAnalysisMain)
 {
 
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()
 

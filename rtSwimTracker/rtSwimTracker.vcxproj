@@ -240,11 +240,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="frameAnalysis.cpp" />
     <ClCompile Include="rtSwimTracker.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SwimTrackerTest|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\addAnotherFile.cpp" />
+    <ClCompile Include="src\frameAnalysis.cpp" />
     <ClCompile Include="src\HungarianAlgorithm.cpp" />
     <ClCompile Include="src\KalmanTracker.cpp" />
     <ClCompile Include="src\sort_tracker.cpp" />
@@ -255,8 +255,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="frameAnalysis.h" />
     <ClInclude Include="include\addAnotherFile.h" />
+    <ClInclude Include="include\frameAnalysis.h" />
     <ClInclude Include="include\HungarianAlgorithm.h" />
     <ClInclude Include="include\KalmanTracker.h" />
     <ClInclude Include="include\sort_tracker.h" />

@@ -20,7 +20,7 @@ public:
 
 	frameAnalysis();
 
-	void analyzeVideo(VideoCapture videoToAnalyze);
+	void analyzeVideo(string videoToAnalyzeName);
 
 };
 
