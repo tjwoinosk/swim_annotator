@@ -5,6 +5,7 @@
 #include "addAnotherFile.h"
 #include "sort_tracker.h"
 #include "frameAnalysis.h"
+#include "sortTrackerPipelined.h";
 
 
 #include <fstream>
@@ -36,12 +37,14 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
 {
   sort_tracker testSORT;
+  sortTrackerPiplelined testSORTTWO;
   string seqName = "pipeTest.txt";
 
   //testSORT.sortTracker(seqName, 0.05);
   //testSORT.sortTrackerUsingFunctions(seqName, 0.05);
   //testSORT.sortWithFunctionsTest(seqName, 0.05);
-  testSORT.sortOnFrame(seqName, 0.05);
+  //testSORT.sortOnFrame(seqName, 0.05);
+  testSORTTWO.sortOnFrame(seqName, 0.05);
 
 
   //results file
