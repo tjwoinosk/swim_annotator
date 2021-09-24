@@ -42,25 +42,26 @@ private:
 	int total_frames = 0;
 	double total_time = 0.0;
 	int frame_count;
-	//static int frameCounter;
-	//static int frameCounter;
-	static int& frameCounter() { static int frameCounter; return frameCounter; }
 
+	//variables for SORT Tracking parameters
+	const double iou = 0.05;
+	const int max_age = 1;
+	const int min_hits = 3;
+
+
+	static int& frameCounter() { static int frameCounter; return frameCounter; }
+	//https://stackoverflow.com/questions/18860895/how-to-initialize-static-members-in-the-header
+	
 public:
-	//static int frame_count;
-	//static int frameCount;
 
 	sortTrackerPiplelined();
 	double GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt);
 
 	void sortOnFrame(string seqName, double iou);
-	vector<TrackingBox> singleFrameSORT(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData, double iou, int max_age, int min_hits);
+	vector<TrackingBox> singleFrameSORT(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData);
 
 	void getDataFromDetectionFile(string detFileName, vector<TrackingBox>& detData);
 	int groupingDetectionData(vector<TrackingBox> detData, vector<vector<TrackingBox>>& detFrameData);
-
-	//https://stackoverflow.com/questions/18860895/how-to-initialize-static-members-in-the-header
-	//static int& frameCounter() { static int frameCounter; return frameCounter; }
 };
 
 

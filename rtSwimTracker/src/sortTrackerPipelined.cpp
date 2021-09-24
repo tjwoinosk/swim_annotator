@@ -38,8 +38,8 @@ void sortTrackerPiplelined::sortOnFrame(string seqName, double iou)
 
 	// 3. update across frames
 	//int frame_count = 0;
-	int max_age = 1;//var for killing a tracker should be changed, in paper max_age = 1;
-	int min_hits = 3;//min hits is min number of hits for it to be an object originaly min_hits = 3;
+	//int max_age = 1;//var for killing a tracker should be changed, in paper max_age = 1;
+	//int min_hits = 3;//min hits is min number of hits for it to be an object originaly min_hits = 3;
 	//double iouThreshold = iou;//Orignaly this value was 0.30
 	vector<KalmanTracker> trackers;
 	KalmanTracker::kf_count = 0; // tracking id relies on this, so we have to reset it in each seq.
@@ -69,7 +69,7 @@ void sortTrackerPiplelined::sortOnFrame(string seqName, double iou)
 		//cout << frame_count << endl;
 
 		//call pipeline function
-		tempResults = singleFrameSORT(trackers, detFrameData[fi], iou, max_age, min_hits);
+		tempResults = singleFrameSORT(trackers, detFrameData[fi]);
 
 		for (auto tb : tempResults) {
 			resultsFile << tb.frame << "," << tb.id << "," << tb.box.x << "," << tb.box.y << "," << tb.box.width << "," << tb.box.height << ",1,-1,-1,-1" << endl;
@@ -88,7 +88,7 @@ void sortTrackerPiplelined::sortOnFrame(string seqName, double iou)
 	resultsFile.close();
 }
 
-vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData, double iou, int max_age, int min_hits)
+vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData)
 {
 	/*
 This function will take trackers and data for a single frame (frame number fi) and produce predictions
