@@ -22,7 +22,7 @@ double sortTrackerPiplelined::GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt)
 	return (double)(in / un);
 }
 
-void sortTrackerPiplelined::sortOnFrame(string seqName, double iou)
+void sortTrackerPiplelined::sortOnFrame(string seqName)
 {
 	cout << "Processing " << seqName << "..." << endl;
 

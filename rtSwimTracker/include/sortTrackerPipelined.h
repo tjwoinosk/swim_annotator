@@ -57,7 +57,7 @@ public:
 	sortTrackerPiplelined();
 	double GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt);
 
-	void sortOnFrame(string seqName, double iou);
+	void sortOnFrame(string seqName);
 	vector<TrackingBox> singleFrameSORT(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData);
 
 	void getDataFromDetectionFile(string detFileName, vector<TrackingBox>& detData);

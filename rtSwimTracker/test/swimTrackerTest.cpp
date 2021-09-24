@@ -44,7 +44,8 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
   //testSORT.sortTrackerUsingFunctions(seqName, 0.05);
   //testSORT.sortWithFunctionsTest(seqName, 0.05);
   //testSORT.sortOnFrame(seqName, 0.05);
-  testSORTTWO.sortOnFrame(seqName, 0.05);
+  //testSORTTWO.sortOnFrame(seqName, 0.05);
+  testSORTTWO.sortOnFrame(seqName);
 
 
   //results file
