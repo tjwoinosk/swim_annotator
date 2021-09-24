@@ -64,7 +64,6 @@ public:
 	//THE FOLLOWING TWO SEEM TO WORK:
 	void sortOnFrame(string seqName, double iou);
 	vector<TrackingBox> singleFrameSORT(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData, double iou, int max_age, int min_hits, int frame_count);
-	//TODO CHANGE frame_count to frame_Num
 };
 
 

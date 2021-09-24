@@ -44,6 +44,7 @@ private:
 	int frame_count;
 	//static int frameCounter;
 	//static int frameCounter;
+	static int& frameCounter() { static int frameCounter; return frameCounter; }
 
 public:
 	//static int frame_count;
@@ -58,10 +59,8 @@ public:
 	void getDataFromDetectionFile(string detFileName, vector<TrackingBox>& detData);
 	int groupingDetectionData(vector<TrackingBox> detData, vector<vector<TrackingBox>>& detFrameData);
 
-
-	//TODO TEST
 	//https://stackoverflow.com/questions/18860895/how-to-initialize-static-members-in-the-header
-	static int& frameCounter() { static int frameCounter; return frameCounter; }
+	//static int& frameCounter() { static int frameCounter; return frameCounter; }
 };
 
 

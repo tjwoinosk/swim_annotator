@@ -813,10 +813,6 @@ void sort_tracker::sortTrackerPipelined(string outputFileName, double iou, vecto
 
 	*/
 
-	// TODO check for if detData contains only information for that frame - if it doesnt, what do we want to do?
-
-	//TODO do we want to output to a file, or do we want to change this?
-
 	// 3. update across frames
 	int frame_count = 0;
 	int max_age = 1;//var for killing a tracker should be changed, in paper max_age = 1;
@@ -854,10 +850,6 @@ vector<TrackingBox> sort_tracker::sortTrackerPipelined(double iou, vector<Tracki
 	Assumption: detData contains only the information of a single frame, and contains all the information for that frame
 	This function will not output to a file, and instead return the tracking in a vector.
 	*/
-
-	// TODO check for if detData contains only information for that frame - if it doesnt, what do we want to do?
-
-	//TODO do we want to output to a file, or do we want to change this?
 
 	int frame_count = 0;
 	int max_age = 1;//var for killing a tracker should be changed, in paper max_age = 1;
