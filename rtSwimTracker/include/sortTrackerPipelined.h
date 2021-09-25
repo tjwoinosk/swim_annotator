@@ -51,6 +51,8 @@ private:
 
 	static int& frameCounter() { static int frameCounter; return frameCounter; }
 	//https://stackoverflow.com/questions/18860895/how-to-initialize-static-members-in-the-header
+
+	static vector<KalmanTracker>& vectorsOfTrackers() {static vector<KalmanTracker> vectorsOfTrackers; return vectorsOfTrackers;}
 	
 public:
 
@@ -58,7 +60,7 @@ public:
 	double GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt);
 
 	void sortOnFrame(string seqName);
-	vector<TrackingBox> singleFrameSORT(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData);
+	vector<TrackingBox> singleFrameSORT(vector<TrackingBox> detFrameData);
 
 	void getDataFromDetectionFile(string detFileName, vector<TrackingBox>& detData);
 	int groupingDetectionData(vector<TrackingBox> detData, vector<vector<TrackingBox>>& detFrameData);

@@ -9,6 +9,7 @@ sortTrackerPiplelined::sortTrackerPiplelined()
 	//frameCountVal = 0;
 	//sortTrackerPiplelined::getframeCounter();
 	frameCounter() = 0;
+	vectorsOfTrackers().clear();
 }
 
 double sortTrackerPiplelined::GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt)
@@ -41,7 +42,7 @@ void sortTrackerPiplelined::sortOnFrame(string seqName)
 	//int max_age = 1;//var for killing a tracker should be changed, in paper max_age = 1;
 	//int min_hits = 3;//min hits is min number of hits for it to be an object originaly min_hits = 3;
 	//double iouThreshold = iou;//Orignaly this value was 0.30
-	vector<KalmanTracker> trackers;
+	//vector<KalmanTracker> trackers;
 	KalmanTracker::kf_count = 0; // tracking id relies on this, so we have to reset it in each seq.
 
 	// prepare result file.
@@ -69,7 +70,7 @@ void sortTrackerPiplelined::sortOnFrame(string seqName)
 		//cout << frame_count << endl;
 
 		//call pipeline function
-		tempResults = singleFrameSORT(trackers, detFrameData[fi]);
+		tempResults = singleFrameSORT(detFrameData[fi]);
 
 		for (auto tb : tempResults) {
 			resultsFile << tb.frame << "," << tb.id << "," << tb.box.x << "," << tb.box.y << "," << tb.box.width << "," << tb.box.height << ",1,-1,-1,-1" << endl;
@@ -88,7 +89,7 @@ void sortTrackerPiplelined::sortOnFrame(string seqName)
 	resultsFile.close();
 }
 
-vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData)
+vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(vector<TrackingBox> detFrameData)
 {
 	/*
 This function will take trackers and data for a single frame (frame number fi) and produce predictions
@@ -118,14 +119,14 @@ for that frame, as well as adjust the trackers accordingly
 	start_time = getTickCount();
 
 	//If this is the first frame we want to initialize everything and that is all.
-	if (trackers.size() == 0) // the first frame met
+	if (vectorsOfTrackers().size() == 0) // the first frame met
 	{
 		// initialize kalman trackers using first detections.
 		for (unsigned int i = 0; i < detFrameData.size(); i++)
 		{
 			//KalmanTracker trk = KalmanTracker(detFrameData[fi][i].box, process_mat, obser_mat);
 			KalmanTracker trk = KalmanTracker(detFrameData[i].box);
-			trackers.push_back(trk);
+			vectorsOfTrackers().push_back(trk);
 		}
 		// output the first frame detections
 		for (unsigned int id = 0; id < detFrameData.size(); id++)
@@ -146,7 +147,7 @@ for that frame, as well as adjust the trackers accordingly
 
 	predictedBoxes.clear();
 
-	for (auto it = trackers.begin(); it != trackers.end();)
+	for (auto it = vectorsOfTrackers().begin(); it != vectorsOfTrackers().end();)
 	{
 		Rect_<float> pBox = (*it).predict();
 		if (pBox.x >= 0 && pBox.y >= 0)
@@ -156,7 +157,7 @@ for that frame, as well as adjust the trackers accordingly
 		}
 		else
 		{
-			it = trackers.erase(it);
+			it = vectorsOfTrackers().erase(it);
 			//cerr << "Box invalid at frame: " << frame_count << endl;
 		}
 	}
@@ -240,7 +241,7 @@ for that frame, as well as adjust the trackers accordingly
 	{
 		trkIdx = matchedPairs[i].x;
 		detIdx = matchedPairs[i].y;
-		trackers[trkIdx].update(detFrameData[detIdx].box);
+		vectorsOfTrackers()[trkIdx].update(detFrameData[detIdx].box);
 	}
 
 	// create and initialise new trackers for unmatched detections
@@ -248,12 +249,12 @@ for that frame, as well as adjust the trackers accordingly
 	{
 		//KalmanTracker tracker = KalmanTracker(detFrameData[fi][umd].box, process_mat, obser_mat);
 		KalmanTracker tracker = KalmanTracker(detFrameData[umd].box);
-		trackers.push_back(tracker);
+		vectorsOfTrackers().push_back(tracker);
 	}
 
 	// get trackers' output
 	frameTrackingResult.clear();
-	for (auto it = trackers.begin(); it != trackers.end();)
+	for (auto it = vectorsOfTrackers().begin(); it != vectorsOfTrackers().end();)
 	{
 		if (((*it).m_time_since_update < max_age) &&
 			((*it).m_hit_streak >= min_hits || frameCounter() <= min_hits))
@@ -269,8 +270,8 @@ for that frame, as well as adjust the trackers accordingly
 			it++;
 
 		// remove dead tracklet
-		if (it != trackers.end() && (*it).m_time_since_update > max_age)
-			it = trackers.erase(it);
+		if (it != vectorsOfTrackers().end() && (*it).m_time_since_update > max_age)
+			it = vectorsOfTrackers().erase(it);
 	}
 
 	cycle_time = (double)(getTickCount() - start_time);
