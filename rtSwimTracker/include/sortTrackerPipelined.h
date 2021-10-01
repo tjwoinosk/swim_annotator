@@ -29,16 +29,13 @@ class sortTrackerPiplelined
 {
 private:
 	// global variables for counting
-	int total_frames = 0;
 	int frame_count;
 
 	//variables for SORT Tracking parameters
-	const double iou = 0.05;
+	const double iou = 0.05; //Orignaly this value was 0.30
 	const int max_age = 1;
 	const int min_hits = 3;
 
-
-	static int& frameCounter() { static int frameCounter; return frameCounter; }
 	//https://stackoverflow.com/questions/18860895/how-to-initialize-static-members-in-the-header
 
 	static vector<KalmanTracker>& vectorsOfTrackers() {static vector<KalmanTracker> vectorsOfTrackers; return vectorsOfTrackers;}
@@ -48,15 +45,27 @@ public:
 	sortTrackerPiplelined();
 	double GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt);
 
-	void sortOnFrame(string seqName);
 	vector<TrackingBox> singleFrameSORT(vector<TrackingBox> detFrameData);
-
-	void getDataFromDetectionFile(string detFileName, vector<TrackingBox>& detData);
-	int groupingDetectionData(vector<TrackingBox> detData, vector<vector<TrackingBox>>& detFrameData);
 
 private:
 
+	void initializeTracker(const vector<TrackingBox>& detFrameData);
+	void getPredictions();
+	void assoicateDetections(const vector<TrackingBox>& detFrameData);
+	void updateTrackers(const vector<TrackingBox>& detFrameData);
 
+	unsigned int numberFramesProcessed;
+	unsigned int trkNum = 0;
+	unsigned int detNum = 0;
+	vector<vector<double>> iouMatrix;
+	vector<int> assignment;
+	set<int> unmatchedDetections;
+	set<int> unmatchedTrajectories;
+	set<int> allItems;
+	set<int> matchedItems;
+	vector<cv::Point> matchedPairs;
+	vector<TrackingBox> frameTrackingResult;
+	vector<Rect_<float>> predictedBoxes;
 
 };
 

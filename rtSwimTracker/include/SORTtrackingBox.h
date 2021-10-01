@@ -23,10 +23,9 @@ public:
 	friend bool operator== (const TrackingBox& c1, const TrackingBox& c2);
 	friend bool operator!= (const TrackingBox& c1, const TrackingBox& c2);
 
-	float GetIOU(const TrackingBox& bb_gt);
+	double GetIOU(const TrackingBox& bb_gt);
 
 };
-
 
 #endif // !SORTTRACKINGBOX_H
 

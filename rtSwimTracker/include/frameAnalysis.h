@@ -7,6 +7,9 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
 
+#include "SORTtrackingBox.h"
+#include "sortTrackerPipelined.h";
+
 using namespace std;
 using namespace cv;
 
@@ -17,6 +20,11 @@ private:
 	// global variables 
 
 public:
+
+	void sortOnFrame(string seqName);
+
+	void getDataFromDetectionFile(string detFileName, vector<TrackingBox>& detData);
+	int groupingDetectionData(vector<TrackingBox> detData, vector<vector<TrackingBox>>& detFrameData);
 
 	frameAnalysis();
 
