@@ -27,46 +27,37 @@ using namespace cv;
 
 class sortTrackerPiplelined
 {
-private:
-	// global variables for counting
-	int frame_count;
-
-	//variables for SORT Tracking parameters
-	const double iou = 0.05; //Orignaly this value was 0.30
-	const int max_age = 1;
-	const int min_hits = 3;
-
-	//https://stackoverflow.com/questions/18860895/how-to-initialize-static-members-in-the-header
-
-	static vector<KalmanTracker>& vectorsOfTrackers() {static vector<KalmanTracker> vectorsOfTrackers; return vectorsOfTrackers;}
-	
 public:
 
 	sortTrackerPiplelined();
-	double GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt);
-
-	vector<TrackingBox> singleFrameSORT(vector<TrackingBox> detFrameData);
+	vector<TrackingBox> singleFrameSORT(const vector<TrackingBox>& swimmerDetections);
 
 private:
 
-	void initializeTracker(const vector<TrackingBox>& detFrameData);
-	void getPredictions();
-	void assoicateDetections(const vector<TrackingBox>& detFrameData);
-	void updateTrackers(const vector<TrackingBox>& detFrameData);
+	static vector<KalmanTracker>& vectorsOfTrackers() { static vector<KalmanTracker> vectorsOfTrackers; return vectorsOfTrackers; }
 
-	unsigned int numberFramesProcessed;
-	unsigned int trkNum = 0;
-	unsigned int detNum = 0;
-	vector<vector<double>> iouMatrix;
-	vector<int> assignment;
-	set<int> unmatchedDetections;
-	set<int> unmatchedTrajectories;
-	set<int> allItems;
-	set<int> matchedItems;
-	vector<cv::Point> matchedPairs;
-	vector<TrackingBox> frameTrackingResult;
-	vector<Rect_<float>> predictedBoxes;
+	void fillFrameTrackingResultsWith(const vector<TrackingBox>& swimmerDetections);
+	void initializeTracker(const vector<TrackingBox>& swimmerDetections);
+	void makeKalmanPredictions();
+	void associatePredictionsWith(const vector<TrackingBox>& swimmerDetections);
+	void updateTrackers(const vector<TrackingBox>& swimmerDetections);
+	double GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt);
 
+	void constructIOUmat(vector<vector<double>>& blankMat, const vector<TrackingBox>& detFrameData);
+	void solveIOUassignmentProblem(vector<vector<double>> iouCostMatrix);
+
+
+	vector<int> m_assignment;
+	set<int> m_unmatchedDetections;
+	set<int> m_unmatchedTrajectories;
+	vector<cv::Point> m_matchedPairs;
+	vector<TrackingBox> m_frameTrackingResult;
+	vector<Rect_<float>> m_predictedBoxes;
+
+	unsigned int m_numberFramesProcessed;
+	const double m_iou = 0.05; //Orignaly this value was 0.30
+	const int m_maxAge = 1;
+	const int m_minHits = 3;
 };
 
 
