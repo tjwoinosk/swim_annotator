@@ -22,14 +22,13 @@ using namespace cv;
 //Implementation used from 
 //https://github.com/mcximing/sort-cpp
 
-typedef struct TrackingBox
+typedef struct TrackingBoxOld
 {
 	int frame;
 	int id;
 	Rect_<float> box;
-}TrackingBox;
+}TrackingBoxOld;
 
-#define CNUM 20
 
 class sort_tracker
 {
@@ -48,22 +47,22 @@ public:
 	void sortTracker(string seqName, double iou);
 
 	//Added on functions for use in pipelining sortTracker
-	void getDataFromDetectionFile(string detFileName, vector<TrackingBox>& detData);
-	int groupingDetectionData(vector<TrackingBox> detData, vector<vector<TrackingBox>>& detFrameData);
-	void trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData, ofstream& resultsFile, double iou, int max_age, int min_hits, int frame_count);
+	void getDataFromDetectionFile(string detFileName, vector<TrackingBoxOld>& detData);
+	int groupingDetectionData(vector<TrackingBoxOld> detData, vector<vector<TrackingBoxOld>>& detFrameData);
+	void trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<TrackingBoxOld> detFrameData, ofstream& resultsFile, double iou, int max_age, int min_hits, int frame_count);
 	void sortTrackerUsingFunctions(string seqName, double iou);
-	vector<TrackingBox> trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData, double iou, int max_age, int min_hits, int frame_count);
+	vector<TrackingBoxOld> trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<TrackingBoxOld> detFrameData, double iou, int max_age, int min_hits, int frame_count);
 
 	//Added on functions to implement pipelining sortTracker
-	void sortTrackerPipelined(string outputFileName, double iou, vector<TrackingBox> detData);
-	vector<TrackingBox> sortTrackerPipelined(double iou, vector<TrackingBox> detData, vector<KalmanTracker>& trackers);
+	void sortTrackerPipelined(string outputFileName, double iou, vector<TrackingBoxOld> detData);
+	vector<TrackingBoxOld> sortTrackerPipelined(double iou, vector<TrackingBoxOld> detData, vector<KalmanTracker>& trackers);
 	void sortWithFunctionsTest(string seqName, double iou); //THIS IS FOR TESTING
 
 
 	//Redo functions for pipelining - trying a signification change TODO pick one method and delete the others
 	//THE FOLLOWING TWO SEEM TO WORK:
 	void sortOnFrame(string seqName, double iou);
-	vector<TrackingBox> singleFrameSORT(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData, double iou, int max_age, int min_hits, int frame_count);
+	vector<TrackingBoxOld> singleFrameSORT(vector<KalmanTracker>& trackers, vector<TrackingBoxOld> detFrameData, double iou, int max_age, int min_hits, int frame_count);
 };
 
 

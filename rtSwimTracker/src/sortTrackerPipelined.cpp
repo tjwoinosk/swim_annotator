@@ -1,26 +1,9 @@
 #include "sortTrackerPipelined.h";
 
-
-
 sortTrackerPiplelined::sortTrackerPiplelined()
 {
-	//sortTrackerPiplelined::frame_count = 0;
-	//sortTrackerPiplelined::frameCount = 0;
-	//frameCountVal = 0;
-	//sortTrackerPiplelined::getframeCounter();
 	frameCounter() = 0;
 	vectorsOfTrackers().clear();
-}
-
-double sortTrackerPiplelined::GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt)
-{
-	float in = (bb_test & bb_gt).area();
-	float un = bb_test.area() + bb_gt.area() - in;
-
-	if (un < DBL_EPSILON)
-		return 0;
-
-	return (double)(in / un);
 }
 
 void sortTrackerPiplelined::sortOnFrame(string seqName)
@@ -31,19 +14,9 @@ void sortTrackerPiplelined::sortOnFrame(string seqName)
 	vector<vector<TrackingBox>> detFrameData;
 
 	int maxFrame = 0;
-
 	getDataFromDetectionFile(seqName, detData);
-
 	maxFrame = groupingDetectionData(detData, detFrameData);
 
-
-	// 3. update across frames
-	//int frame_count = 0;
-	//int max_age = 1;//var for killing a tracker should be changed, in paper max_age = 1;
-	//int min_hits = 3;//min hits is min number of hits for it to be an object originaly min_hits = 3;
-	//double iouThreshold = iou;//Orignaly this value was 0.30
-	//vector<KalmanTracker> trackers;
-	KalmanTracker::kf_count = 0; // tracking id relies on this, so we have to reset it in each seq.
 
 	// prepare result file.
 	string resFileName = seqName;
@@ -59,45 +32,31 @@ void sortTrackerPiplelined::sortOnFrame(string seqName)
 
 	vector<TrackingBox> tempResults;
 	tempResults.clear();
-	//////////////////////////////////////////////
-	// main loop
+
 	for (int fi = 0; fi < maxFrame; fi++)
 	{
 		total_frames++;
-		//sortTrackerPiplelined::frame_count++;
 		frameCounter()++;
 		tempResults.clear();
-		//cout << frame_count << endl;
 
-		//call pipeline function
 		tempResults = singleFrameSORT(detFrameData[fi]);
 
-		for (auto tb : tempResults) {
-			resultsFile << tb.frame << "," << tb.id << "," << tb.box.x << "," << tb.box.y << "," << tb.box.width << "," << tb.box.height << ",1,-1,-1,-1" << endl;
+		for (auto tb : tempResults) 
+		{
+			resultsFile << tb;
 		}
-		//for (auto tb : frameTrackingResult) {
-//	resultsFile << tb.frame << "," << tb.id << "," << tb.box.x << "," << tb.box.y << "," << tb.box.width << "," << tb.box.height << ",1,-1,-1,-1" << endl;
-	//Save to results in swimmer_tracking.h
-
-//}
-
-
-					//resultsFile << tb.frame << "," << id + 1 << "," << tb.box.x << "," << tb.box.y << "," << tb.box.width << "," << tb.box.height << ",1,-1,-1,-1" << endl;
-
 	}
 
 	resultsFile.close();
 }
 
-vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(vector<TrackingBox> detFrameData)
-{
-	/*
+
+/*
 This function will take trackers and data for a single frame (frame number fi) and produce predictions
 for that frame, as well as adjust the trackers accordingly
 */
-
-	int64 start_time = 0;
-	double cycle_time = 0.0;
+vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(vector<TrackingBox> detFrameData)
+{
 	unsigned int trkNum = 0;
 	unsigned int detNum = 0;
 	vector<vector<double>> iouMatrix;
@@ -114,9 +73,6 @@ for that frame, as well as adjust the trackers accordingly
 
 	frameTrackingResult.clear();
 
-	// I used to count running time using clock(), but found it seems to conflict with cv::cvWaitkey(),
-		// when they both exists, clock() can not get right result. Now I use cv::getTickCount() instead.
-	start_time = getTickCount();
 
 	//If this is the first frame we want to initialize everything and that is all.
 	if (vectorsOfTrackers().size() == 0) // the first frame met
@@ -274,50 +230,32 @@ for that frame, as well as adjust the trackers accordingly
 			it = vectorsOfTrackers().erase(it);
 	}
 
-	cycle_time = (double)(getTickCount() - start_time);
-	total_time += cycle_time / getTickFrequency();
-
-	//for (auto tb : frameTrackingResult) {
-	//	resultsFile << tb.frame << "," << tb.id << "," << tb.box.x << "," << tb.box.y << "," << tb.box.width << "," << tb.box.height << ",1,-1,-1,-1" << endl;
-		//Save to results in swimmer_tracking.h
-
-	//}
 	return frameTrackingResult;
-	//return vector<TrackingBox>();
 }
 
-void sortTrackerPiplelined::getDataFromDetectionFile(string detFileName, vector<TrackingBox>& detData)
-{
-	/*
+
+/*
 The purpose of this function is to read in the file whose name is speciied by the input detFileName
 and put the information of this file into a vector of TrackingBoxes, which is the argument detData
 */
+void sortTrackerPiplelined::getDataFromDetectionFile(string detFileName, vector<TrackingBox>& detData)
+{
 	string detLine;
 	istringstream ss;
-	char ch;
-	float tpx, tpy, tpw, tph;
 	ifstream detectionFile;
 
 	detectionFile.open(detFileName);
-
 	if (!detectionFile.is_open())
 	{
 		cerr << "Error: can not find file " << detFileName << endl;
 		return;
 	}
 
-
-
+	TrackingBox tb;
 	while (getline(detectionFile, detLine))
 	{
-		TrackingBox tb;
-
 		ss.str(detLine);
-		ss >> tb.frame >> ch >> tb.id >> ch;
-		ss >> tpx >> ch >> tpy >> ch >> tpw >> ch >> tph;
-		ss.str("");
-
-		tb.box = Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph));
+		ss >> tb;
 		detData.push_back(tb);
 	}
 	detectionFile.close();
@@ -325,15 +263,15 @@ and put the information of this file into a vector of TrackingBoxes, which is th
 	return;
 }
 
+
+/*
+This function takes an input detData that is all the detection data stored in a vector of TrackingBox
+and then grouping TrackingBoxes for a single frame into a vector, and storing this vector into another
+vector which is the input detFrameData.
+The result is a 2D array like vector where each element points to a vector of TrackingBoxes of the same frame.
+*/
 int sortTrackerPiplelined::groupingDetectionData(vector<TrackingBox> detData, vector<vector<TrackingBox>>& detFrameData)
 {
-	/*
-	This function takes an input detData that is all the detection data stored in a vector of TrackingBox
-	and then grouping TrackingBoxes for a single frame into a vector, and storing this vector into another
-	vector which is the input detFrameData.
-	The result is a 2D array like vector where each element points to a vector of TrackingBoxes of the same frame.
-	*/
-
 	int maxFrame = 0;
 	vector<TrackingBox> tempVec;
 
@@ -353,4 +291,16 @@ int sortTrackerPiplelined::groupingDetectionData(vector<TrackingBox> detData, ve
 		tempVec.clear();
 	}
 	return maxFrame;
+}
+
+
+double sortTrackerPiplelined::GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt)
+{
+	float in = (bb_test & bb_gt).area();
+	float un = bb_test.area() + bb_gt.area() - in;
+
+	if (un < DBL_EPSILON)
+		return 0;
+
+	return (double)(in / un);
 }

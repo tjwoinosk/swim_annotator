@@ -38,13 +38,13 @@ void sort_tracker::sortTracker(string seqName, double iou)
 
 	string detLine;
 	istringstream ss;
-	vector<TrackingBox> detData;
+	vector<TrackingBoxOld> detData;
 	char ch;
 	float tpx, tpy, tpw, tph;
 
 	while (getline(detectionFile, detLine))
 	{
-		TrackingBox tb;
+		TrackingBoxOld tb;
 
 		ss.str(detLine);
 		ss >> tb.frame >> ch >> tb.id >> ch;
@@ -64,8 +64,8 @@ void sort_tracker::sortTracker(string seqName, double iou)
 			maxFrame = tb.frame;
 	}
 
-	vector<vector<TrackingBox>> detFrameData;
-	vector<TrackingBox> tempVec;
+	vector<vector<TrackingBoxOld>> detFrameData;
+	vector<TrackingBoxOld> tempVec;
 	for (int fi = 0; fi < maxFrame; fi++)
 	{
 		for (auto tb : detData)
@@ -93,7 +93,7 @@ void sort_tracker::sortTracker(string seqName, double iou)
 	set<int> allItems;
 	set<int> matchedItems;
 	vector<cv::Point> matchedPairs;
-	vector<TrackingBox> frameTrackingResult;
+	vector<TrackingBoxOld> frameTrackingResult;
 	unsigned int trkNum = 0;
 	unsigned int detNum = 0;
 
@@ -138,7 +138,7 @@ void sort_tracker::sortTracker(string seqName, double iou)
 			// output the first frame detections
 			for (unsigned int id = 0; id < detFrameData[fi].size(); id++)
 			{
-				TrackingBox tb = detFrameData[fi][id];
+				TrackingBoxOld tb = detFrameData[fi][id];
 				resultsFile << tb.frame << "," << id + 1 << "," << tb.box.x << "," << tb.box.y << "," << tb.box.width << "," << tb.box.height << ",1,-1,-1,-1" << endl;
 				//Save to results in swimmer_tracking.h
 
@@ -259,7 +259,7 @@ void sort_tracker::sortTracker(string seqName, double iou)
 			if (((*it).m_time_since_update < max_age) &&
 				((*it).m_hit_streak >= min_hits || frame_count <= min_hits))
 			{
-				TrackingBox res;
+				TrackingBoxOld res;
 				res.box = (*it).get_state();
 				res.id = (*it).m_id + 1;
 				res.frame = frame_count;
@@ -294,7 +294,7 @@ void sort_tracker::sortTracker(string seqName, double iou)
 //Implementation used from 
 //https://github.com/mcximing/sort-cpp
 
-void sort_tracker::getDataFromDetectionFile(string detFileName, vector<TrackingBox>& detData)
+void sort_tracker::getDataFromDetectionFile(string detFileName, vector<TrackingBoxOld>& detData)
 {
 	/*
 	The purpose of this function is to read in the file whose name is speciied by the input detFileName
@@ -318,7 +318,7 @@ void sort_tracker::getDataFromDetectionFile(string detFileName, vector<TrackingB
 
 	while (getline(detectionFile, detLine))
 	{
-		TrackingBox tb;
+		TrackingBoxOld tb;
 
 		ss.str(detLine);
 		ss >> tb.frame >> ch >> tb.id >> ch;
@@ -333,7 +333,7 @@ void sort_tracker::getDataFromDetectionFile(string detFileName, vector<TrackingB
 	return;
 }
 
-int sort_tracker::groupingDetectionData(vector<TrackingBox> detData, vector<vector<TrackingBox>>& detFrameData)
+int sort_tracker::groupingDetectionData(vector<TrackingBoxOld> detData, vector<vector<TrackingBoxOld>>& detFrameData)
 {
 	/*
 	This function takes an input detData that is all the detection data stored in a vector of TrackingBox
@@ -343,7 +343,7 @@ int sort_tracker::groupingDetectionData(vector<TrackingBox> detData, vector<vect
 	*/
 
 	int maxFrame = 0;
-	vector<TrackingBox> tempVec;
+	vector<TrackingBoxOld> tempVec;
 
 	for (auto tb : detData) // find max frame number
 	{
@@ -363,7 +363,7 @@ int sort_tracker::groupingDetectionData(vector<TrackingBox> detData, vector<vect
 	return maxFrame;
 }
 
-void sort_tracker::trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData, ofstream& resultsFile, double iou, int max_age, int min_hits, int frame_count)
+void sort_tracker::trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<TrackingBoxOld> detFrameData, ofstream& resultsFile, double iou, int max_age, int min_hits, int frame_count)
 {
 	/*
 	This function will take trackers and data for a single frame (frame number fi) and produce predictions
@@ -381,7 +381,7 @@ void sort_tracker::trackingForSingleFrame(vector<KalmanTracker>& trackers, vecto
 	set<int> allItems;
 	set<int> matchedItems;
 	vector<cv::Point> matchedPairs;
-	vector<TrackingBox> frameTrackingResult;
+	vector<TrackingBoxOld> frameTrackingResult;
 	vector<Rect_<float>> predictedBoxes;
 
 	double iouThreshold = iou;//Orignaly this value was 0.30
@@ -404,7 +404,7 @@ void sort_tracker::trackingForSingleFrame(vector<KalmanTracker>& trackers, vecto
 		// output the first frame detections
 		for (unsigned int id = 0; id < detFrameData.size(); id++)
 		{
-			TrackingBox tb = detFrameData[id];
+			TrackingBoxOld tb = detFrameData[id];
 			resultsFile << tb.frame << "," << id + 1 << "," << tb.box.x << "," << tb.box.y << "," << tb.box.width << "," << tb.box.height << ",1,-1,-1,-1" << endl;
 			//Save to results in swimmer_tracking.h
 
@@ -530,7 +530,7 @@ void sort_tracker::trackingForSingleFrame(vector<KalmanTracker>& trackers, vecto
 		if (((*it).m_time_since_update < max_age) &&
 			((*it).m_hit_streak >= min_hits || frame_count <= min_hits))
 		{
-			TrackingBox res;
+			TrackingBoxOld res;
 			res.box = (*it).get_state();
 			res.id = (*it).m_id + 1;
 			res.frame = frame_count;
@@ -559,8 +559,8 @@ void sort_tracker::sortTrackerUsingFunctions(string seqName, double iou)
 {
 	cout << "Processing " << seqName << "..." << endl;
 
-	vector<TrackingBox> detData;
-	vector<vector<TrackingBox>> detFrameData;
+	vector<TrackingBoxOld> detData;
+	vector<vector<TrackingBoxOld>> detFrameData;
 	
 	int maxFrame = 0;
 
@@ -604,7 +604,7 @@ void sort_tracker::sortTrackerUsingFunctions(string seqName, double iou)
 	resultsFile.close();
 }
 
-vector<TrackingBox> sort_tracker::trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData, double iou, int max_age, int min_hits, int frame_count)
+vector<TrackingBoxOld> sort_tracker::trackingForSingleFrame(vector<KalmanTracker>& trackers, vector<TrackingBoxOld> detFrameData, double iou, int max_age, int min_hits, int frame_count)
 {
 	/*
 This function will take trackers and data for a single frame (frame number fi) and produce predictions
@@ -622,7 +622,7 @@ for that frame, as well as adjust the trackers accordingly
 	set<int> allItems;
 	set<int> matchedItems;
 	vector<cv::Point> matchedPairs;
-	vector<TrackingBox> frameTrackingResult;
+	vector<TrackingBoxOld> frameTrackingResult;
 	vector<Rect_<float>> predictedBoxes;
 
 	double iouThreshold = iou;//Orignaly this value was 0.30
@@ -648,7 +648,7 @@ for that frame, as well as adjust the trackers accordingly
 		// output the first frame detections
 		for (unsigned int id = 0; id < detFrameData.size(); id++)
 		{
-			TrackingBox tb = detFrameData[id];
+			TrackingBoxOld tb = detFrameData[id];
 			//resultsFile << tb.frame << "," << id + 1 << "," << tb.box.x << "," << tb.box.y << "," << tb.box.width << "," << tb.box.height << ",1,-1,-1,-1" << endl;
 			//Save to results in swimmer_tracking.h
 			frameTrackingResult.push_back(tb);
@@ -776,7 +776,7 @@ for that frame, as well as adjust the trackers accordingly
 		if (((*it).m_time_since_update < max_age) &&
 			((*it).m_hit_streak >= min_hits || frame_count <= min_hits))
 		{
-			TrackingBox res;
+			TrackingBoxOld res;
 			res.box = (*it).get_state();
 			res.id = (*it).m_id + 1;
 			res.frame = frame_count;
@@ -805,7 +805,7 @@ for that frame, as well as adjust the trackers accordingly
 	//return vector<vector<TrackingBox>>();
 }
 
-void sort_tracker::sortTrackerPipelined(string outputFileName, double iou, vector<TrackingBox> detData)
+void sort_tracker::sortTrackerPipelined(string outputFileName, double iou, vector<TrackingBoxOld> detData)
 {
 	/*
 	This function will perform SORT on a single frame, whose detections are present in detData
@@ -843,7 +843,7 @@ void sort_tracker::sortTrackerPipelined(string outputFileName, double iou, vecto
 
 }
 
-vector<TrackingBox> sort_tracker::sortTrackerPipelined(double iou, vector<TrackingBox> detData, vector<KalmanTracker>& trackers)
+vector<TrackingBoxOld> sort_tracker::sortTrackerPipelined(double iou, vector<TrackingBoxOld> detData, vector<KalmanTracker>& trackers)
 {
 	/*
 	This function will perform SORT on a single frame, whose detections are present in detData
@@ -858,7 +858,7 @@ vector<TrackingBox> sort_tracker::sortTrackerPipelined(double iou, vector<Tracki
 	//vector<KalmanTracker> trackers; //TODO is there a better way
 	KalmanTracker::kf_count = 0; // tracking id relies on this, so we have to reset it in each seq.
 
-	vector<TrackingBox> trackedObjects; //This will hold the results
+	vector<TrackingBoxOld> trackedObjects; //This will hold the results
 	trackedObjects.clear();
 
 	//call pipeline function
@@ -871,8 +871,8 @@ void sort_tracker::sortWithFunctionsTest(string seqName, double iou)
 {
 	cout << "Processing " << seqName << "..." << endl;
 
-	vector<TrackingBox> detData;
-	vector<vector<TrackingBox>> detFrameData;
+	vector<TrackingBoxOld> detData;
+	vector<vector<TrackingBoxOld>> detFrameData;
 
 	int maxFrame = 0;
 
@@ -903,7 +903,7 @@ void sort_tracker::sortWithFunctionsTest(string seqName, double iou)
 
 	//////////////////////////////////////////////
 	// main loop
-	vector<TrackingBox> resultsTracking;
+	vector<TrackingBoxOld> resultsTracking;
 	resultsTracking.clear();
 
 	for (int fi = 0; fi < maxFrame; fi++)
@@ -923,7 +923,7 @@ void sort_tracker::sortWithFunctionsTest(string seqName, double iou)
 			//Save to results in swimmer_tracking.h
 		//}
 		//resultsTracking.clear();
-		vector<TrackingBox> temp = (sortTrackerPipelined(iou, detFrameData[fi], trackers));
+		vector<TrackingBoxOld> temp = (sortTrackerPipelined(iou, detFrameData[fi], trackers));
 		resultsTracking.insert(resultsTracking.end(), temp.begin(), temp.end());
 	}
 
@@ -939,8 +939,8 @@ void sort_tracker::sortOnFrame(string seqName, double iou)
 {
 	cout << "Processing " << seqName << "..." << endl;
 
-	vector<TrackingBox> detData;
-	vector<vector<TrackingBox>> detFrameData;
+	vector<TrackingBoxOld> detData;
+	vector<vector<TrackingBoxOld>> detFrameData;
 
 	int maxFrame = 0;
 
@@ -969,7 +969,7 @@ void sort_tracker::sortOnFrame(string seqName, double iou)
 		return;
 	}
 
-	vector<TrackingBox> tempResults;
+	vector<TrackingBoxOld> tempResults;
 	tempResults.clear();
 	//////////////////////////////////////////////
 	// main loop
@@ -1000,7 +1000,7 @@ void sort_tracker::sortOnFrame(string seqName, double iou)
 	resultsFile.close();
 }
 
-vector<TrackingBox> sort_tracker::singleFrameSORT(vector<KalmanTracker>& trackers, vector<TrackingBox> detFrameData, double iou, int max_age, int min_hits, int frame_count)
+vector<TrackingBoxOld> sort_tracker::singleFrameSORT(vector<KalmanTracker>& trackers, vector<TrackingBoxOld> detFrameData, double iou, int max_age, int min_hits, int frame_count)
 {
 	/*
 This function will take trackers and data for a single frame (frame number fi) and produce predictions
@@ -1018,7 +1018,7 @@ for that frame, as well as adjust the trackers accordingly
 	set<int> allItems;
 	set<int> matchedItems;
 	vector<cv::Point> matchedPairs;
-	vector<TrackingBox> frameTrackingResult;
+	vector<TrackingBoxOld> frameTrackingResult;
 	vector<Rect_<float>> predictedBoxes;
 
 	double iouThreshold = iou;//Orignaly this value was 0.30
@@ -1042,7 +1042,7 @@ for that frame, as well as adjust the trackers accordingly
 		// output the first frame detections
 		for (unsigned int id = 0; id < detFrameData.size(); id++)
 		{
-			TrackingBox tb = detFrameData[id];
+			TrackingBoxOld tb = detFrameData[id];
 			//resultsFile << tb.frame << "," << id + 1 << "," << tb.box.x << "," << tb.box.y << "," << tb.box.width << "," << tb.box.height << ",1,-1,-1,-1" << endl;
 			//Save to results in swimmer_tracking.h
 
@@ -1170,7 +1170,7 @@ for that frame, as well as adjust the trackers accordingly
 		if (((*it).m_time_since_update < max_age) &&
 			((*it).m_hit_streak >= min_hits || frame_count <= min_hits))
 		{
-			TrackingBox res;
+			TrackingBoxOld res;
 			res.box = (*it).get_state();
 			res.id = (*it).m_id + 1;
 			res.frame = frame_count;

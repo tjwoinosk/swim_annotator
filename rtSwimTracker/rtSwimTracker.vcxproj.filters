@@ -40,6 +40,9 @@
     <ClCompile Include="src\sortTrackerPipelined.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SORTtrackingBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\addAnotherFile.h">
@@ -58,6 +61,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\sortTrackerPipelined.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SORTtrackingBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
