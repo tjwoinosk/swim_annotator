@@ -44,7 +44,8 @@ private:
 	double GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt);
 
 	void constructIOUmat(vector<vector<double>>& blankMat, const vector<TrackingBox>& detFrameData);
-	void solveIOUassignmentProblem(vector<vector<double>> iouCostMatrix);
+	vector<int> solveIOUassignmentProblem(vector<vector<double>> iouCostMatrix);
+	void filterMatchedDetections(const vector<int>& assignment, const vector<vector<double>>& iouCostMatrix);
 
 
 	vector<int> m_assignment;

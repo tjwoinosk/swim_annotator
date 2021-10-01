@@ -80,8 +80,11 @@ void sortTrackerPiplelined::makeKalmanPredictions()
 void sortTrackerPiplelined::associatePredictionsWith(const vector<TrackingBox>& detFrameData)
 {
 	vector<vector<double>> iouCostMatrix;
+	vector<int> assignment;
+
 	constructIOUmat(iouCostMatrix, detFrameData);
-	solveIOUassignmentProblem(iouCostMatrix);
+	assignment = solveIOUassignmentProblem(iouCostMatrix);
+	filterMatchedDetections(assignment, iouCostMatrix);
 }
 
 void sortTrackerPiplelined::constructIOUmat(vector<vector<double>>& blankMat, const vector<TrackingBox>& detFrameData)
@@ -106,21 +109,23 @@ void sortTrackerPiplelined::constructIOUmat(vector<vector<double>>& blankMat, co
 
 // solve the assignment problem using hungarian algorithm.
 // the resulting assignment is [track(prediction) : detection], with len=preNum
-void sortTrackerPiplelined::solveIOUassignmentProblem(vector<vector<double>> iouCostMatrix)
+vector<int> sortTrackerPiplelined::solveIOUassignmentProblem(vector<vector<double>> iouCostMatrix)
 {
-	if (iouCostMatrix.size() < 1) return;
+	vector<int> assignment; //local
+
+	if (iouCostMatrix.size() < 1) return assignment;
 
 	unsigned int trkNum = iouCostMatrix.size();
 	unsigned int detNum = iouCostMatrix[0].size();
+
 	set<int> allItems; //local
 	set<int> matchedItems; //local
 	HungarianAlgorithm HungAlgo;
 
-	vector<int> assignment;
+
 	HungAlgo.Solve(iouCostMatrix, assignment);
 
 	// find matches, unmatched_detections and unmatched_predictions
-
 	m_unmatchedTrajectories.clear();
 	m_unmatchedDetections.clear();
 
@@ -145,8 +150,16 @@ void sortTrackerPiplelined::solveIOUassignmentProblem(vector<vector<double>> iou
 	else
 		;
 
+	return assignment;
+}
+
+
+void sortTrackerPiplelined::filterMatchedDetections(const vector<int>& assignment, const vector<vector<double>>& iouCostMatrix)
+{
 	// filter out matched with low IOU
 	m_matchedPairs.clear();
+	unsigned int trkNum = iouCostMatrix.size();
+
 	for (unsigned int i = 0; i < trkNum; ++i)
 	{
 		if (assignment[i] == -1) // pass over invalid values
@@ -159,9 +172,7 @@ void sortTrackerPiplelined::solveIOUassignmentProblem(vector<vector<double>> iou
 		else
 			m_matchedPairs.push_back(cv::Point(i, assignment[i]));
 	}
-
 }
-
 
 
 void sortTrackerPiplelined::updateTrackers(const vector<TrackingBox>& detFrameData) 
