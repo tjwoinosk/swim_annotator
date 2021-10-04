@@ -33,16 +33,12 @@ public:
 	vector<TrackingBox> singleFrameSORT(const vector<TrackingBox>& swimmerDetections);
 
 private:
-
 	void inputDetectionData(const vector<TrackingBox>& detFrameData) 
 	{ 
 		m_frameData = detFrameData; 
 		m_numDetections = detFrameData.size();
 	}
 
-	vector<KalmanTracker> m_vectorsOfTrackers;
-
-	void fillResultsWithDetections();
 	void initializeTrackersUsing(const vector<TrackingBox>& detFrameData);
 	void updateTrackers(const vector<cv::Point>& pairs);
 	void createNewTrackersWithLeftoverDetections();
@@ -50,11 +46,12 @@ private:
 	vector<vector<double>> constructIOUmat(const vector<Rect_<float>>& trajectoryPredictions);
 	vector<cv::Point> matchDetectionsToTrajectories(const vector<vector<double>>& iouCostMatrix);
 
+	
+	vector<KalmanTracker> m_vectorsOfTrackers;
 	void collectResultsWhileKillingTrackers();
 	vector<Rect_<float>> createTrajecotoryPredictions();
 	void fillUnmatchedDetections(vector<int> assignments);
 	void fillUnmatchedTrajectories(vector<int> assignments);
-
 	double GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt);
 
 	vector<TrackingBox> m_frameData;
