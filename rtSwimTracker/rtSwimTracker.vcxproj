@@ -244,8 +244,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SwimTrackerTest|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\addAnotherFile.cpp" />
+    <ClCompile Include="src\frameAnalysis.cpp" />
     <ClCompile Include="src\HungarianAlgorithm.cpp" />
     <ClCompile Include="src\KalmanTracker.cpp" />
+    <ClCompile Include="src\sortTrackerPipelined.cpp" />
+    <ClCompile Include="src\SORTtrackingBox.cpp" />
     <ClCompile Include="src\sort_tracker.cpp" />
     <ClCompile Include="test\swimTrackerTest.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -255,8 +258,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\addAnotherFile.h" />
+    <ClInclude Include="include\frameAnalysis.h" />
     <ClInclude Include="include\HungarianAlgorithm.h" />
     <ClInclude Include="include\KalmanTracker.h" />
+    <ClInclude Include="include\sortTrackerPipelined.h" />
+    <ClInclude Include="include\SORTtrackingBox.h" />
     <ClInclude Include="include\sort_tracker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
