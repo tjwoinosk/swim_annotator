@@ -12,12 +12,12 @@ for that frame, as well as adjust the trackers accordingly
 */
 vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(const vector<TrackingBox>& swimmerDetections)
 {
-	m_frameTrackingResult.clear();
+	m_frameTrackingResults.clear();
 	inputDetectionData(swimmerDetections);
 
 	processFrame();
 	
-	return m_frameTrackingResult;
+	return m_frameTrackingResults;
 }
 
 
@@ -28,15 +28,15 @@ void sortTrackerPiplelined::processFrame()
 	vector<cv::Point> pairs;
 
 	m_numberFramesProcessed++;
-	if (m_numberFramesProcessed == 0 || m_vectorsOfTrackers.size() == 0)
+	if (m_numberFramesProcessed == 0 || m_vectorOfTrackers.size() == 0)
 	{
 		initializeTrackersUsing(m_frameData);
 	}
 	else
 	{
-		trajectoryPredictions = createTrajecotoryPredictions();
-		iouCostMatrix = constructIOUmat(trajectoryPredictions);
-		pairs = matchDetectionsToTrajectories(iouCostMatrix);
+		trajectoryPredictions = createTrajecotoryPredictions(trajectoryPredictions);
+		iouCostMatrix = constructIOUmat(trajectoryPredictions, iouCostMatrix);
+		pairs = matchDetectionsToTrajectories(iouCostMatrix, pairs);
 		updateTrackers(pairs);
 		createNewTrackersWithLeftoverDetections();
 		collectResultsWhileKillingTrackers();
@@ -48,50 +48,47 @@ void sortTrackerPiplelined::initializeTrackersUsing(const vector<TrackingBox>& t
 {
 	TrackingBox tb;
 	KalmanTracker trk;
-	for (unsigned int i = 0; i < trackingBoxData.size(); i++)
+	for (int i = 0; i < trackingBoxData.size(); i++)
 	{
 		trk = KalmanTracker(trackingBoxData[i].box);
-		m_vectorsOfTrackers.push_back(trk);
+		m_vectorOfTrackers.push_back(trk);
 
 		tb.box = trk.get_state();
 		tb.id = trk.m_id + 1;
 		tb.frame = m_numberFramesProcessed;
-		m_frameTrackingResult.push_back(tb);
+		m_frameTrackingResults.push_back(tb);
 	}
 }
 
 
-vector<Rect_<float>> sortTrackerPiplelined::createTrajecotoryPredictions()
+vector<Rect_<float>>& sortTrackerPiplelined::createTrajecotoryPredictions(vector<Rect_<float>>& initializedValue)
 {
-	vector<Rect_<float>> trajectoryPredictions;
-
-	for (auto it = m_vectorsOfTrackers.begin(); it != m_vectorsOfTrackers.end();)
+	for (auto it = m_vectorOfTrackers.begin(); it != m_vectorOfTrackers.end();)
 	{
 		Rect_<float> pBox = (*it).predict();
 		if (pBox.x >= 0 && pBox.y >= 0)
 		{
-			trajectoryPredictions.push_back(pBox);
+			initializedValue.push_back(pBox);
 			it++;
 		}
 		else
 		{
-			it = m_vectorsOfTrackers.erase(it);
+			it = m_vectorOfTrackers.erase(it);
 		}
 	}
-	m_numTrajectories = trajectoryPredictions.size();
+	m_numTrajectories = initializedValue.size();
 
-	return trajectoryPredictions;
+	return initializedValue;
 }
 
 
-vector<vector<double>> sortTrackerPiplelined::constructIOUmat(const vector<Rect_<float>>& trajectoryPredictions)
+vector<vector<double>>& sortTrackerPiplelined::constructIOUmat(const vector<Rect_<float>>& trajectoryPredictions, vector<vector<double>>& iouCostMatrix)
 {
-	vector<vector<double>> iouCostMatrix;
 	iouCostMatrix.resize(m_numTrajectories, vector<double>(m_numDetections, 0));
 
-	for (unsigned int i = 0; i < m_numTrajectories; i++)
+	for (int i = 0; i < m_numTrajectories; i++)
 	{
-		for (unsigned int j = 0; j < m_numDetections; j++)
+		for (int j = 0; j < m_numDetections; j++)
 		{
 			// use 1-iou because the Hungarian algorithm computes a minimum-cost assignment.
 			iouCostMatrix[i][j] = 1 - GetIOU(trajectoryPredictions[i], m_frameData[j].box);
@@ -101,7 +98,7 @@ vector<vector<double>> sortTrackerPiplelined::constructIOUmat(const vector<Rect_
 }
 
 
-vector<cv::Point> sortTrackerPiplelined::matchDetectionsToTrajectories(const vector<vector<double>>& iouCostMatrix)
+vector<cv::Point>& sortTrackerPiplelined::matchDetectionsToTrajectories(const vector<vector<double>>& iouCostMatrix, vector<cv::Point>& pairs)
 {
 	vector<int> assignments;
 	HungarianAlgorithm HungAlgo;
@@ -111,7 +108,6 @@ vector<cv::Point> sortTrackerPiplelined::matchDetectionsToTrajectories(const vec
 	fillUnmatchedTrajectories(assignments);
 
 	// filter out matched with low IOU
-	vector<cv::Point> pairs;
 
 	for (int i = 0; i < m_numTrajectories; ++i)
 	{
@@ -130,7 +126,7 @@ vector<cv::Point> sortTrackerPiplelined::matchDetectionsToTrajectories(const vec
 }
 
 
-void sortTrackerPiplelined::fillUnmatchedDetections(vector<int> assignments)
+void sortTrackerPiplelined::fillUnmatchedDetections(const vector<int>& assignments)
 {
 	set<int> allItems;
 	set<int> matchedItems;
@@ -139,10 +135,10 @@ void sortTrackerPiplelined::fillUnmatchedDetections(vector<int> assignments)
 
 	if (m_numDetections > m_numTrajectories)
 	{
-		for (unsigned int n = 0; n < m_numDetections; n++)
+		for (int n = 0; n < m_numDetections; n++)
 			allItems.insert(n);
 
-		for (unsigned int i = 0; i < m_numTrajectories; ++i)
+		for (int i = 0; i < m_numTrajectories; ++i)
 			matchedItems.insert(assignments[i]);
 
 		set_difference(allItems.begin(), allItems.end(),
@@ -151,11 +147,11 @@ void sortTrackerPiplelined::fillUnmatchedDetections(vector<int> assignments)
 	}
 }
 
-void sortTrackerPiplelined::fillUnmatchedTrajectories(vector<int> assignments)
+void sortTrackerPiplelined::fillUnmatchedTrajectories(const vector<int>& assignments)
 {
 	if (m_numDetections < m_numTrajectories)
 	{
-		for (unsigned int i = 0; i < m_numTrajectories; ++i)
+		for (int i = 0; i < m_numTrajectories; ++i)
 			if (assignments[i] == -1) // unassigned label will be set as -1 in the assignment algorithm
 				m_unmatchedTrajectories.insert(i);
 	}
@@ -165,11 +161,11 @@ void sortTrackerPiplelined::fillUnmatchedTrajectories(vector<int> assignments)
 void sortTrackerPiplelined::updateTrackers(const vector<cv::Point>& pairs)
 {
 	int detIdx, trkIdx;
-	for (unsigned int i = 0; i < pairs.size(); i++)
+	for (int i = 0; i < pairs.size(); i++)
 	{
 		trkIdx = pairs[i].x;
 		detIdx = pairs[i].y;
-		m_vectorsOfTrackers[trkIdx].update(m_frameData[detIdx].box);
+		m_vectorOfTrackers[trkIdx].update(m_frameData[detIdx].box);
 	}
 }
 
@@ -179,7 +175,7 @@ void sortTrackerPiplelined::createNewTrackersWithLeftoverDetections()
 	for (auto umd : m_unmatchedDetections)
 	{
 		KalmanTracker tracker = KalmanTracker(m_frameData[umd].box);
-		m_vectorsOfTrackers.push_back(tracker);
+		m_vectorOfTrackers.push_back(tracker);
 	}
 }
 
@@ -189,14 +185,14 @@ void sortTrackerPiplelined::collectResultsWhileKillingTrackers()
 	bool missedTooManyTimes, trackerHasMatchedEnough, lessThanMinHitsHasBeenProcessed;
 	lessThanMinHitsHasBeenProcessed = m_numberFramesProcessed <= m_minHitsInFrames;
 
-	for (auto it = m_vectorsOfTrackers.begin(); it != m_vectorsOfTrackers.end();)
+	for (auto it = m_vectorOfTrackers.begin(); it != m_vectorOfTrackers.end();)
 	{
 		missedTooManyTimes = it->m_time_since_update > m_maxUpdateAllowance;
 		trackerHasMatchedEnough = it->m_hit_streak >= m_minHitsInFrames;
 
 		if (missedTooManyTimes)
 		{
-			it = m_vectorsOfTrackers.erase(it);
+			it = m_vectorOfTrackers.erase(it);
 		}
 		else if (trackerHasMatchedEnough || lessThanMinHitsHasBeenProcessed)
 		{
@@ -204,7 +200,7 @@ void sortTrackerPiplelined::collectResultsWhileKillingTrackers()
 			res.box = it->get_state();
 			res.id = it->m_id + 1;
 			res.frame = m_numberFramesProcessed;
-			m_frameTrackingResult.push_back(res);
+			m_frameTrackingResults.push_back(res);
 			it++;
 		}
 		else

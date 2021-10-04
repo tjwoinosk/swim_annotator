@@ -40,22 +40,20 @@ private:
 	}
 
 	void initializeTrackersUsing(const vector<TrackingBox>& detFrameData);
+	void processFrame();
+	vector<Rect_<float>>& createTrajecotoryPredictions(vector<Rect_<float>>& initializedValue);
+	vector<vector<double>>& constructIOUmat(const vector<Rect_<float>>& trajectoryPredictions, vector<vector<double>>& iouCostMatrix);
+	vector<cv::Point>& matchDetectionsToTrajectories(const vector<vector<double>>& iouCostMatrix, vector<cv::Point>& pairs);
 	void updateTrackers(const vector<cv::Point>& pairs);
 	void createNewTrackersWithLeftoverDetections();
-	void processFrame();
-	vector<vector<double>> constructIOUmat(const vector<Rect_<float>>& trajectoryPredictions);
-	vector<cv::Point> matchDetectionsToTrajectories(const vector<vector<double>>& iouCostMatrix);
-
-	
-	vector<KalmanTracker> m_vectorsOfTrackers;
 	void collectResultsWhileKillingTrackers();
-	vector<Rect_<float>> createTrajecotoryPredictions();
-	void fillUnmatchedDetections(vector<int> assignments);
-	void fillUnmatchedTrajectories(vector<int> assignments);
+	void fillUnmatchedDetections(const vector<int>& assignments);
+	void fillUnmatchedTrajectories(const vector<int>& assignments);
 	double GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt);
 
+	vector<KalmanTracker> m_vectorOfTrackers;
 	vector<TrackingBox> m_frameData;
-	vector<TrackingBox> m_frameTrackingResult;
+	vector<TrackingBox> m_frameTrackingResults;
 	set<int> m_unmatchedDetections;
 	set<int> m_unmatchedTrajectories;
 	int m_numTrajectories;
