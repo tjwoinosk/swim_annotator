@@ -42,7 +42,7 @@ private:
 	void initializeTrackersUsing(const vector<TrackingBox>& detFrameData);
 	void processFrame();
 	vector<Rect_<float>>& createTrajecotoryPredictions(vector<Rect_<float>>& initializedValue);
-	vector<vector<double>>& constructIOUmat(const vector<Rect_<float>>& trajectoryPredictions, vector<vector<double>>& iouCostMatrix);
+	vector<vector<double>>& constructIOUCostMat(const vector<Rect_<float>>& trajectoryPredictions, vector<vector<double>>& iouCostMatrix);
 	vector<cv::Point>& matchDetectionsToTrajectories(const vector<vector<double>>& iouCostMatrix, vector<cv::Point>& pairs);
 	void updateTrackers(const vector<cv::Point>& pairs);
 	void createNewTrackersWithLeftoverDetections();

@@ -35,7 +35,7 @@ void sortTrackerPiplelined::processFrame()
 	else
 	{
 		trajectoryPredictions = createTrajecotoryPredictions(trajectoryPredictions);
-		iouCostMatrix = constructIOUmat(trajectoryPredictions, iouCostMatrix);
+		iouCostMatrix = constructIOUCostMat(trajectoryPredictions, iouCostMatrix);
 		pairs = matchDetectionsToTrajectories(iouCostMatrix, pairs);
 		updateTrackers(pairs);
 		createNewTrackersWithLeftoverDetections();
@@ -82,7 +82,7 @@ vector<Rect_<float>>& sortTrackerPiplelined::createTrajecotoryPredictions(vector
 }
 
 
-vector<vector<double>>& sortTrackerPiplelined::constructIOUmat(const vector<Rect_<float>>& trajectoryPredictions, vector<vector<double>>& iouCostMatrix)
+vector<vector<double>>& sortTrackerPiplelined::constructIOUCostMat(const vector<Rect_<float>>& trajectoryPredictions, vector<vector<double>>& iouCostMatrix)
 {
 	iouCostMatrix.resize(m_numTrajectories, vector<double>(m_numDetections, 0));
 
