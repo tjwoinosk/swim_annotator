@@ -28,7 +28,7 @@ void sortTrackerPiplelined::processFrame()
 	vector<cv::Point> pairs;
 
 	m_numberFramesProcessed++;
-	if (m_numberFramesProcessed == 0 || m_vectorOfTrackers.size() == 0)
+	if (m_vectorOfTrackers.size() == 0)
 	{
 		initializeTrackersUsing(m_frameData);
 	}
