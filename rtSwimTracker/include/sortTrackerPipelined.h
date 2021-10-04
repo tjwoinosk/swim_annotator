@@ -34,34 +34,39 @@ public:
 
 private:
 
-	static vector<KalmanTracker>& vectorsOfTrackers() { static vector<KalmanTracker> vectorsOfTrackers; return vectorsOfTrackers; }
+	void inputDetectionData(const vector<TrackingBox>& detFrameData) 
+	{ 
+		m_frameData = detFrameData; 
+		m_numDetections = detFrameData.size();
+	}
 
-	void fillFrameTrackingResultsWith(const vector<TrackingBox>& swimmerDetections);
-	void initializeTrackerUsing(const vector<TrackingBox>& swimmerDetections);
-	void makeKalmanPredictions();
-	void associatePredictionsWith(const vector<TrackingBox>& swimmerDetections);
+	vector<KalmanTracker> m_vectorsOfTrackers;
+
+	void fillResultsWithDetections();
+	void initializeTrackersUsing(const vector<TrackingBox>& detFrameData);
+	void updateTrackers(const vector<cv::Point>& pairs);
+	void createNewTrackersWithLeftoverDetections();
+	void processFrame();
+	vector<vector<double>> constructIOUmat(const vector<Rect_<float>>& trajectoryPredictions);
+	vector<cv::Point> matchDetectionsToTrajectories(const vector<vector<double>>& iouCostMatrix);
+
 	void collectResultsWhileKillingTrackers();
-	double GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt);
-
-	vector<vector<double>> constructIOUmat(const vector<TrackingBox>& detFrameData);
-	void fillMatchedPairs(const vector<int>& assignment, const vector<vector<double>>& iouCostMatrix);
+	vector<Rect_<float>> createTrajecotoryPredictions();
 	void fillUnmatchedDetections(vector<int> assignments);
 	void fillUnmatchedTrajectories(vector<int> assignments);
 
-	void updateKalmanTrackers(const vector<TrackingBox>& detFrameData);
-	void createNewKalmanTrackers(const vector<TrackingBox>& detFrameData);
+	double GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt);
 
+	vector<TrackingBox> m_frameData;
+	vector<TrackingBox> m_frameTrackingResult;
 	set<int> m_unmatchedDetections;
 	set<int> m_unmatchedTrajectories;
-	vector<cv::Point> m_matchedPairs;
-	vector<TrackingBox> m_frameTrackingResult;
-	vector<Rect_<float>> m_trajectoryPredictions;
 	int m_numTrajectories;
 	int m_numDetections;
-
 	unsigned int m_numberFramesProcessed;
+
 	const double m_iou = 0.05; //Orignaly this value was 0.30
-	const int m_maxAgeInFrames = 1;
+	const int m_maxUpdateAllowance = 1;
 	const int m_minHitsInFrames = 3;
 };
 

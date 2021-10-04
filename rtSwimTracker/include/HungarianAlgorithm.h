@@ -13,7 +13,7 @@ class HungarianAlgorithm
 public:
 	HungarianAlgorithm();
 	~HungarianAlgorithm();
-	double Solve(vector<vector<double>>& DistMatrix, vector<int>& Assignment);
+	double Solve(const vector<vector<double>>& DistMatrix, vector<int>& Assignment);
 
 private:
 	
