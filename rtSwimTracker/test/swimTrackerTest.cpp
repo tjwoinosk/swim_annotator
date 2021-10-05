@@ -15,13 +15,15 @@
 
 BOOST_AUTO_TEST_SUITE(sortSubFunctions)
 
+/*
 BOOST_AUTO_TEST_CASE(testVectorized) 
 {
+  
 	string videoName = "0_01_sub_video.avi";
 	frameAnalysis mainfuncTest;
 	mainfuncTest.analyzeVideo(videoName); //TODO make a proper test case from this. maybe function returns bool?
 }
-
+*/
 
 BOOST_AUTO_TEST_SUITE_END()
 

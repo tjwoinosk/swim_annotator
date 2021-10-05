@@ -1,5 +1,7 @@
 #include "sortTrackerPipelined.h";
 
+namespace std {
+
 sortTrackerPiplelined::sortTrackerPiplelined()
 {
 	m_numberFramesProcessed = 0;
@@ -10,21 +12,25 @@ sortTrackerPiplelined::sortTrackerPiplelined()
 This function will take trackers and data for a single frame (frame number fi) and produce predictions
 for that frame, as well as adjust the trackers accordingly
 */
-vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(const vector<TrackingBox>& swimmerDetections)
+vector<TrackingBox>& sortTrackerPiplelined::singleFrameSORT(vector<TrackingBox>& frameDetections)
 {
+	inputDetectionData(frameDetections);
 	m_frameTrackingResults.clear();
-	inputDetectionData(swimmerDetections);
 
 	processFrame();
 	
-	return m_frameTrackingResults;
+	frameDetections.clear();
+	for(int ii = 0; ii < m_frameTrackingResults.size(); ii++)
+		frameDetections.push_back(m_frameTrackingResults[ii]);
+
+	return frameDetections;
 }
 
 
 void sortTrackerPiplelined::processFrame()
 {
 	vector<vector<double>> iouCostMatrix;
-	vector<Rect_<float>> trajectoryPredictions;
+	vector<cv::Rect_<float>> trajectoryPredictions;
 	vector<cv::Point> pairs;
 
 	m_numberFramesProcessed++;
@@ -61,11 +67,11 @@ void sortTrackerPiplelined::initializeTrackersUsing(const vector<TrackingBox>& t
 }
 
 
-vector<Rect_<float>>& sortTrackerPiplelined::createTrajecotoryPredictions(vector<Rect_<float>>& initializedValue)
+vector<cv::Rect_<float>>& sortTrackerPiplelined::createTrajecotoryPredictions(vector<cv::Rect_<float>>& initializedValue)
 {
 	for (auto it = m_vectorOfTrackers.begin(); it != m_vectorOfTrackers.end();)
 	{
-		Rect_<float> pBox = (*it).predict();
+		cv::Rect_<float> pBox = (*it).predict();
 		if (pBox.x >= 0 && pBox.y >= 0)
 		{
 			initializedValue.push_back(pBox);
@@ -82,7 +88,7 @@ vector<Rect_<float>>& sortTrackerPiplelined::createTrajecotoryPredictions(vector
 }
 
 
-vector<vector<double>>& sortTrackerPiplelined::constructIOUCostMat(const vector<Rect_<float>>& trajectoryPredictions, vector<vector<double>>& iouCostMatrix)
+vector<vector<double>>& sortTrackerPiplelined::constructIOUCostMat(const vector<cv::Rect_<float>>& trajectoryPredictions, vector<vector<double>>& iouCostMatrix)
 {
 	iouCostMatrix.resize(m_numTrajectories, vector<double>(m_numDetections, 0));
 
@@ -209,7 +215,7 @@ void sortTrackerPiplelined::collectResultsWhileKillingTrackers()
 }
 
 
-double sortTrackerPiplelined::GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt)
+double sortTrackerPiplelined::GetIOU(cv::Rect_<float> bb_test, cv::Rect_<float> bb_gt)
 {
 	float in = (bb_test & bb_gt).area();
 	float un = bb_test.area() + bb_gt.area() - in;
@@ -218,4 +224,6 @@ double sortTrackerPiplelined::GetIOU(Rect_<float> bb_test, Rect_<float> bb_gt)
 		return 0;
 
 	return (double)(in / un);
+}
+
 }

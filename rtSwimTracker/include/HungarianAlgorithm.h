@@ -6,14 +6,12 @@
 #include <iostream>
 #include <vector>
 
-using namespace std;
-
 class HungarianAlgorithm
 {
 public:
 	HungarianAlgorithm();
 	~HungarianAlgorithm();
-	double Solve(const vector<vector<double>>& DistMatrix, vector<int>& Assignment);
+	double Solve(const std::vector<std::vector<double>>& DistMatrix, std::vector<int>& Assignment);
 
 private:
 	
