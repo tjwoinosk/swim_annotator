@@ -46,6 +46,9 @@
     <ClCompile Include="test\swimTrackerSpeedTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
+    <ClCompile Include="src\fileFinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\addAnotherFile.h">
@@ -67,6 +70,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\SORTtrackingBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fileFinder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

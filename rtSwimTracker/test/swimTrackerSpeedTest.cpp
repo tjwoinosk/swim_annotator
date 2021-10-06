@@ -8,6 +8,7 @@
 
 void testSORTTrackingSpeed();
 
+
 int main()
 {
 	std::cout << "Running Speed Tests..." << std::endl << std::endl;
@@ -28,7 +29,7 @@ void testSORTTrackingSpeed()
 
 	std::vector<TrackingBox> detData;
 	std::vector<std::vector<TrackingBox>> detFrameData;
-	std::string seqName = "test\\PipeTest.txt";
+	std::string seqName = "test\\testData\\PipeTest.txt";
 
 	int maxFrame = 0;
 	getData.getDataFromDetectionFile(seqName, detData);

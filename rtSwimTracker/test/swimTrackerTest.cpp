@@ -9,6 +9,7 @@
 #include "sortTrackerPipelined.h";
 
 #include "SORTtrackingBox.h"
+#include "fileFinder.h"
 
 #include <fstream>
 #include <iterator>
@@ -41,6 +42,7 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
 {
   frameAnalysis testSORTTWO;
+  fileFinder find;
   string seqName = "PipeTest.txt";
 
   //testSORT.sortTracker(seqName, 0.05);
@@ -48,7 +50,7 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
   //testSORT.sortWithFunctionsTest(seqName, 0.05);
   //testSORT.sortOnFrame(seqName, 0.05);
   //testSORTTWO.sortOnFrame(seqName, 0.05);
-  testSORTTWO.sortOnFrame("test\\" + seqName);
+  testSORTTWO.sortOnFrame(find.retrunAbsolutePath(seqName));
 
   //results file
   string outputName = seqName;
@@ -57,8 +59,8 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
   //ground truth file
   string gtFile = "gt" + outputName;
 
-  std::ifstream ifs1(outputName);
-  std::ifstream ifs2(gtFile);
+  std::ifstream ifs1(find.retrunAbsolutePath(outputName));
+  std::ifstream ifs2(find.retrunAbsolutePath(gtFile));
 
   std::istream_iterator<char> b1(ifs1), e1;
   std::istream_iterator<char> b2(ifs2), e2;

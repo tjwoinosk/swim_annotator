@@ -335,6 +335,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SpeedTest|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\addAnotherFile.cpp" />
+    <ClCompile Include="src\fileFinder.cpp" />
     <ClCompile Include="src\frameAnalysis.cpp" />
     <ClCompile Include="src\HungarianAlgorithm.cpp" />
     <ClCompile Include="src\KalmanTracker.cpp" />
@@ -356,6 +357,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\addAnotherFile.h" />
+    <ClInclude Include="include\fileFinder.h" />
     <ClInclude Include="include\frameAnalysis.h" />
     <ClInclude Include="include\HungarianAlgorithm.h" />
     <ClInclude Include="include\KalmanTracker.h" />
