@@ -13,6 +13,8 @@ Global
 		Debug SwimTrackerTest|x86 = Debug SwimTrackerTest|x86
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Release SpeedTest|x64 = Release SpeedTest|x64
+		Release SpeedTest|x86 = Release SpeedTest|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
@@ -25,6 +27,10 @@ Global
 		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Debug|x64.Build.0 = Debug|x64
 		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Debug|x86.ActiveCfg = Debug|Win32
 		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Debug|x86.Build.0 = Debug|Win32
+		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Release SpeedTest|x64.ActiveCfg = Release|x64
+		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Release SpeedTest|x64.Build.0 = Release|x64
+		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Release SpeedTest|x86.ActiveCfg = Release|Win32
+		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Release SpeedTest|x86.Build.0 = Release|Win32
 		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Release|x64.ActiveCfg = Release|x64
 		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Release|x64.Build.0 = Release|x64
 		{2C2B5629-4535-4D38-BB3C-696A24BA934D}.Release|x86.ActiveCfg = Release|Win32
@@ -37,6 +43,10 @@ Global
 		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Debug|x64.Build.0 = Debug|x64
 		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Debug|x86.ActiveCfg = Debug|Win32
 		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Debug|x86.Build.0 = Debug|Win32
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Release SpeedTest|x64.ActiveCfg = Release SpeedTest|x64
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Release SpeedTest|x64.Build.0 = Release SpeedTest|x64
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Release SpeedTest|x86.ActiveCfg = Release SpeedTest|Win32
+		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Release SpeedTest|x86.Build.0 = Release SpeedTest|Win32
 		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Release|x64.ActiveCfg = Release|x64
 		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Release|x64.Build.0 = Release|x64
 		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Release|x86.ActiveCfg = Release|Win32

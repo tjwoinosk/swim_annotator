@@ -8,7 +8,7 @@
 #include "KalmanTracker.h"
 #include "SORTtrackingBox.h"
 
-#include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
 
 //Implementation used from 
 //https://github.com/mcximing/sort-cpp

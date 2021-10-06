@@ -7,6 +7,8 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
 
+#include <boost/timer/timer.hpp>
+
 #include "SORTtrackingBox.h"
 #include "sortTrackerPipelined.h";
 
