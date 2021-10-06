@@ -54,8 +54,6 @@ void frameAnalysis::sortOnFrame(std::string seqName)
 {
 	std::cout << "Processing " << seqName << "..." << std::endl;
 
-	boost::timer::cpu_timer measureSORT;
-
 	sortTrackerPiplelined SORTprocessor;
 
 	std::vector<TrackingBox> detData;
@@ -81,29 +79,17 @@ void frameAnalysis::sortOnFrame(std::string seqName)
 	std::vector<TrackingBox> tempResults;
 	tempResults.clear();
 	
-	measureSORT.start();
 	for (int fi = 0; fi < maxFrame; fi++)
 	{
 		tempResults.clear();
 
-		measureSORT.resume();
 		tempResults = SORTprocessor.singleFrameSORT(detFrameData[fi]);
-		measureSORT.stop();
 
 		for (auto tb : tempResults)
 		{
 			resultsFile << tb;
 		}
 	}
-
-	boost::timer::nanosecond_type divTerm = static_cast<boost::timer::nanosecond_type>(maxFrame);
-	boost::timer::cpu_times res = measureSORT.elapsed();
-	res.system /= divTerm;
-	res.user /= divTerm;
-	res.wall /= divTerm;
-
-	std::cout << "Single Frame SORT speed (AVG): " << boost::timer::format(res) << std::endl;
-	
 
 	resultsFile.close();
 }

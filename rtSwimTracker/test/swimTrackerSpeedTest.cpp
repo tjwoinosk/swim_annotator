@@ -28,7 +28,7 @@ void testSORTTrackingSpeed()
 
 	std::vector<TrackingBox> detData;
 	std::vector<std::vector<TrackingBox>> detFrameData;
-	std::string seqName = "pipeTest.txt";
+	std::string seqName = "test\\PipeTest.txt";
 
 	int maxFrame = 0;
 	getData.getDataFromDetectionFile(seqName, detData);

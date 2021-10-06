@@ -41,15 +41,14 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
 {
   frameAnalysis testSORTTWO;
-  string seqName = "pipeTest.txt";
+  string seqName = "PipeTest.txt";
 
   //testSORT.sortTracker(seqName, 0.05);
   //testSORT.sortTrackerUsingFunctions(seqName, 0.05);
   //testSORT.sortWithFunctionsTest(seqName, 0.05);
   //testSORT.sortOnFrame(seqName, 0.05);
   //testSORTTWO.sortOnFrame(seqName, 0.05);
-  testSORTTWO.sortOnFrame(seqName);
-
+  testSORTTWO.sortOnFrame("test\\" + seqName);
 
   //results file
   string outputName = seqName;
