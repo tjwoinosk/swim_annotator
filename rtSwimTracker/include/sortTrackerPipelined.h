@@ -25,7 +25,7 @@ private:
 	void inputDetectionData(const std::vector<TrackingBox>& detFrameData)
 	{ 
 		m_frameData = detFrameData; 
-		m_numDetections = detFrameData.size();
+		m_numDetections = static_cast<int>(detFrameData.size());
 	}
 
 	void initializeTrackersUsing(const std::vector<TrackingBox>& detFrameData);
@@ -47,7 +47,7 @@ private:
 	std::set<int> m_unmatchedTrajectories;
 	int m_numTrajectories;
 	int m_numDetections;
-	unsigned int m_numberFramesProcessed;
+	int m_numberFramesProcessed;
 
 	const double m_iou = 0.05; //Orignaly this value was 0.30
 	const int m_maxUpdateAllowance = 1;

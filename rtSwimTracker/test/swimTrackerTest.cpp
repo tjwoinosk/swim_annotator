@@ -6,7 +6,7 @@
 #include "sort_tracker.h"
 
 #include "frameAnalysis.h"
-#include "sortTrackerPipelined.h";
+#include "sortTrackerPipelined.h"
 
 #include "SORTtrackingBox.h"
 #include "fileFinder.h"
@@ -35,8 +35,76 @@ BOOST_AUTO_TEST_CASE(testFrameAnalysisMain)
 
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() //End blank Tests
 
+
+//Tracking Box Tests
+BOOST_AUTO_TEST_SUITE(fileFinderTests)
+
+BOOST_AUTO_TEST_CASE(testOutStreamFunctions)
+{
+  fileFinder find;
+  std::string absolutePath;
+
+  absolutePath = find.retrunAbsolutePath("PipeTest.txt");
+  BOOST_CHECK(!absolutePath.empty());
+
+  absolutePath = find.retrunAbsolutePath("notAFile.txt");
+  BOOST_CHECK(absolutePath.empty());
+}
+
+BOOST_AUTO_TEST_SUITE_END() //End file Finder Tests
+
+
+//Tracking Box Tests
+BOOST_AUTO_TEST_SUITE(SORTtrackingBoxTests)
+BOOST_AUTO_TEST_CASE(testInStreamFunctions)
+{
+  cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
+  TrackingBox testBox(10,5,tBox);
+
+  stringstream ssGround;
+  ssGround << testBox.frame << "," << testBox.id << "," << testBox.box.x << "," << testBox.box.y << "," << testBox.box.width << "," << testBox.box.height << ",1,-1,-1,-1" << std::endl;
+
+  stringstream ss;
+  ss << testBox;
+
+  BOOST_CHECK_EQUAL(ssGround.str(), ss.str());
+}
+
+BOOST_AUTO_TEST_CASE(testequalOperator)
+{
+  cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
+  cv::Rect_<float> t2Box(4.3f, 3.4f, 6.98f, 9.00f);
+
+  TrackingBox testBox(10, 5, tBox);
+  TrackingBox test2Box(3, 7, t2Box);
+  TrackingBox test3Box(10, 5, t2Box);
+  TrackingBox test4Box(10, 5, tBox);
+
+  BOOST_CHECK(testBox != test2Box);
+  BOOST_CHECK(test2Box != test3Box);
+  BOOST_CHECK(test3Box == test4Box);
+  BOOST_CHECK(testBox == test4Box);
+}
+
+BOOST_AUTO_TEST_CASE(testOutStreamFunctions)
+{
+  cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
+  TrackingBox groundBox(10, 5, tBox);
+
+  stringstream ssTester;
+  ssTester << groundBox.frame << "," << groundBox.id << "," << groundBox.box.x << "," << groundBox.box.y << "," << groundBox.box.width << "," << groundBox.box.height << ",1,-1,-1,-1" << std::endl;
+
+  TrackingBox testBox;
+
+  ssTester >> testBox;
+
+  BOOST_CHECK(testBox == groundBox);
+  BOOST_CHECK_GE(testBox.GetIOU(groundBox), 0.999);
+
+}
+BOOST_AUTO_TEST_SUITE_END() //End Tracking Box Tests
 
 
 BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
@@ -45,11 +113,6 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
   fileFinder find;
   string seqName = "PipeTest.txt";
 
-  //testSORT.sortTracker(seqName, 0.05);
-  //testSORT.sortTrackerUsingFunctions(seqName, 0.05);
-  //testSORT.sortWithFunctionsTest(seqName, 0.05);
-  //testSORT.sortOnFrame(seqName, 0.05);
-  //testSORTTWO.sortOnFrame(seqName, 0.05);
   testSORTTWO.sortOnFrame(find.retrunAbsolutePath(seqName));
 
   //results file
@@ -69,56 +132,3 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
   BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
 
 }
-
-
-//Tracking Box Tests
-BOOST_AUTO_TEST_SUITE(SORTtrackingBoxTests)
-
-BOOST_AUTO_TEST_CASE(testInStreamFunctions)
-{
-  cv::Rect_<float> tBox(5.3, 3.4, 6.8, 9.00);
-  TrackingBox testBox(10,5,tBox);
-
-  stringstream ssGround;
-  ssGround << testBox.frame << "," << testBox.id << "," << testBox.box.x << "," << testBox.box.y << "," << testBox.box.width << "," << testBox.box.height << ",1,-1,-1,-1" << std::endl;
-
-  stringstream ss;
-  ss << testBox;
-
-  BOOST_CHECK_EQUAL(ssGround.str(), ss.str());
-}
-
-BOOST_AUTO_TEST_CASE(testequalOperator)
-{
-  cv::Rect_<float> tBox(5.3, 3.4, 6.8, 9.00);
-  cv::Rect_<float> t2Box(4.3, 3.4, 6.98, 9.00);
-
-  TrackingBox testBox(10, 5, tBox);
-  TrackingBox test2Box(3, 7, t2Box);
-  TrackingBox test3Box(10, 5, t2Box);
-  TrackingBox test4Box(10, 5, tBox);
-
-  BOOST_CHECK(testBox != test2Box);
-  BOOST_CHECK(test2Box != test3Box);
-  BOOST_CHECK(test3Box == test4Box);
-  BOOST_CHECK(testBox == test4Box);
-}
-
-BOOST_AUTO_TEST_CASE(testOutStreamFunctions)
-{
-  cv::Rect_<float> tBox(5.3, 3.4, 6.8, 9.00);
-  TrackingBox groundBox(10, 5, tBox);
-
-  stringstream ssTester;
-  ssTester << groundBox.frame << "," << groundBox.id << "," << groundBox.box.x << "," << groundBox.box.y << "," << groundBox.box.width << "," << groundBox.box.height << ",1,-1,-1,-1" << std::endl;
- 
-  TrackingBox testBox;
-
-  ssTester >> testBox;
-
-  BOOST_CHECK(testBox == groundBox);
-  BOOST_CHECK_GE(testBox.GetIOU(groundBox), 0.999);
-
-}
-
-BOOST_AUTO_TEST_SUITE_END() //End Tracking Box Tests

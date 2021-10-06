@@ -12,7 +12,7 @@
 #include <boost/timer/timer.hpp>
 
 #include "SORTtrackingBox.h"
-#include "sortTrackerPipelined.h";
+#include "sortTrackerPipelined.h"
 
 class frameAnalysis
 {

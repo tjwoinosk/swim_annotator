@@ -5,6 +5,7 @@
 #include "SORTtrackingBox.h"
 #include "sortTrackerPipelined.h";
 #include "frameAnalysis.h"
+#include "fileFinder.h"
 
 void testSORTTrackingSpeed();
 
@@ -23,16 +24,17 @@ void testSORTTrackingSpeed()
 	std::cout << "Start SORT Speed Test" << std::endl;
 
 	boost::timer::cpu_timer measureSORT;
+	fileFinder find;
 
 	frameAnalysis getData;
 	sortTrackerPiplelined SORTprocessor;
 
 	std::vector<TrackingBox> detData;
 	std::vector<std::vector<TrackingBox>> detFrameData;
-	std::string seqName = "test\\testData\\PipeTest.txt";
+	std::string seqName = "PipeTest.txt";
 
 	int maxFrame = 0;
-	getData.getDataFromDetectionFile(seqName, detData);
+	getData.getDataFromDetectionFile(find.retrunAbsolutePath(seqName), detData);
 	maxFrame = getData.groupingDetectionData(detData, detFrameData);
 
 	std::vector<TrackingBox> tempResults;

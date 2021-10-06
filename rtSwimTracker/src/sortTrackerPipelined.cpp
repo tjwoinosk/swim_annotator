@@ -1,4 +1,4 @@
-#include "sortTrackerPipelined.h";
+#include "sortTrackerPipelined.h"
 #include "HungarianAlgorithm.h"
 
 sortTrackerPiplelined::sortTrackerPiplelined()
@@ -81,7 +81,7 @@ std::vector<cv::Rect_<float>>& sortTrackerPiplelined::createTrajecotoryPredictio
 			it = m_vectorOfTrackers.erase(it);
 		}
 	}
-	m_numTrajectories = initializedValue.size();
+	m_numTrajectories = static_cast<int>(initializedValue.size());
 
 	return initializedValue;
 }
