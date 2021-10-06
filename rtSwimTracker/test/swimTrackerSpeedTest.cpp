@@ -1,25 +1,46 @@
 #include <iostream>
+#include <fstream>
 
 #include <boost/timer/timer.hpp>
+#include <boost/date_time.hpp>
 
 #include "SORTtrackingBox.h"
 #include "sortTrackerPipelined.h";
 #include "frameAnalysis.h"
 #include "fileFinder.h"
 
-void testSORTTrackingSpeed();
+std::string testSORTTrackingSpeed();
 
+namespace bpt = boost::posix_time;
 
 int main()
 {
 	std::cout << "Running Speed Tests..." << std::endl << std::endl;
+	fileFinder find;
 
-	testSORTTrackingSpeed();
+	std::fstream updateFile;
+	std::string logSpeed;
+
+	bpt::ptime now = bpt::second_clock::local_time();
+
+	const std::string SORTLog = "SORTSpeedLog.txt";
+
+	try 
+	{
+		updateFile.open(find.retrunAbsolutePath(SORTLog), std::ios::app);
+		logSpeed = testSORTTrackingSpeed();
+		updateFile << now << " -> " << logSpeed;
+		updateFile.close();
+	}
+	catch(const std::exception & e)
+	{
+		std::cout << "Could not open SORT Speed Log: " << e.what() << std::endl;
+	}
 
 
 }
 
-void testSORTTrackingSpeed()
+std::string testSORTTrackingSpeed()
 {
 	std::cout << "Start SORT Speed Test" << std::endl;
 
@@ -55,6 +76,6 @@ void testSORTTrackingSpeed()
 	res.user /= divTerm;
 	res.wall /= divTerm;
 
-	std::cout << "\tSingle Frame SORT speed (AVG): " << boost::timer::format(res) << std::endl;
+	return "Single Frame SORT speed (AVG): " + boost::timer::format(res);
 
 }

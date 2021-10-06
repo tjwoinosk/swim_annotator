@@ -1,0 +1,11 @@
+SORT Speed LOG file the Speed of note is the system time. 
+2021-Oct-06 14:09:30 -> Single Frame SORT speed (AVG):  0.000093s wall, 0.000138s user + 0.000000s system = 0.000138s CPU (n/a%)
+2021-Oct-06 14:09:47 -> Single Frame SORT speed (AVG):  0.000123s wall, 0.000138s user + 0.000000s system = 0.000138s CPU (n/a%)
+2021-Oct-06 14:10:42 -> Single Frame SORT speed (AVG):  0.000126s wall, 0.000138s user + 0.000000s system = 0.000138s CPU (n/a%)
+2021-Oct-06 14:12:12 -> Single Frame SORT speed (AVG):  0.000088s wall, 0.000138s user + 0.000000s system = 0.000138s CPU (n/a%)
+2021-Oct-06 14:12:13 -> Single Frame SORT speed (AVG):  0.000097s wall, 0.000069s user + 0.000069s system = 0.000138s CPU (n/a%)
+2021-Oct-06 14:12:44 -> Single Frame SORT speed (AVG):  0.000129s wall, 0.000138s user + 0.000000s system = 0.000138s CPU (n/a%)
+2021-Oct-06 14:14:19 -> Single Frame SORT speed (AVG):  0.000075s wall, 0.000069s user + 0.000000s system = 0.000069s CPU (n/a%)
+2021-Oct-06 14:14:21 -> Single Frame SORT speed (AVG):  0.000081s wall, 0.000069s user + 0.000000s system = 0.000069s CPU (n/a%)
+2021-Oct-06 14:14:58 -> Single Frame SORT speed (AVG):  0.000119s wall, 0.000069s user + 0.000000s system = 0.000069s CPU (n/a%)
+2021-Oct-06 14:27:44 -> Single Frame SORT speed (AVG):  0.000104s wall, 0.000069s user + 0.000000s system = 0.000069s CPU (n/a%)

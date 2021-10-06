@@ -19,7 +19,7 @@ class sortTrackerPiplelined
 public:
 
 	sortTrackerPiplelined();
-	std::vector<TrackingBox>& singleFrameSORT(std::vector<TrackingBox>& swimmerDetections);
+	std::vector<TrackingBox> singleFrameSORT(std::vector<TrackingBox> swimmerDetections);
 
 private:
 	void inputDetectionData(const std::vector<TrackingBox>& detFrameData)

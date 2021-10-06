@@ -11,7 +11,7 @@ sortTrackerPiplelined::sortTrackerPiplelined()
 This function will take trackers and data for a single frame (frame number fi) and produce predictions
 for that frame, as well as adjust the trackers accordingly
 */
-std::vector<TrackingBox>& sortTrackerPiplelined::singleFrameSORT(std::vector<TrackingBox>& frameDetections)
+std::vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(std::vector<TrackingBox> frameDetections)
 {
 	inputDetectionData(frameDetections);
 	m_frameTrackingResults.clear();
