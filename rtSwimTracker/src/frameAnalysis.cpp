@@ -1,10 +1,11 @@
 #include "frameAnalysis.h"
 
+
 frameAnalysis::frameAnalysis()
 {
 }
 
-void frameAnalysis::analyzeVideo(string videoToAnalyzeName)
+void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 {
 	//Read video object frame by frame - keep reading until the end
 
@@ -12,12 +13,12 @@ void frameAnalysis::analyzeVideo(string videoToAnalyzeName)
 	//Call SORT on the output of the detector on the single frame
 
 	//Use the object SORT returns to write to a file output
-	VideoCapture videoToAnalyze;
-	Mat frame;
+	cv::VideoCapture videoToAnalyze;
+	cv::Mat frame;
 
 	videoToAnalyze.open(videoToAnalyzeName);
 	if (!videoToAnalyze.isOpened()) {
-		cout << "Could not open video file for analysis" << endl;
+		std::cout << "Could not open video file for analysis" << std::endl;
 		return;
 	}
 	
@@ -28,37 +29,37 @@ void frameAnalysis::analyzeVideo(string videoToAnalyzeName)
 		videoToAnalyze >> frame;
 		// Stop the program if reached end of video
 		if (frame.empty()) {
-			cout << "Done processing !!!" << endl;
+			std::cout << "Done processing !!!" << std::endl;
 			break;
 		}
 
 		//call detector and SORT here
 		// 
 		//TODO test code:
-		cout << "processing frame" << endl;
+		std::cout << "processing frame" << std::endl;
 		imshow("test", frame);
-		waitKey(30);
+		cv::waitKey(30);
 		//TODO end test code
 	}
 
 	//TODO test code:
-	cout << "Done processing" << endl;
+	std::cout << "Done processing" << std::endl;
 	//TODO end test code
 
 	return;
 
 }
 
-void frameAnalysis::sortOnFrame(string seqName)
+void frameAnalysis::sortOnFrame(std::string seqName)
 {
-	cout << "Processing " << seqName << "..." << endl;
+	std::cout << "Processing " << seqName << "..." << std::endl;
 
 	boost::timer::cpu_timer measureSORT;
 
 	sortTrackerPiplelined SORTprocessor;
 
-	vector<TrackingBox> detData;
-	vector<vector<TrackingBox>> detFrameData;
+	std::vector<TrackingBox> detData;
+	std::vector<std::vector<TrackingBox>> detFrameData;
 
 	int maxFrame = 0;
 	getDataFromDetectionFile(seqName, detData);
@@ -66,18 +67,18 @@ void frameAnalysis::sortOnFrame(string seqName)
 
 
 	// prepare result file.
-	string resFileName = seqName;
+	std::string resFileName = seqName;
 	resFileName.replace(resFileName.end() - 4, resFileName.end(), "_det.txt");
-	ofstream resultsFile;
+	std::ofstream resultsFile;
 	resultsFile.open(resFileName);
 
 	if (!resultsFile.is_open())
 	{
-		cerr << "Error: can not create file " << resFileName << endl;
+		std::cerr << "Error: can not create file " << resFileName << std::endl;
 		return;
 	}
 
-	vector<TrackingBox> tempResults;
+	std::vector<TrackingBox> tempResults;
 	tempResults.clear();
 	
 	measureSORT.start();
@@ -101,7 +102,7 @@ void frameAnalysis::sortOnFrame(string seqName)
 	res.user /= divTerm;
 	res.wall /= divTerm;
 
-	cout << "Single Frame SORT speed (AVG): " << boost::timer::format(res) << endl;
+	std::cout << "Single Frame SORT speed (AVG): " << boost::timer::format(res) << std::endl;
 	
 
 	resultsFile.close();
@@ -112,16 +113,16 @@ void frameAnalysis::sortOnFrame(string seqName)
 The purpose of this function is to read in the file whose name is speciied by the input detFileName
 and put the information of this file into a vector of TrackingBoxes, which is the argument detData
 */
-void frameAnalysis::getDataFromDetectionFile(string detFileName, vector<TrackingBox>& detData)
+void frameAnalysis::getDataFromDetectionFile(std::string detFileName, std::vector<TrackingBox>& detData)
 {
-	string detLine;
-	istringstream ss;
-	ifstream detectionFile;
+	std::string detLine;
+	std::istringstream ss;
+	std::ifstream detectionFile;
 
 	detectionFile.open(detFileName);
 	if (!detectionFile.is_open())
 	{
-		cerr << "Error: can not find file " << detFileName << endl;
+		std::cerr << "Error: can not find file " << detFileName << std::endl;
 		return;
 	}
 
@@ -144,10 +145,10 @@ and then grouping TrackingBoxes for a single frame into a vector, and storing th
 vector which is the input detFrameData.
 The result is a 2D array like vector where each element points to a vector of TrackingBoxes of the same frame.
 */
-int frameAnalysis::groupingDetectionData(vector<TrackingBox> detData, vector<vector<TrackingBox>>& detFrameData)
+int frameAnalysis::groupingDetectionData(std::vector<TrackingBox> detData, std::vector<std::vector<TrackingBox>>& detFrameData)
 {
 	int maxFrame = 0;
-	vector<TrackingBox> tempVec;
+	std::vector<TrackingBox> tempVec;
 
 	for (auto tb : detData) // find max frame number
 	{

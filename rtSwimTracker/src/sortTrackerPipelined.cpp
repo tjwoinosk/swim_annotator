@@ -1,6 +1,5 @@
 #include "sortTrackerPipelined.h";
-
-namespace std {
+#include "HungarianAlgorithm.h"
 
 sortTrackerPiplelined::sortTrackerPiplelined()
 {
@@ -12,7 +11,7 @@ sortTrackerPiplelined::sortTrackerPiplelined()
 This function will take trackers and data for a single frame (frame number fi) and produce predictions
 for that frame, as well as adjust the trackers accordingly
 */
-vector<TrackingBox>& sortTrackerPiplelined::singleFrameSORT(vector<TrackingBox>& frameDetections)
+std::vector<TrackingBox>& sortTrackerPiplelined::singleFrameSORT(std::vector<TrackingBox>& frameDetections)
 {
 	inputDetectionData(frameDetections);
 	m_frameTrackingResults.clear();
@@ -29,9 +28,9 @@ vector<TrackingBox>& sortTrackerPiplelined::singleFrameSORT(vector<TrackingBox>&
 
 void sortTrackerPiplelined::processFrame()
 {
-	vector<vector<double>> iouCostMatrix;
-	vector<cv::Rect_<float>> trajectoryPredictions;
-	vector<cv::Point> pairs;
+	std::vector<std::vector<double>> iouCostMatrix;
+	std::vector<cv::Rect_<float>> trajectoryPredictions;
+	std::vector<cv::Point> pairs;
 
 	m_numberFramesProcessed++;
 	if (m_vectorOfTrackers.size() == 0)
@@ -50,7 +49,7 @@ void sortTrackerPiplelined::processFrame()
 }
 
 
-void sortTrackerPiplelined::initializeTrackersUsing(const vector<TrackingBox>& trackingBoxData)
+void sortTrackerPiplelined::initializeTrackersUsing(const std::vector<TrackingBox>& trackingBoxData)
 {
 	TrackingBox tb;
 	KalmanTracker trk;
@@ -67,7 +66,7 @@ void sortTrackerPiplelined::initializeTrackersUsing(const vector<TrackingBox>& t
 }
 
 
-vector<cv::Rect_<float>>& sortTrackerPiplelined::createTrajecotoryPredictions(vector<cv::Rect_<float>>& initializedValue)
+std::vector<cv::Rect_<float>>& sortTrackerPiplelined::createTrajecotoryPredictions(std::vector<cv::Rect_<float>>& initializedValue)
 {
 	for (auto it = m_vectorOfTrackers.begin(); it != m_vectorOfTrackers.end();)
 	{
@@ -88,9 +87,9 @@ vector<cv::Rect_<float>>& sortTrackerPiplelined::createTrajecotoryPredictions(ve
 }
 
 
-vector<vector<double>>& sortTrackerPiplelined::constructIOUCostMat(const vector<cv::Rect_<float>>& trajectoryPredictions, vector<vector<double>>& iouCostMatrix)
+std::vector<std::vector<double>>& sortTrackerPiplelined::constructIOUCostMat(const std::vector<cv::Rect_<float>>& trajectoryPredictions, std::vector<std::vector<double>>& iouCostMatrix)
 {
-	iouCostMatrix.resize(m_numTrajectories, vector<double>(m_numDetections, 0));
+	iouCostMatrix.resize(m_numTrajectories, std::vector<double>(m_numDetections, 0));
 
 	for (int i = 0; i < m_numTrajectories; i++)
 	{
@@ -104,9 +103,9 @@ vector<vector<double>>& sortTrackerPiplelined::constructIOUCostMat(const vector<
 }
 
 
-vector<cv::Point>& sortTrackerPiplelined::matchDetectionsToTrajectories(const vector<vector<double>>& iouCostMatrix, vector<cv::Point>& pairs)
+std::vector<cv::Point>& sortTrackerPiplelined::matchDetectionsToTrajectories(const std::vector<std::vector<double>>& iouCostMatrix, std::vector<cv::Point>& pairs)
 {
-	vector<int> assignments;
+	std::vector<int> assignments;
 	HungarianAlgorithm HungAlgo;
 	HungAlgo.Solve(iouCostMatrix, assignments);
 
@@ -132,10 +131,10 @@ vector<cv::Point>& sortTrackerPiplelined::matchDetectionsToTrajectories(const ve
 }
 
 
-void sortTrackerPiplelined::fillUnmatchedDetections(const vector<int>& assignments)
+void sortTrackerPiplelined::fillUnmatchedDetections(const std::vector<int>& assignments)
 {
-	set<int> allItems;
-	set<int> matchedItems;
+	std::set<int> allItems;
+	std::set<int> matchedItems;
 
 	m_unmatchedDetections.clear();
 
@@ -149,11 +148,11 @@ void sortTrackerPiplelined::fillUnmatchedDetections(const vector<int>& assignmen
 
 		set_difference(allItems.begin(), allItems.end(),
 			matchedItems.begin(), matchedItems.end(),
-			insert_iterator<set<int>>(m_unmatchedDetections, m_unmatchedDetections.begin()));
+			std::insert_iterator<std::set<int>>(m_unmatchedDetections, m_unmatchedDetections.begin()));
 	}
 }
 
-void sortTrackerPiplelined::fillUnmatchedTrajectories(const vector<int>& assignments)
+void sortTrackerPiplelined::fillUnmatchedTrajectories(const std::vector<int>& assignments)
 {
 	if (m_numDetections < m_numTrajectories)
 	{
@@ -164,7 +163,7 @@ void sortTrackerPiplelined::fillUnmatchedTrajectories(const vector<int>& assignm
 }
 
 
-void sortTrackerPiplelined::updateTrackers(const vector<cv::Point>& pairs)
+void sortTrackerPiplelined::updateTrackers(const std::vector<cv::Point>& pairs)
 {
 	int detIdx, trkIdx;
 	for (int i = 0; i < pairs.size(); i++)
@@ -224,6 +223,4 @@ double sortTrackerPiplelined::GetIOU(cv::Rect_<float> bb_test, cv::Rect_<float> 
 		return 0;
 
 	return (double)(in / un);
-}
-
 }

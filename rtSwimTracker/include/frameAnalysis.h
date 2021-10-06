@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <string>
+
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
@@ -12,9 +14,6 @@
 #include "SORTtrackingBox.h"
 #include "sortTrackerPipelined.h";
 
-using namespace std;
-using namespace cv;
-
 class frameAnalysis
 {
 private:
@@ -23,14 +22,14 @@ private:
 
 public:
 
-	void sortOnFrame(string seqName);
+	void sortOnFrame(std::string seqName);
 
-	void getDataFromDetectionFile(string detFileName, vector<TrackingBox>& detData);
-	int groupingDetectionData(vector<TrackingBox> detData, vector<vector<TrackingBox>>& detFrameData);
+	void getDataFromDetectionFile(std::string detFileName, std::vector<TrackingBox>& detData);
+	int groupingDetectionData(std::vector<TrackingBox> detData, std::vector<std::vector<TrackingBox>>& detFrameData);
 
 	frameAnalysis();
 
-	void analyzeVideo(string videoToAnalyzeName);
+	void analyzeVideo(std::string videoToAnalyzeName);
 
 };
 
