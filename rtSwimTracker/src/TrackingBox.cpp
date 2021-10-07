@@ -1,8 +1,8 @@
-#include "SORTtrackingBox.h"
+#include "TrackingBox.h"
 
 std::ostream& operator<<(std::ostream& out, const TrackingBox& box)
 {
-  out << box.frame << "," << box.id << "," << box.box.x << "," << box.box.y << "," << box.box.width << "," << box.box.height << ",1,-1,-1,-1" << std::endl;
+  out << box.frame << "," << box.id << "," << box.x << "," << box.y << "," << box.width << "," << box.height << ",1,-1,-1,-1" << std::endl;
 	return out;
 }
 
@@ -14,7 +14,10 @@ std::istream& operator>>(std::istream& in, TrackingBox& box)
 	in >> box.frame >> ch >> box.id >> ch;
 	in >> tpx >> ch >> tpy >> ch >> tpw >> ch >> tph;
 
-	box.box = cv::Rect_<float>(cv::Point_<float>(tpx, tpy), cv::Point_<float>(tpx + tpw, tpy + tph));
+	box.x = tpx;
+	box.y = tpy;
+	box.height = tph;
+	box.width = tpw;
 
 	return in;
 }
@@ -31,11 +34,19 @@ bool operator!= (const TrackingBox& c1, const TrackingBox& c2)
 
 double TrackingBox::GetIOU(const TrackingBox& bb_gt)
 {
-	float in = (box & bb_gt.box).area();
-	float un = box.area() + bb_gt.box.area() - in;
+	float in = ((*this) & bb_gt).area();
+	float un = this->area() + bb_gt.area() - in;
 
 	if (un < DBL_EPSILON)
 		return 0;
 
 	return (double)(in / un);
+}
+
+void TrackingBox::updateBox(const cv::Rect_<float>& input)
+{
+	x = input.x;
+	y = input.y;
+	height = input.height;
+	width = input.width;
 }

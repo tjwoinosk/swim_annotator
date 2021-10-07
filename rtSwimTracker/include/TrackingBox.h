@@ -1,20 +1,26 @@
-#ifndef SORTTRACKINGBOX_H
-#define SORTTRACKINGBOX_H
+#ifndef TRACKINGBOX_H
+#define TRACKINGBOX_H
 
 #include <iostream>
 #include <opencv2/core.hpp>
 
-class TrackingBox
+class TrackingBox : public cv::Rect_<float>
 {
 
 public:
 
 	TrackingBox() {};
-	TrackingBox(int inFrame, int inId, cv::Rect_<float> inBox) { frame = inFrame; id = inId; box = inBox; }
+	TrackingBox(int inFrame, int inId, cv::Rect_<float> inBox) 
+		: Rect_<float>(inBox)
+	{ 
+		frame = inFrame;
+		id = inId; 
+	}
+
+	void updateBox(const cv::Rect_<float>& input);
 
 	int frame;
 	int id;
-	cv::Rect_<float> box;
 
 	friend std::ostream& operator<< (std::ostream& out, const TrackingBox& box);
 	friend std::istream& operator>> (std::istream& in, TrackingBox& box);
@@ -27,5 +33,5 @@ public:
 
 };
 
-#endif // !SORTTRACKINGBOX_H
+#endif // !TRACKINGBOX_H
 

@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "KalmanTracker.h"
-#include "SORTtrackingBox.h"
+#include "TrackingBox.h"
 
 #include <opencv2/core.hpp>
 

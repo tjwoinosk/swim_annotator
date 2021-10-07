@@ -1,11 +1,18 @@
 #ifndef OBJECTCENTERING_H
 #define OBJECTCENTERING_H
 
+struct 
+{
+
+};
+
 class objectCentering
 {
 public:
 	objectCentering();
 	~objectCentering();
+
+	void calculate() {};
 
 private:
 

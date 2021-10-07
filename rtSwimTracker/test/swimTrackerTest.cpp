@@ -8,7 +8,7 @@
 #include "frameAnalysis.h"
 #include "sortTrackerPipelined.h"
 
-#include "SORTtrackingBox.h"
+#include "TrackingBox.h"
 #include "fileFinder.h"
 
 #include <fstream>
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(testInStreamFunctions)
   TrackingBox testBox(10,5,tBox);
 
   stringstream ssGround;
-  ssGround << testBox.frame << "," << testBox.id << "," << testBox.box.x << "," << testBox.box.y << "," << testBox.box.width << "," << testBox.box.height << ",1,-1,-1,-1" << std::endl;
+  ssGround << testBox.frame << "," << testBox.id << "," << testBox.x << "," << testBox.y << "," << testBox.width << "," << testBox.height << ",1,-1,-1,-1" << std::endl;
 
   stringstream ss;
   ss << testBox;
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(testOutStreamFunctions)
   TrackingBox groundBox(10, 5, tBox);
 
   stringstream ssTester;
-  ssTester << groundBox.frame << "," << groundBox.id << "," << groundBox.box.x << "," << groundBox.box.y << "," << groundBox.box.width << "," << groundBox.box.height << ",1,-1,-1,-1" << std::endl;
+  ssTester << groundBox.frame << "," << groundBox.id << "," << groundBox.x << "," << groundBox.y << "," << groundBox.width << "," << groundBox.height << ",1,-1,-1,-1" << std::endl;
 
   TrackingBox testBox;
 

@@ -40,9 +40,6 @@
     <ClCompile Include="src\sortTrackerPipelined.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SORTtrackingBox.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="test\swimTrackerSpeedTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
@@ -50,6 +47,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\objectCentering.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\swimmerDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TrackingBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -72,13 +75,16 @@
     <ClInclude Include="include\sortTrackerPipelined.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\SORTtrackingBox.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\fileFinder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\objectCentering.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\swimmerDetector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TrackingBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -341,8 +341,9 @@
     <ClCompile Include="src\KalmanTracker.cpp" />
     <ClCompile Include="src\objectCentering.cpp" />
     <ClCompile Include="src\sortTrackerPipelined.cpp" />
-    <ClCompile Include="src\SORTtrackingBox.cpp" />
+    <ClCompile Include="src\TrackingBox.cpp" />
     <ClCompile Include="src\sort_tracker.cpp" />
+    <ClCompile Include="src\swimmerDetector.cpp" />
     <ClCompile Include="test\swimTrackerSpeedTest.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -364,8 +365,9 @@
     <ClInclude Include="include\KalmanTracker.h" />
     <ClInclude Include="include\objectCentering.h" />
     <ClInclude Include="include\sortTrackerPipelined.h" />
-    <ClInclude Include="include\SORTtrackingBox.h" />
+    <ClInclude Include="include\TrackingBox.h" />
     <ClInclude Include="include\sort_tracker.h" />
+    <ClInclude Include="include\swimmerDetector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

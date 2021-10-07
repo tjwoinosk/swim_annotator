@@ -55,10 +55,10 @@ void sortTrackerPiplelined::initializeTrackersUsing(const std::vector<TrackingBo
 	KalmanTracker trk;
 	for (int i = 0; i < trackingBoxData.size(); i++)
 	{
-		trk = KalmanTracker(trackingBoxData[i].box);
+		trk = KalmanTracker(trackingBoxData[i]);
 		m_vectorOfTrackers.push_back(trk);
 
-		tb.box = trk.get_state();
+		tb.updateBox(trk.get_state());
 		tb.id = trk.m_id + 1;
 		tb.frame = m_numberFramesProcessed;
 		m_frameTrackingResults.push_back(tb);
@@ -96,7 +96,7 @@ std::vector<std::vector<double>>& sortTrackerPiplelined::constructIOUCostMat(con
 		for (int j = 0; j < m_numDetections; j++)
 		{
 			// use 1-iou because the Hungarian algorithm computes a minimum-cost assignment.
-			iouCostMatrix[i][j] = 1 - GetIOU(trajectoryPredictions[i], m_frameData[j].box);
+			iouCostMatrix[i][j] = 1 - GetIOU(trajectoryPredictions[i], m_frameData[j]);
 		}
 	}
 	return iouCostMatrix;
@@ -170,7 +170,7 @@ void sortTrackerPiplelined::updateTrackers(const std::vector<cv::Point>& pairs)
 	{
 		trkIdx = pairs[i].x;
 		detIdx = pairs[i].y;
-		m_vectorOfTrackers[trkIdx].update(m_frameData[detIdx].box);
+		m_vectorOfTrackers[trkIdx].update(m_frameData[detIdx]);
 	}
 }
 
@@ -179,7 +179,7 @@ void sortTrackerPiplelined::createNewTrackersWithLeftoverDetections()
 {
 	for (auto umd : m_unmatchedDetections)
 	{
-		KalmanTracker tracker = KalmanTracker(m_frameData[umd].box);
+		KalmanTracker tracker = KalmanTracker(m_frameData[umd]);
 		m_vectorOfTrackers.push_back(tracker);
 	}
 }
@@ -202,7 +202,7 @@ void sortTrackerPiplelined::collectResultsWhileKillingTrackers()
 		else if (trackerHasMatchedEnough || lessThanMinHitsHasBeenProcessed)
 		{
 			TrackingBox res;
-			res.box = it->get_state();
+			res.updateBox(it->get_state());
 			res.id = it->m_id + 1;
 			res.frame = m_numberFramesProcessed;
 			m_frameTrackingResults.push_back(res);

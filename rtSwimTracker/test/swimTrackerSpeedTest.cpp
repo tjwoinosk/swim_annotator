@@ -4,7 +4,7 @@
 #include <boost/timer/timer.hpp>
 #include <boost/date_time.hpp>
 
-#include "SORTtrackingBox.h"
+#include "TrackingBox.h"
 #include "sortTrackerPipelined.h";
 #include "frameAnalysis.h"
 #include "fileFinder.h"
