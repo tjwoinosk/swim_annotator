@@ -11,6 +11,8 @@
 #include "TrackingBox.h"
 #include "fileFinder.h"
 
+#include "swimmerDetector.h"
+
 #include <fstream>
 #include <iterator>
 
@@ -46,10 +48,10 @@ BOOST_AUTO_TEST_CASE(testOutStreamFunctions)
   fileFinder find;
   std::string absolutePath;
 
-  absolutePath = find.retrunAbsolutePath("PipeTest.txt");
+  absolutePath = find.absolutePath("PipeTest.txt");
   BOOST_CHECK(!absolutePath.empty());
 
-  absolutePath = find.retrunAbsolutePath("notAFile.txt");
+  absolutePath = find.absolutePath("notAFile.txt");
   BOOST_CHECK(absolutePath.empty());
 }
 
@@ -64,7 +66,7 @@ BOOST_AUTO_TEST_CASE(testInStreamFunctions)
   TrackingBox testBox(10,5,tBox);
 
   stringstream ssGround;
-  ssGround << testBox.frame << "," << testBox.id << "," << testBox.x << "," << testBox.y << "," << testBox.width << "," << testBox.height << ",1,-1,-1,-1" << std::endl;
+  ssGround << testBox.m_frame << "," << testBox.m_boxID << "," << testBox.x << "," << testBox.y << "," << testBox.width << "," << testBox.height << ",1,-1,-1,-1" << std::endl;
 
   stringstream ss;
   ss << testBox;
@@ -94,7 +96,7 @@ BOOST_AUTO_TEST_CASE(testOutStreamFunctions)
   TrackingBox groundBox(10, 5, tBox);
 
   stringstream ssTester;
-  ssTester << groundBox.frame << "," << groundBox.id << "," << groundBox.x << "," << groundBox.y << "," << groundBox.width << "," << groundBox.height << ",1,-1,-1,-1" << std::endl;
+  ssTester << groundBox.m_frame << "," << groundBox.m_boxID << "," << groundBox.x << "," << groundBox.y << "," << groundBox.width << "," << groundBox.height << ",1,-1,-1,-1" << std::endl;
 
   TrackingBox testBox;
 
@@ -106,6 +108,24 @@ BOOST_AUTO_TEST_CASE(testOutStreamFunctions)
 }
 BOOST_AUTO_TEST_SUITE_END() //End Tracking Box Tests
 
+//Detection validation test suite
+BOOST_AUTO_TEST_SUITE(SORTvalidationTestSuite)
+
+BOOST_AUTO_TEST_CASE(DetectionValidationTEST)
+{
+
+  swimmerDetector test;
+
+
+
+}
+
+BOOST_AUTO_TEST_SUITE_END() //End Detection validation tests suite
+
+
+
+//SORT validation test suite
+BOOST_AUTO_TEST_SUITE(SORTvalidationTestSuite)
 
 BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
 {
@@ -113,7 +133,7 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
   fileFinder find;
   string seqName = "PipeTest.txt";
 
-  testSORTTWO.sortOnFrame(find.retrunAbsolutePath(seqName));
+  testSORTTWO.sortOnFrame(find.absolutePath(seqName));
 
   //results file
   string outputName = seqName;
@@ -122,8 +142,8 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
   //ground truth file
   string gtFile = "gt" + outputName;
 
-  std::ifstream ifs1(find.retrunAbsolutePath(outputName));
-  std::ifstream ifs2(find.retrunAbsolutePath(gtFile));
+  std::ifstream ifs1(find.absolutePath(outputName));
+  std::ifstream ifs2(find.absolutePath(gtFile));
 
   std::istream_iterator<char> b1(ifs1), e1;
   std::istream_iterator<char> b2(ifs2), e2;
@@ -132,3 +152,4 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
   BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
 
 }
+BOOST_AUTO_TEST_SUITE_END() //End SORT validation tests suite

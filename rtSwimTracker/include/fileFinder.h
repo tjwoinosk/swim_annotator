@@ -13,7 +13,7 @@ public:
 
   fileFinder() {};
 
-  std::string retrunAbsolutePath(const std::string& root);
+  std::string absolutePath(const std::string& root);
 
 private:
 

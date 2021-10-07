@@ -371,6 +371,14 @@ void annotate_engine::create_tracking_video(bool update_detection_file) {
   testing.show_video_of_tracking(file_name);
 }
 
+//given video, proper data cfg, weight file and detection file, produce of that video, save in data//
+void annotate_engine::createGroundTruthDetection() 
+{
+  swimmer_tracking testing;
+  testing.make_detection_file(file_name);
+  testing.make_images_of_video(file_name);
+}
+
 void annotate_engine::test_pipeline_tracker(string detFile, string gtTrackingFile)
 {
   boost::filesystem::path detFilePath(detFile);

@@ -370,3 +370,4 @@ healthchecksdb
 /swim_annotate/yolov3-swim_final.weights
 /rtSwimTracker/rtSwimTracker.vcxproj
 /swim_annotate/swim_annotate.vcxproj
+*.weights

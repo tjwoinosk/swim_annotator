@@ -942,6 +942,48 @@ void swimmer_tracking::make_detection_file(string file_name)
 }
 
 
+void swimmer_tracking::make_images_of_video(string videoName)
+{
+  // Open a video file or an image file or a camera stream.
+  string str;
+  VideoCapture cap;
+  Mat frame, blob;
+  stringstream ss;
+
+  int cnt = 0;
+  const int buffSize = 4;
+  char buff[buffSize] = {'0','0','0','0'};
+
+
+  str = videoName;
+  cap.open(str);
+
+  while (waitKey(1) < 0)
+  {
+    // get frame from the video
+    cap >> frame;
+
+    // Stop the program if reached end of video
+    if (frame.empty()) {
+      cout << "Done creating images..." << endl;
+      waitKey(1);
+      break;
+    }
+    
+    sprintf(buff, "%04i", cnt);
+    str = "";
+    str.append(buff);
+    str += ".bmp";
+    imwrite(str, frame);
+
+    cnt++;
+  }
+
+  cap.release();
+
+  return;
+}
+
 //Save the contents of results into a text file with input name
 //Used by the make detection file fuction to save the contence of results into text file name
 void swimmer_tracking::save_results_in_text_file(string text_file_name)
@@ -1062,3 +1104,4 @@ void swimmer_tracking::postprocess(Mat& frame, const vector<Mat>& outs, int fram
     results.push_back(temp);
   }
 }
+

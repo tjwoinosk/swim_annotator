@@ -13,14 +13,14 @@ public:
 	TrackingBox(int inFrame, int inId, cv::Rect_<float> inBox) 
 		: Rect_<float>(inBox)
 	{ 
-		frame = inFrame;
-		id = inId; 
+		m_frame = inFrame;
+		m_boxID = inId; 
 	}
 
 	void updateBox(const cv::Rect_<float>& input);
 
-	int frame;
-	int id;
+	int m_frame;
+	int m_boxID;
 
 	friend std::ostream& operator<< (std::ostream& out, const TrackingBox& box);
 	friend std::istream& operator>> (std::istream& in, TrackingBox& box);

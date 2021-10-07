@@ -1,6 +1,6 @@
 #include "fileFinder.h"
 
-std::string fileFinder::retrunAbsolutePath(const std::string& root)
+std::string fileFinder::absolutePath(const std::string& root)
 {
   bf::path testP(testDataLocation + root);
   bf::path speedP(speedTestDataLocation + root);

@@ -138,15 +138,15 @@ int frameAnalysis::groupingDetectionData(std::vector<TrackingBox> detData, std::
 
 	for (auto tb : detData) // find max frame number
 	{
-		if (maxFrame < tb.frame)
-			maxFrame = tb.frame;
+		if (maxFrame < tb.m_frame)
+			maxFrame = tb.m_frame;
 	}
 
 
 	for (int fi = 0; fi < maxFrame; fi++)
 	{
 		for (auto tb : detData)
-			if (tb.frame == fi + 1) // frame num starts from 1
+			if (tb.m_frame == fi + 1) // frame num starts from 1
 				tempVec.push_back(tb);
 		detFrameData.push_back(tempVec);
 		tempVec.clear();

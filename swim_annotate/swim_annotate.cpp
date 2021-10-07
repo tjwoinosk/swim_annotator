@@ -106,6 +106,9 @@ int main(int argc, char* argv[])
         else if (strcmp(argv[2], "-mu") == 0) { //show video of tracking and update detection file
           app.create_tracking_video(true);
         }
+        else if (strcmp(argv[2], "-z") == 0) {
+          app.createGroundTruthDetection();
+        }
         else {
           cout << "Incorrect flag used" << endl;
         }

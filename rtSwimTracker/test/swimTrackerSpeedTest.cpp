@@ -27,7 +27,7 @@ int main()
 
 	try 
 	{
-		updateFile.open(find.retrunAbsolutePath(SORTLog), std::ios::app);
+		updateFile.open(find.absolutePath(SORTLog), std::ios::app);
 		logSpeed = testSORTTrackingSpeed();
 		updateFile << now << " -> " << logSpeed;
 		updateFile.close();
@@ -55,7 +55,7 @@ std::string testSORTTrackingSpeed()
 	std::string seqName = "PipeTest.txt";
 
 	int maxFrame = 0;
-	getData.getDataFromDetectionFile(find.retrunAbsolutePath(seqName), detData);
+	getData.getDataFromDetectionFile(find.absolutePath(seqName), detData);
 	maxFrame = getData.groupingDetectionData(detData, detFrameData);
 
 	std::vector<TrackingBox> tempResults;

@@ -2,7 +2,7 @@
 
 std::ostream& operator<<(std::ostream& out, const TrackingBox& box)
 {
-  out << box.frame << "," << box.id << "," << box.x << "," << box.y << "," << box.width << "," << box.height << ",1,-1,-1,-1" << std::endl;
+  out << box.m_frame << "," << box.m_boxID << "," << box.x << "," << box.y << "," << box.width << "," << box.height << ",1,-1,-1,-1" << std::endl;
 	return out;
 }
 
@@ -11,7 +11,7 @@ std::istream& operator>>(std::istream& in, TrackingBox& box)
 	float tpx, tpy, tpw, tph;
 	char ch;
 
-	in >> box.frame >> ch >> box.id >> ch;
+	in >> box.m_frame >> ch >> box.m_boxID >> ch;
 	in >> tpx >> ch >> tpy >> ch >> tpw >> ch >> tph;
 
 	box.x = tpx;
@@ -24,7 +24,7 @@ std::istream& operator>>(std::istream& in, TrackingBox& box)
 
 bool operator== (const TrackingBox& c1, const TrackingBox& c2)
 {
-	return((c1.frame == c2.frame) && (c1.id == c2.id));
+	return((c1.m_frame == c2.m_frame) && (c1.m_boxID == c2.m_boxID));
 }
 
 bool operator!= (const TrackingBox& c1, const TrackingBox& c2)

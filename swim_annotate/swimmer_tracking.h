@@ -97,6 +97,7 @@ public:
   //t, finite difference value for calculating acceleration
   void calc_accelerations(vector<vector<float>> &data, int state_num, float t);
   
+  void make_images_of_video(string videoName);
 
   /*inharated class (Box annotate)------
   //default constructor
