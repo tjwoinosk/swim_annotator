@@ -14,6 +14,8 @@ public:
   fileFinder() {};
 
   std::string absolutePath(const std::string& root);
+  std::string returnDataLocation();
+  std::string returnSpeedTestLocation();
 
 private:
 

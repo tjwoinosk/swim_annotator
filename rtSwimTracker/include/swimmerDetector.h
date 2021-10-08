@@ -4,7 +4,7 @@
 #include "DetectionBox.h"
 #include <string>
 #include <opencv2/core.hpp>
-#include <opencv2/dnn/dnn.hpp>
+#include <opencv2/dnn.hpp>
 
 class swimmerDetector
 {
@@ -12,13 +12,13 @@ public:
 	swimmerDetector();
 	~swimmerDetector();
 
-	DetectionBox detectSwimmers(cv::Mat frame);
+	std::vector<DetectionBox> detectSwimmers(cv::Mat frame);
 
 	void configureDetector();
 
 private:
 
-	DetectionBox postprocess(cv::Mat& frame, const std::vector<cv::Mat>& outs, int frame_num); //TODO KIRAN NOTE  updated the return type
+	void postprocess(cv::Mat& frame, const std::vector<cv::Mat>& outs, int frame_num);
 	std::vector<std::string> getOutputsNames(const cv::dnn::Net& net);
 
 	std::string m_classesFile = "classes.names";
