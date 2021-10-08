@@ -31,6 +31,8 @@ public:
 
 	void analyzeVideo(std::string videoToAnalyzeName);
 
+	void detectionOnImage(std::string imageName);
+
 };
 
 

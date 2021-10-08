@@ -37,6 +37,15 @@ BOOST_AUTO_TEST_CASE(testFrameAnalysisMain)
 
 }
 
+BOOST_AUTO_TEST_CASE(testImageDetection) 
+{
+	frameAnalysis frameAnalyzeObj;
+	string pathName = ".\\test\\testData\\";
+	string fileName = "0000.bmp";
+
+	frameAnalyzeObj.detectionOnImage(pathName + fileName);
+}
+
 BOOST_AUTO_TEST_SUITE_END() //End blank Tests
 
 

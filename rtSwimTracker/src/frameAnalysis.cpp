@@ -1,5 +1,6 @@
 #include "frameAnalysis.h"
-
+#include "swimmerDetector.h"
+#include "DetectionBox.h"
 
 frameAnalysis::frameAnalysis()
 {
@@ -15,6 +16,7 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 	//Use the object SORT returns to write to a file output
 	cv::VideoCapture videoToAnalyze;
 	cv::Mat frame;
+	swimmerDetector detectSwimmerObj;
 
 	videoToAnalyze.open(videoToAnalyzeName);
 	if (!videoToAnalyze.isOpened()) {
@@ -23,6 +25,8 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 	}
 	
 	videoToAnalyze >> frame;
+
+	detectSwimmerObj.configureDetector();
 
 	while (true) { //TODO do we want it to be infinite?
 
@@ -34,12 +38,15 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 		}
 
 		//call detector and SORT here
-		// 
-		//TODO test code:
-		std::cout << "processing frame" << std::endl;
-		imshow("test", frame);
-		cv::waitKey(30);
-		//TODO end test code
+		DetectionBox currentFrameDetections = detectSwimmerObj.detectSwimmers(frame);
+
+		////TODO test code:
+		//std::cout << "processing frame" << std::endl;
+		//imshow("test", frame);
+		//cv::waitKey(30);
+		////TODO end test code
+
+
 	}
 
 	//TODO test code:
@@ -48,6 +55,19 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 
 	return;
 
+}
+
+void frameAnalysis::detectionOnImage(std::string imageName)
+{
+	std::cout << "STARTING THIS FUNCTION" << std::endl;
+
+	cv::Mat frameImage = cv::imread(imageName);
+	swimmerDetector detectSwimmerObj;
+
+	detectSwimmerObj.configureDetector();
+	DetectionBox currentFrameDetections = detectSwimmerObj.detectSwimmers(frameImage);
+
+	std::cout << "DONE THIS FUNCTION " << currentFrameDetections.size() << std::endl;
 }
 
 void frameAnalysis::sortOnFrame(std::string seqName)

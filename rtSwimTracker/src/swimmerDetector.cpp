@@ -28,7 +28,7 @@ void swimmerDetector::configureDetector()
 DetectionBox swimmerDetector::detectSwimmers(cv::Mat frame)
 {
 
-  int inpWidth, inpHeight;
+  int inpWidth = 0, inpHeight = 0;
 
   cv::Mat blob;
 
@@ -44,16 +44,17 @@ DetectionBox swimmerDetector::detectSwimmers(cv::Mat frame)
 
   // Remove the bounding boxes with low confidence
   // Also saves the results in results
-  postprocess(frame, outs, 1);
+  DetectionBox results = postprocess(frame, outs, 1); //TODO KIRAN NOTE added this
   
-  return DetectionBox();
+  //return DetectionBox();
+  return results;
 }
 
 
 //Remove the bounding boxes with low confidence using non-maxima suppression
 //saves the detection results into the classes reuslts var
 //This fuction is used in the maek detection file system
-void swimmerDetector::postprocess(cv::Mat& frame, const std::vector<cv::Mat>& outs, int frame_num) {
+DetectionBox swimmerDetector::postprocess(cv::Mat& frame, const std::vector<cv::Mat>& outs, int frame_num) {
  
   std::vector<int> classIds;
   std::vector<float> confidences;
@@ -110,7 +111,8 @@ void swimmerDetector::postprocess(cv::Mat& frame, const std::vector<cv::Mat>& ou
     temp.m_boxID = -1;
     //results.push_back(temp);
   }
-  
+  //TODO KIRAN NOTE  need to save results somewhere so added this below:
+  return temp;
 }
 
 
