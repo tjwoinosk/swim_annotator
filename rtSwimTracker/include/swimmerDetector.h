@@ -4,6 +4,7 @@
 #include "DetectionBox.h"
 #include <string>
 #include <opencv2/core.hpp>
+#include <opencv2/dnn.hpp>
 
 class swimmerDetector
 {
@@ -11,7 +12,7 @@ public:
 	swimmerDetector();
 	~swimmerDetector();
 
-	DetectionBox detectSwimmers(cv::Mat frame);
+	std::vector<DetectionBox> detectSwimmers(cv::Mat frame);
 
 	void configureDetector();
 

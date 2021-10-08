@@ -25,10 +25,11 @@ void swimmerDetector::configureDetector()
 
 }
 
-DetectionBox swimmerDetector::detectSwimmers(cv::Mat frame)
+std::vector<DetectionBox> swimmerDetector::detectSwimmers(cv::Mat frame)
 {
 
-  int inpWidth, inpHeight;
+  int inpWidth = 0;
+  int inpHeight = 0;
 
   cv::Mat blob;
 
@@ -46,7 +47,7 @@ DetectionBox swimmerDetector::detectSwimmers(cv::Mat frame)
   // Also saves the results in results
   postprocess(frame, outs, 1);
   
-  return DetectionBox();
+  return std::vector<DetectionBox>();
 }
 
 
@@ -58,8 +59,8 @@ void swimmerDetector::postprocess(cv::Mat& frame, const std::vector<cv::Mat>& ou
   std::vector<int> classIds;
   std::vector<float> confidences;
   std::vector<cv::Rect> boxes;
-  float confThreshold = 0.5;
-  float nmsThreshold = 0.3;
+  float confThreshold = 0.5f;
+  float nmsThreshold = 0.3f;
 
   for (size_t i = 0; i < outs.size(); ++i)
   {

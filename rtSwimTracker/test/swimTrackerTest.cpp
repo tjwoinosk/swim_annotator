@@ -53,14 +53,20 @@ BOOST_AUTO_TEST_CASE(testOutStreamFunctions)
 
   absolutePath = find.absolutePath("notAFile.txt");
   BOOST_CHECK(absolutePath.empty());
+
+  absolutePath = find.returnDataLocation();
+  BOOST_CHECK(!absolutePath.empty());
+
+  absolutePath = find.returnSpeedTestLocation();
+  BOOST_CHECK(!absolutePath.empty());
 }
 
 BOOST_AUTO_TEST_SUITE_END() //End file Finder Tests
 
 
 //Tracking Box Tests
-BOOST_AUTO_TEST_SUITE(SORTtrackingBoxTests)
-BOOST_AUTO_TEST_CASE(testInStreamFunctions)
+BOOST_AUTO_TEST_SUITE(BoxTests)
+BOOST_AUTO_TEST_CASE(testTrackingBoxInStreamFunctions)
 {
   cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
   TrackingBox testBox(10,5,tBox);
@@ -74,7 +80,7 @@ BOOST_AUTO_TEST_CASE(testInStreamFunctions)
   BOOST_CHECK_EQUAL(ssGround.str(), ss.str());
 }
 
-BOOST_AUTO_TEST_CASE(testequalOperator)
+BOOST_AUTO_TEST_CASE(testTrackingBoxEqualOperator)
 {
   cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
   cv::Rect_<float> t2Box(4.3f, 3.4f, 6.98f, 9.00f);
@@ -90,7 +96,7 @@ BOOST_AUTO_TEST_CASE(testequalOperator)
   BOOST_CHECK(testBox == test4Box);
 }
 
-BOOST_AUTO_TEST_CASE(testOutStreamFunctions)
+BOOST_AUTO_TEST_CASE(testTrackingBoxOutStreamFunctions)
 {
   cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
   TrackingBox groundBox(10, 5, tBox);
@@ -106,18 +112,66 @@ BOOST_AUTO_TEST_CASE(testOutStreamFunctions)
   BOOST_CHECK_GE(testBox.GetIOU(groundBox), 0.999);
 
 }
-BOOST_AUTO_TEST_SUITE_END() //End Tracking Box Tests
+
+BOOST_AUTO_TEST_CASE(testDetectionBoxInStreamFunctions)
+{
+  cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
+  DetectionBox testBox(1, 0.78665f, 10, 5, tBox);
+
+  stringstream ssGround;
+  ssGround << testBox.m_frame << "," << testBox.m_boxID;
+  ssGround << "," << testBox.x << "," << testBox.y << "," << testBox.width << "," << testBox.height;
+  ssGround << "," << testBox.m_confScore << "," << testBox.m_swimmerClass << std::endl;
+
+  stringstream ss;
+  ss << testBox;
+
+  BOOST_CHECK_EQUAL(ssGround.str(), ss.str());
+}
+
+BOOST_AUTO_TEST_CASE(testDetectionBoxOutStreamFunctions)
+{
+  cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
+  DetectionBox groundBox(1, 0.78665f, 10, 5, tBox);
+
+  std::stringstream ssTester;
+  ssTester << groundBox.m_frame << "," << groundBox.m_boxID;
+  ssTester << "," << groundBox.x << "," << groundBox.y << "," << groundBox.width << "," << groundBox.height;
+  ssTester << "," << groundBox.m_confScore << groundBox.m_swimmerClass <<std::endl;
+
+  DetectionBox testBox;
+
+  ssTester >> testBox;
+
+  BOOST_CHECK_GE(testBox.GetIOU(groundBox), 0.999);
+}
+BOOST_AUTO_TEST_SUITE_END() //End Box Tests
+
 
 //Detection validation test suite
-BOOST_AUTO_TEST_SUITE(SORTvalidationTestSuite)
+BOOST_AUTO_TEST_SUITE(DetectionTestSuite)
 
 BOOST_AUTO_TEST_CASE(DetectionValidationTEST)
 {
+  frameAnalysis testDetector;
+  std::string resAbsPath = "";
 
-  swimmerDetector test;
+  resAbsPath = testDetector.runDetectorOnFrames();
 
+  //results file
+  std::string resAbsPathGT = resAbsPath;
+  resAbsPathGT.replace(resAbsPathGT.end() - 4, resAbsPathGT.end(), "GT.txt");
 
+  //ground truth file
 
+  std::ifstream ifs1(resAbsPath);
+  std::ifstream ifs2(resAbsPathGT);
+
+  std::istream_iterator<char> b1(ifs1), e1;
+  std::istream_iterator<char> b2(ifs2), e2;
+
+  // compare 
+  BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
 }
 
 BOOST_AUTO_TEST_SUITE_END() //End Detection validation tests suite

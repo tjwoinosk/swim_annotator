@@ -9,10 +9,12 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
 
-#include <boost/timer/timer.hpp>
+#include "fileFinder.h"
 
 #include "TrackingBox.h"
+#include "DetectionBox.h"
 #include "sortTrackerPipelined.h"
+#include "swimmerDetector.h"
 
 class frameAnalysis
 {
@@ -23,6 +25,8 @@ private:
 public:
 
 	void sortOnFrame(std::string seqName);
+
+	std::string runDetectorOnFrames();
 
 	void getDataFromDetectionFile(std::string detFileName, std::vector<TrackingBox>& detData);
 	int groupingDetectionData(std::vector<TrackingBox> detData, std::vector<std::vector<TrackingBox>>& detFrameData);

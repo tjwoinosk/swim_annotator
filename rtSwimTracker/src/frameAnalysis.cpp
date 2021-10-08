@@ -94,6 +94,60 @@ void frameAnalysis::sortOnFrame(std::string seqName)
 	resultsFile.close();
 }
 
+std::string frameAnalysis::runDetectorOnFrames()
+{
+	fileFinder find;
+	std::string resFileName = "detectionData.txt";
+	std::string resFileAbsPath = "";
+	std::ofstream resultsFile;
+	
+
+	try 
+	{
+		resFileAbsPath = find.returnDataLocation() + resFileName;
+		resultsFile.open(resFileAbsPath);
+	}
+	catch (const std::exception & e) 
+	{ 
+		std::cout << "Could not open " << resFileAbsPath << std::endl << e.what() << std::endl;
+		return std::string();
+	}
+
+	std::string imgPath = "";
+	int possibleNumImages = 100;
+	const __int64 buffSize = 5;
+	char buff[buffSize]{};
+	cv::Mat img;
+	swimmerDetector detect;
+	std::vector<DetectionBox> results;
+
+	detect.configureDetector();
+
+	for (int ii = 0; ii < possibleNumImages; ii++)
+	{
+		sprintf_s(buff,buffSize,"%04i", ii);
+		imgPath.assign(buff);
+		imgPath = find.absolutePath(imgPath + ".bmp");
+		
+		if (imgPath.empty())
+			continue;
+
+		results.clear();
+		img = cv::imread(imgPath);
+		
+		results = detect.detectSwimmers(img);
+
+		for (int jj = 0; jj < results.size(); jj++)
+		{
+
+			resultsFile << results[jj];
+		}
+		resultsFile << std::endl;
+	}
+
+	resultsFile.close();
+	return resFileAbsPath;
+}
 
 /*
 The purpose of this function is to read in the file whose name is speciied by the input detFileName
