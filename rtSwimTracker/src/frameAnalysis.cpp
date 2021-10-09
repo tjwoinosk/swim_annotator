@@ -50,6 +50,22 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 
 }
 
+void frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
+{
+	swimmerDetector detect;
+	std::vector<DetectionBox> resultsDetector;
+
+	sortTrackerPiplelined SORTprocessor;
+	std::vector<TrackingBox> resultsSORT;
+
+	//1. use detector on the frame
+	detect.configureDetector();
+	resultsDetector = detect.detectSwimmers(frameToAnalyze);
+
+	//2. use sort algorithm on the output of the detector
+	//resultsSORT = SORTprocessor.singleFrameSORT(resultsDetector);
+}
+
 void frameAnalysis::sortOnFrame(std::string seqName)
 {
 	std::cout << "Processing " << seqName << "..." << std::endl;

@@ -34,7 +34,7 @@ public:
 	frameAnalysis();
 
 	void analyzeVideo(std::string videoToAnalyzeName);
-
+	void analyzeVideo(cv::Mat frameToAnalyze);
 };
 
 
