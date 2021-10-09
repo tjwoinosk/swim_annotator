@@ -5,7 +5,7 @@
 
 
 
-class DetectionBox : public TrackingBox 
+class DetectionBox : public TrackingBox
 {
 public:
 	DetectionBox() {};
@@ -30,4 +30,3 @@ private:
 };
 
 #endif // !DETECTIONBOX_H
-

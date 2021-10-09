@@ -1,6 +1,5 @@
 #include "frameAnalysis.h"
-#include "swimmerDetector.h"
-#include "DetectionBox.h"
+
 
 frameAnalysis::frameAnalysis()
 {
@@ -16,17 +15,14 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 	//Use the object SORT returns to write to a file output
 	cv::VideoCapture videoToAnalyze;
 	cv::Mat frame;
-	swimmerDetector detectSwimmerObj;
 
 	videoToAnalyze.open(videoToAnalyzeName);
 	if (!videoToAnalyze.isOpened()) {
 		std::cout << "Could not open video file for analysis" << std::endl;
 		return;
 	}
-	
-	videoToAnalyze >> frame;
 
-	detectSwimmerObj.configureDetector();
+	videoToAnalyze >> frame;
 
 	while (true) { //TODO do we want it to be infinite?
 
@@ -38,15 +34,12 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 		}
 
 		//call detector and SORT here
-		DetectionBox currentFrameDetections = detectSwimmerObj.detectSwimmers(frame);
-
-		////TODO test code:
-		//std::cout << "processing frame" << std::endl;
-		//imshow("test", frame);
-		//cv::waitKey(30);
-		////TODO end test code
-
-
+		// 
+		//TODO test code:
+		std::cout << "processing frame" << std::endl;
+		imshow("test", frame);
+		cv::waitKey(30);
+		//TODO end test code
 	}
 
 	//TODO test code:
@@ -55,19 +48,6 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 
 	return;
 
-}
-
-void frameAnalysis::detectionOnImage(std::string imageName)
-{
-	std::cout << "STARTING THIS FUNCTION" << std::endl;
-
-	cv::Mat frameImage = cv::imread(imageName);
-	swimmerDetector detectSwimmerObj;
-
-	detectSwimmerObj.configureDetector();
-	DetectionBox currentFrameDetections = detectSwimmerObj.detectSwimmers(frameImage);
-
-	std::cout << "DONE THIS FUNCTION " << currentFrameDetections.size() << std::endl;
 }
 
 void frameAnalysis::sortOnFrame(std::string seqName)
@@ -98,7 +78,7 @@ void frameAnalysis::sortOnFrame(std::string seqName)
 
 	std::vector<TrackingBox> tempResults;
 	tempResults.clear();
-	
+
 	for (int fi = 0; fi < maxFrame; fi++)
 	{
 		tempResults.clear();
@@ -120,15 +100,15 @@ std::string frameAnalysis::runDetectorOnFrames()
 	std::string resFileName = "detectionData.txt";
 	std::string resFileAbsPath = "";
 	std::ofstream resultsFile;
-	
 
-	try 
+
+	try
 	{
 		resFileAbsPath = find.returnDataLocation() + resFileName;
 		resultsFile.open(resFileAbsPath);
 	}
-	catch (const std::exception & e) 
-	{ 
+	catch (const std::exception& e)
+	{
 		std::cout << "Could not open " << resFileAbsPath << std::endl << e.what() << std::endl;
 		return std::string();
 	}
@@ -145,16 +125,16 @@ std::string frameAnalysis::runDetectorOnFrames()
 
 	for (int ii = 0; ii < possibleNumImages; ii++)
 	{
-		sprintf_s(buff,buffSize,"%04i", ii);
+		sprintf_s(buff, buffSize, "%04i", ii);
 		imgPath.assign(buff);
 		imgPath = find.absolutePath(imgPath + ".bmp");
-		
+
 		if (imgPath.empty())
 			continue;
 
 		results.clear();
 		img = cv::imread(imgPath);
-		
+
 		results = detect.detectSwimmers(img);
 
 		for (int jj = 0; jj < results.size(); jj++)

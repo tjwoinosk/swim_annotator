@@ -11,16 +11,16 @@ class fileFinder
 {
 public:
 
-  fileFinder() {};
+	fileFinder() {};
 
-  std::string absolutePath(const std::string& root);
-  std::string returnDataLocation();
-  std::string returnSpeedTestLocation();
+	std::string absolutePath(const std::string& root);
+	std::string returnDataLocation();
+	std::string returnSpeedTestLocation();
 
 private:
 
-  const std::string testDataLocation = "test\\testData\\";
-  const std::string speedTestDataLocation = "test\\speedTestResults\\";
+	const std::string testDataLocation = "test\\testData\\";
+	const std::string speedTestDataLocation = "test\\speedTestResults\\";
 
 };
 

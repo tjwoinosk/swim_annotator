@@ -4,8 +4,8 @@ std::ostream& operator<<(std::ostream& out, const DetectionBox& box)
 {
 	out << box.m_frame << "," << box.m_boxID;
 	out << "," << box.x << "," << box.y << "," << box.width << "," << box.height;
-  out << "," << box.m_confScore << "," << box.m_swimmerClass << std::endl;
-  return out;
+	out << "," << box.m_confScore << "," << box.m_swimmerClass << std::endl;
+	return out;
 }
 
 std::istream& operator>>(std::istream& in, DetectionBox& box)

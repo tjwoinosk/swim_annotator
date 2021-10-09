@@ -18,7 +18,7 @@ public:
 
 private:
 
-	void postprocess(cv::Mat& frame, const std::vector<cv::Mat>& outs, int frame_num);
+	std::vector<DetectionBox> postprocess(cv::Mat& frame, const std::vector<cv::Mat>& outs, int frame_num);
 	std::vector<std::string> getOutputsNames(const cv::dnn::Net& net);
 
 	std::string m_classesFile = "classes.names";
@@ -30,4 +30,3 @@ private:
 };
 
 #endif // !SWIMMERDETECTOR_H
-

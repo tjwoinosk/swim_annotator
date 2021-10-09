@@ -19,9 +19,9 @@
 BOOST_AUTO_TEST_SUITE(sortSubFunctions)
 
 /*
-BOOST_AUTO_TEST_CASE(testVectorized) 
+BOOST_AUTO_TEST_CASE(testVectorized)
 {
-  
+
 	string videoName = "0_01_sub_video.avi";
 	frameAnalysis mainfuncTest;
 	mainfuncTest.analyzeVideo(videoName); //TODO make a proper test case from this. maybe function returns bool?
@@ -37,15 +37,6 @@ BOOST_AUTO_TEST_CASE(testFrameAnalysisMain)
 
 }
 
-BOOST_AUTO_TEST_CASE(testImageDetection) 
-{
-	frameAnalysis frameAnalyzeObj;
-	string pathName = ".\\test\\testData\\";
-	string fileName = "0000.bmp";
-
-	frameAnalyzeObj.detectionOnImage(pathName + fileName);
-}
-
 BOOST_AUTO_TEST_SUITE_END() //End blank Tests
 
 
@@ -54,20 +45,20 @@ BOOST_AUTO_TEST_SUITE(fileFinderTests)
 
 BOOST_AUTO_TEST_CASE(testOutStreamFunctions)
 {
-  fileFinder find;
-  std::string absolutePath;
+	fileFinder find;
+	std::string absolutePath;
 
-  absolutePath = find.absolutePath("PipeTest.txt");
-  BOOST_CHECK(!absolutePath.empty());
+	absolutePath = find.absolutePath("PipeTest.txt");
+	BOOST_CHECK(!absolutePath.empty());
 
-  absolutePath = find.absolutePath("notAFile.txt");
-  BOOST_CHECK(absolutePath.empty());
+	absolutePath = find.absolutePath("notAFile.txt");
+	BOOST_CHECK(absolutePath.empty());
 
-  absolutePath = find.returnDataLocation();
-  BOOST_CHECK(!absolutePath.empty());
+	absolutePath = find.returnDataLocation();
+	BOOST_CHECK(!absolutePath.empty());
 
-  absolutePath = find.returnSpeedTestLocation();
-  BOOST_CHECK(!absolutePath.empty());
+	absolutePath = find.returnSpeedTestLocation();
+	BOOST_CHECK(!absolutePath.empty());
 }
 
 BOOST_AUTO_TEST_SUITE_END() //End file Finder Tests
@@ -77,82 +68,82 @@ BOOST_AUTO_TEST_SUITE_END() //End file Finder Tests
 BOOST_AUTO_TEST_SUITE(BoxTests)
 BOOST_AUTO_TEST_CASE(testTrackingBoxInStreamFunctions)
 {
-  cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
-  TrackingBox testBox(10,5,tBox);
+	cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
+	TrackingBox testBox(10, 5, tBox);
 
-  stringstream ssGround;
-  ssGround << testBox.m_frame << "," << testBox.m_boxID << "," << testBox.x << "," << testBox.y << "," << testBox.width << "," << testBox.height << ",1,-1,-1,-1" << std::endl;
+	stringstream ssGround;
+	ssGround << testBox.m_frame << "," << testBox.m_boxID << "," << testBox.x << "," << testBox.y << "," << testBox.width << "," << testBox.height << ",1,-1,-1,-1" << std::endl;
 
-  stringstream ss;
-  ss << testBox;
+	stringstream ss;
+	ss << testBox;
 
-  BOOST_CHECK_EQUAL(ssGround.str(), ss.str());
+	BOOST_CHECK_EQUAL(ssGround.str(), ss.str());
 }
 
 BOOST_AUTO_TEST_CASE(testTrackingBoxEqualOperator)
 {
-  cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
-  cv::Rect_<float> t2Box(4.3f, 3.4f, 6.98f, 9.00f);
+	cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
+	cv::Rect_<float> t2Box(4.3f, 3.4f, 6.98f, 9.00f);
 
-  TrackingBox testBox(10, 5, tBox);
-  TrackingBox test2Box(3, 7, t2Box);
-  TrackingBox test3Box(10, 5, t2Box);
-  TrackingBox test4Box(10, 5, tBox);
+	TrackingBox testBox(10, 5, tBox);
+	TrackingBox test2Box(3, 7, t2Box);
+	TrackingBox test3Box(10, 5, t2Box);
+	TrackingBox test4Box(10, 5, tBox);
 
-  BOOST_CHECK(testBox != test2Box);
-  BOOST_CHECK(test2Box != test3Box);
-  BOOST_CHECK(test3Box == test4Box);
-  BOOST_CHECK(testBox == test4Box);
+	BOOST_CHECK(testBox != test2Box);
+	BOOST_CHECK(test2Box != test3Box);
+	BOOST_CHECK(test3Box == test4Box);
+	BOOST_CHECK(testBox == test4Box);
 }
 
 BOOST_AUTO_TEST_CASE(testTrackingBoxOutStreamFunctions)
 {
-  cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
-  TrackingBox groundBox(10, 5, tBox);
+	cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
+	TrackingBox groundBox(10, 5, tBox);
 
-  stringstream ssTester;
-  ssTester << groundBox.m_frame << "," << groundBox.m_boxID << "," << groundBox.x << "," << groundBox.y << "," << groundBox.width << "," << groundBox.height << ",1,-1,-1,-1" << std::endl;
+	stringstream ssTester;
+	ssTester << groundBox.m_frame << "," << groundBox.m_boxID << "," << groundBox.x << "," << groundBox.y << "," << groundBox.width << "," << groundBox.height << ",1,-1,-1,-1" << std::endl;
 
-  TrackingBox testBox;
+	TrackingBox testBox;
 
-  ssTester >> testBox;
+	ssTester >> testBox;
 
-  BOOST_CHECK(testBox == groundBox);
-  BOOST_CHECK_GE(testBox.GetIOU(groundBox), 0.999);
+	BOOST_CHECK(testBox == groundBox);
+	BOOST_CHECK_GE(testBox.GetIOU(groundBox), 0.999);
 
 }
 
 BOOST_AUTO_TEST_CASE(testDetectionBoxInStreamFunctions)
 {
-  cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
-  DetectionBox testBox(1, 0.78665f, 10, 5, tBox);
+	cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
+	DetectionBox testBox(1, 0.78665f, 10, 5, tBox);
 
-  stringstream ssGround;
-  ssGround << testBox.m_frame << "," << testBox.m_boxID;
-  ssGround << "," << testBox.x << "," << testBox.y << "," << testBox.width << "," << testBox.height;
-  ssGround << "," << testBox.m_confScore << "," << testBox.m_swimmerClass << std::endl;
+	stringstream ssGround;
+	ssGround << testBox.m_frame << "," << testBox.m_boxID;
+	ssGround << "," << testBox.x << "," << testBox.y << "," << testBox.width << "," << testBox.height;
+	ssGround << "," << testBox.m_confScore << "," << testBox.m_swimmerClass << std::endl;
 
-  stringstream ss;
-  ss << testBox;
+	stringstream ss;
+	ss << testBox;
 
-  BOOST_CHECK_EQUAL(ssGround.str(), ss.str());
+	BOOST_CHECK_EQUAL(ssGround.str(), ss.str());
 }
 
 BOOST_AUTO_TEST_CASE(testDetectionBoxOutStreamFunctions)
 {
-  cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
-  DetectionBox groundBox(1, 0.78665f, 10, 5, tBox);
+	cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
+	DetectionBox groundBox(1, 0.78665f, 10, 5, tBox);
 
-  std::stringstream ssTester;
-  ssTester << groundBox.m_frame << "," << groundBox.m_boxID;
-  ssTester << "," << groundBox.x << "," << groundBox.y << "," << groundBox.width << "," << groundBox.height;
-  ssTester << "," << groundBox.m_confScore << groundBox.m_swimmerClass <<std::endl;
+	std::stringstream ssTester;
+	ssTester << groundBox.m_frame << "," << groundBox.m_boxID;
+	ssTester << "," << groundBox.x << "," << groundBox.y << "," << groundBox.width << "," << groundBox.height;
+	ssTester << "," << groundBox.m_confScore << groundBox.m_swimmerClass << std::endl;
 
-  DetectionBox testBox;
+	DetectionBox testBox;
 
-  ssTester >> testBox;
+	ssTester >> testBox;
 
-  BOOST_CHECK_GE(testBox.GetIOU(groundBox), 0.999);
+	BOOST_CHECK_GE(testBox.GetIOU(groundBox), 0.999);
 }
 BOOST_AUTO_TEST_SUITE_END() //End Box Tests
 
@@ -162,25 +153,25 @@ BOOST_AUTO_TEST_SUITE(DetectionTestSuite)
 
 BOOST_AUTO_TEST_CASE(DetectionValidationTEST)
 {
-  frameAnalysis testDetector;
-  std::string resAbsPath = "";
+	frameAnalysis testDetector;
+	std::string resAbsPath = "";
 
-  resAbsPath = testDetector.runDetectorOnFrames();
+	resAbsPath = testDetector.runDetectorOnFrames();
 
-  //results file
-  std::string resAbsPathGT = resAbsPath;
-  resAbsPathGT.replace(resAbsPathGT.end() - 4, resAbsPathGT.end(), "GT.txt");
+	//results file
+	std::string resAbsPathGT = resAbsPath;
+	resAbsPathGT.replace(resAbsPathGT.end() - 4, resAbsPathGT.end(), "GT.txt");
 
-  //ground truth file
+	//ground truth file
 
-  std::ifstream ifs1(resAbsPath);
-  std::ifstream ifs2(resAbsPathGT);
+	std::ifstream ifs1(resAbsPath);
+	std::ifstream ifs2(resAbsPathGT);
 
-  std::istream_iterator<char> b1(ifs1), e1;
-  std::istream_iterator<char> b2(ifs2), e2;
+	std::istream_iterator<char> b1(ifs1), e1;
+	std::istream_iterator<char> b2(ifs2), e2;
 
-  // compare 
-  BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
+	// compare 
+	BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
 }
 
 BOOST_AUTO_TEST_SUITE_END() //End Detection validation tests suite
@@ -192,27 +183,27 @@ BOOST_AUTO_TEST_SUITE(SORTvalidationTestSuite)
 
 BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
 {
-  frameAnalysis testSORTTWO;
-  fileFinder find;
-  string seqName = "PipeTest.txt";
+	frameAnalysis testSORTTWO;
+	fileFinder find;
+	string seqName = "PipeTest.txt";
 
-  testSORTTWO.sortOnFrame(find.absolutePath(seqName));
+	testSORTTWO.sortOnFrame(find.absolutePath(seqName));
 
-  //results file
-  string outputName = seqName;
-  outputName.replace(outputName.end() - 4, outputName.end(), "_det.txt");
+	//results file
+	string outputName = seqName;
+	outputName.replace(outputName.end() - 4, outputName.end(), "_det.txt");
 
-  //ground truth file
-  string gtFile = "gt" + outputName;
+	//ground truth file
+	string gtFile = "gt" + outputName;
 
-  std::ifstream ifs1(find.absolutePath(outputName));
-  std::ifstream ifs2(find.absolutePath(gtFile));
+	std::ifstream ifs1(find.absolutePath(outputName));
+	std::ifstream ifs2(find.absolutePath(gtFile));
 
-  std::istream_iterator<char> b1(ifs1), e1;
-  std::istream_iterator<char> b2(ifs2), e2;
+	std::istream_iterator<char> b1(ifs1), e1;
+	std::istream_iterator<char> b2(ifs2), e2;
 
-  // compare 
-  BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
+	// compare 
+	BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
 
 }
 BOOST_AUTO_TEST_SUITE_END() //End SORT validation tests suite
