@@ -139,6 +139,8 @@ std::string frameAnalysis::runDetectorOnFrames()
 
 		for (int jj = 0; jj < results.size(); jj++)
 		{
+			//TODO check this new code/method works fine for adjusting the frame number
+			results[jj].m_frame = std::stoi(buff);
 
 			resultsFile << results[jj];
 		}
