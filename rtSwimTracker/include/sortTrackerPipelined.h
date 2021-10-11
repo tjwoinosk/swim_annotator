@@ -7,6 +7,7 @@
 
 #include "KalmanTracker.h"
 #include "TrackingBox.h"
+#include "DetectionBox.h"
 
 #include <opencv2/core.hpp>
 
@@ -20,6 +21,7 @@ public:
 
 	sortTrackerPiplelined();
 	std::vector<TrackingBox> singleFrameSORT(std::vector<TrackingBox> swimmerDetections);
+	std::vector<DetectionBox> singleFrameSORT(std::vector<DetectionBox> swimmerDetections);
 
 private:
 	void inputDetectionData(const std::vector<TrackingBox>& detFrameData)
@@ -27,15 +29,22 @@ private:
 		m_frameData = detFrameData; 
 		m_numDetections = static_cast<int>(detFrameData.size());
 	}
+	void inputDetectionData(const std::vector<DetectionBox>& detFrameData);
 
 	void initializeTrackersUsing(const std::vector<TrackingBox>& detFrameData);
+	void initializeTrackersUsing(const std::vector<DetectionBox>& detFrameData);
 	void processFrame();
+	void processFrame_det();
 	std::vector<cv::Rect_<float>>& createTrajecotoryPredictions(std::vector<cv::Rect_<float>>& initializedValue);
 	std::vector<std::vector<double>>& constructIOUCostMat(const std::vector<cv::Rect_<float>>& trajectoryPredictions, std::vector<std::vector<double>>& iouCostMatrix);
+	std::vector<std::vector<double>>& constructIOUCostMatDet(const std::vector<cv::Rect_<float>>& trajectoryPredictions, std::vector<std::vector<double>>& iouCostMatrix);
 	std::vector<cv::Point>& matchDetectionsToTrajectories(const std::vector<std::vector<double>>& iouCostMatrix, std::vector<cv::Point>& pairs);
 	void updateTrackers(const std::vector<cv::Point>& pairs);
+	void updateTrackersDet(const std::vector<cv::Point>& pairs);
 	void createNewTrackersWithLeftoverDetections();
+	void createNewTrackersWithLeftoverDetectionsDet();
 	void collectResultsWhileKillingTrackers();
+	void collectResultsWhileKillingTrackersDet();
 	void fillUnmatchedDetections(const std::vector<int>& assignments);
 	void fillUnmatchedTrajectories(const std::vector<int>& assignments);
 	double GetIOU(cv::Rect_<float> bb_test, cv::Rect_<float> bb_gt);
@@ -43,6 +52,8 @@ private:
 	std::vector<KalmanTracker> m_vectorOfTrackers;
 	std::vector<TrackingBox> m_frameData;
 	std::vector<TrackingBox> m_frameTrackingResults;
+	std::vector<DetectionBox> m_frameData_det;
+	std::vector<DetectionBox> m_frameTrackingResults_det;
 	std::set<int> m_unmatchedDetections;
 	std::set<int> m_unmatchedTrajectories;
 	int m_numTrajectories;

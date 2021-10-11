@@ -27,6 +27,15 @@ BOOST_AUTO_TEST_CASE(testVectorized)
 	mainfuncTest.analyzeVideo(videoName); //TODO make a proper test case from this. maybe function returns bool?
 }
 */
+BOOST_AUTO_TEST_CASE(testDetectionBoxSORT)
+{
+	//TODO add test cases for the detection box sort
+	sortTrackerPiplelined SORTprocessor;
+	std::vector<DetectionBox> resultsDetector;
+	//	resultsSORT = SORTprocessor.singleFrameSORT(resultsDetector);
+
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 
@@ -188,6 +197,32 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
 	string seqName = "PipeTest.txt";
 
 	testSORTTWO.sortOnFrame(find.absolutePath(seqName));
+
+	//results file
+	string outputName = seqName;
+	outputName.replace(outputName.end() - 4, outputName.end(), "_det.txt");
+
+	//ground truth file
+	string gtFile = "gt" + outputName;
+
+	std::ifstream ifs1(find.absolutePath(outputName));
+	std::ifstream ifs2(find.absolutePath(gtFile));
+
+	std::istream_iterator<char> b1(ifs1), e1;
+	std::istream_iterator<char> b2(ifs2), e2;
+
+	// compare 
+	BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
+
+}
+
+BOOST_AUTO_TEST_CASE(SORTvalidationTESTDetectionBox)
+{
+	frameAnalysis testSORTTWO;
+	fileFinder find;
+	string seqName = "PipeTestDetectionBox.txt";
+
+	testSORTTWO.sortOnFrameDet(find.absolutePath(seqName));
 
 	//results file
 	string outputName = seqName;

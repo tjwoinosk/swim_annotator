@@ -56,7 +56,7 @@ void frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 	std::vector<DetectionBox> resultsDetector;
 
 	sortTrackerPiplelined SORTprocessor;
-	std::vector<TrackingBox> resultsSORT;
+	std::vector<DetectionBox> resultsSORT;
 
 	//1. use detector on the frame
 	detect.configureDetector();
@@ -64,7 +64,10 @@ void frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 
 	//2. use sort algorithm on the output of the detector
 	//resultsSORT = SORTprocessor.singleFrameSORT(resultsDetector);
+
+	//TODO do something with output to test it - output detector and sort information, and show video
 }
+
 
 void frameAnalysis::sortOnFrame(std::string seqName)
 {
@@ -100,6 +103,53 @@ void frameAnalysis::sortOnFrame(std::string seqName)
 		tempResults.clear();
 
 		tempResults = SORTprocessor.singleFrameSORT(detFrameData[fi]);
+
+		for (auto tb : tempResults)
+		{
+			resultsFile << tb;
+		}
+	}
+
+	resultsFile.close();
+}
+
+void frameAnalysis::sortOnFrameDet(std::string seqName)
+{
+	std::cout << "Processing with DetectionBox" << seqName << "..." << std::endl;
+
+	sortTrackerPiplelined SORTprocessor;
+
+	std::vector<DetectionBox> detData;
+	std::vector<std::vector<DetectionBox>> detFrameData;
+
+	int maxFrame = 0;
+	getDataFromDetectionFile(seqName, detData); //TODO MAKE THIS DETECTIONBOX VECTOR
+	maxFrame = groupingDetectionData(detData, detFrameData);
+
+	std::cout << std::endl << std::endl << "Size of detFrameData = " << detFrameData.size() << std::endl << std::endl;
+
+	// prepare result file.
+	std::string resFileName = seqName;
+	resFileName.replace(resFileName.end() - 4, resFileName.end(), "_det.txt");
+	std::ofstream resultsFile;
+	resultsFile.open(resFileName);
+
+	if (!resultsFile.is_open())
+	{
+		std::cerr << "Error: can not create file " << resFileName << std::endl;
+		return;
+	}
+
+	std::vector<DetectionBox> tempResults;
+	tempResults.clear();
+
+	for (int fi = 0; fi < maxFrame; fi++)
+	{
+		tempResults.clear();
+
+		tempResults = SORTprocessor.singleFrameSORT(detFrameData[fi]);
+		
+		std::cout << std::endl << std::endl << "Size of tempResults on frame = " << fi << " is " << tempResults.size() << std::endl << std::endl;
 
 		for (auto tb : tempResults)
 		{
@@ -196,6 +246,31 @@ void frameAnalysis::getDataFromDetectionFile(std::string detFileName, std::vecto
 	return;
 }
 
+void frameAnalysis::getDataFromDetectionFile(std::string detFileName, std::vector<DetectionBox>& detData)
+{
+	std::string detLine;
+	std::istringstream ss;
+	std::ifstream detectionFile;
+
+	detectionFile.open(detFileName);
+	if (!detectionFile.is_open())
+	{
+		std::cerr << "Error: can not find file " << detFileName << std::endl;
+		return;
+	}
+
+	DetectionBox tb;
+	while (getline(detectionFile, detLine))
+	{
+		ss.str(detLine);
+		ss >> tb;
+		detData.push_back(tb);
+	}
+	detectionFile.close();
+
+	return;
+}
+
 
 /*
 This function takes an input detData that is all the detection data stored in a vector of TrackingBox
@@ -225,3 +300,27 @@ int frameAnalysis::groupingDetectionData(std::vector<TrackingBox> detData, std::
 	}
 	return maxFrame;
 }
+
+int frameAnalysis::groupingDetectionData(std::vector<DetectionBox> detData, std::vector<std::vector<DetectionBox>>& detFrameData)
+{
+	int maxFrame = 0;
+	std::vector<DetectionBox> tempVec;
+
+	for (auto tb : detData) // find max frame number
+	{
+		if (maxFrame < tb.m_frame)
+			maxFrame = tb.m_frame;
+	}
+
+
+	for (int fi = 0; fi < maxFrame; fi++)
+	{
+		for (auto tb : detData)
+			if (tb.m_frame == fi + 1) // frame num starts from 1
+				tempVec.push_back(tb);
+		detFrameData.push_back(tempVec);
+		tempVec.clear();
+	}
+	return maxFrame;
+}
+
