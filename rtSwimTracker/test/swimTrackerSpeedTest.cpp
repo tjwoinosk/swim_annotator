@@ -1,13 +1,82 @@
+#define BOOST_TEST_MODULE Swim Tracker Speed Tests
+#include <boost/test/included/unit_test.hpp>
+//Add --detect_memory_leak=0 to debug command to remove memory leak output
+//--log_level=test_suite in command for more info https://www.boost.org/doc/libs/1_75_0/libs/test/doc/html/boost_test/utf_reference/rt_param_reference/log_level.html
+
+#include "addAnotherFile.h"
+#include "sort_tracker.h"
+
+#include "frameAnalysis.h"
+#include "sortTrackerPipelined.h"
+
+#include "TrackingBox.h"
+#include "fileFinder.h"
+
+#include "swimmerDetector.h"
+
 #include <iostream>
 #include <fstream>
+#include <iterator>
 
+//added...
 #include <boost/timer/timer.hpp>
 #include <boost/date_time.hpp>
 
-#include "TrackingBox.h"
-#include "sortTrackerPipelined.h";
-#include "frameAnalysis.h"
-#include "fileFinder.h"
+
+//Detection validation test suite
+///*
+BOOST_AUTO_TEST_SUITE(DetectionTestSuite)
+BOOST_AUTO_TEST_CASE(DetectionSpeedTEST)
+{
+	frameAnalysis testDetector;
+	std::string resAbsPath = "";
+
+	resAbsPath = testDetector.runDetectorOnFrames();
+
+	//results file
+	std::string resAbsPathGT = resAbsPath;
+	resAbsPathGT.replace(resAbsPathGT.end() - 4, resAbsPathGT.end(), "GT.txt");
+
+	std::ifstream ifs1(resAbsPath);
+	std::ifstream ifs2(resAbsPathGT);
+
+	std::istream_iterator<char> b1(ifs1), e1;
+	std::istream_iterator<char> b2(ifs2), e2;
+
+	// compare 
+	BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
+}
+BOOST_AUTO_TEST_SUITE_END() //End Detection validation tests suite
+//*/
+
+
+//SORT validation test suite
+BOOST_AUTO_TEST_SUITE(SORTvalidationTestSuite)
+
+BOOST_AUTO_TEST_CASE(SORTspeedTEST)
+{
+	frameAnalysis testSORTTWO;
+	string gtPath = "";
+	string outputName = "";
+
+	outputName = testSORTTWO.sortOnFrame();
+	gtPath = outputName;
+
+	//results file
+	gtPath.replace(gtPath.end() - 4, gtPath.end(), "GT.txt");
+
+	std::ifstream ifs1(outputName);
+	std::ifstream ifs2(gtPath);
+
+	std::istream_iterator<char> b1(ifs1), e1;
+	std::istream_iterator<char> b2(ifs2), e2;
+
+	BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
+}
+
+BOOST_AUTO_TEST_SUITE_END() //End SORT validation tests suite
+
+/*
 
 std::string testSORTTrackingSpeed();
 
@@ -79,3 +148,5 @@ std::string testSORTTrackingSpeed()
 	return "Single Frame SORT speed (AVG): " + boost::timer::format(res);
 
 }
+
+*/
