@@ -24,7 +24,7 @@ private:
 
 public:
 
-	void sortOnFrame(std::string seqName);
+	std::string sortOnFrame();
 
 	void sortOnFrameDet(std::string seqName);
 

@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE Swim Tracker Tests
 #include <boost/test/included/unit_test.hpp>
 //Add --detect_memory_leak=0 to debug command to remove memory leak output
+//--log_level=test_suite in command for more info https://www.boost.org/doc/libs/1_75_0/libs/test/doc/html/boost_test/utf_reference/rt_param_reference/log_level.html
 
 #include "addAnotherFile.h"
 #include "sort_tracker.h"
@@ -16,9 +17,8 @@
 #include <fstream>
 #include <iterator>
 
-BOOST_AUTO_TEST_SUITE(sortSubFunctions)
-
 /*
+BOOST_AUTO_TEST_SUITE(sortSubFunctions)
 BOOST_AUTO_TEST_CASE(testVectorized)
 {
 
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(testVectorized)
 	frameAnalysis mainfuncTest;
 	mainfuncTest.analyzeVideo(videoName); //TODO make a proper test case from this. maybe function returns bool?
 }
-*/
+
 BOOST_AUTO_TEST_CASE(testDetectionBoxSORT)
 {
 	//TODO add test cases for the detection box sort
@@ -35,9 +35,8 @@ BOOST_AUTO_TEST_CASE(testDetectionBoxSORT)
 	//	resultsSORT = SORTprocessor.singleFrameSORT(resultsDetector);
 
 }
-
-
 BOOST_AUTO_TEST_SUITE_END()
+
 
 BOOST_AUTO_TEST_SUITE(FrameAnalysisSubFunctions)
 
@@ -47,9 +46,9 @@ BOOST_AUTO_TEST_CASE(testFrameAnalysisMain)
 }
 
 BOOST_AUTO_TEST_SUITE_END() //End blank Tests
+*/
 
-
-//Tracking Box Tests
+//File FinderTests Tests
 BOOST_AUTO_TEST_SUITE(fileFinderTests)
 
 BOOST_AUTO_TEST_CASE(testOutStreamFunctions)
@@ -158,8 +157,8 @@ BOOST_AUTO_TEST_SUITE_END() //End Box Tests
 
 
 //Detection validation test suite
+///*
 BOOST_AUTO_TEST_SUITE(DetectionTestSuite)
-
 BOOST_AUTO_TEST_CASE(DetectionValidationTEST)
 {
 	frameAnalysis testDetector;
@@ -171,8 +170,6 @@ BOOST_AUTO_TEST_CASE(DetectionValidationTEST)
 	std::string resAbsPathGT = resAbsPath;
 	resAbsPathGT.replace(resAbsPathGT.end() - 4, resAbsPathGT.end(), "GT.txt");
 
-	//ground truth file
-
 	std::ifstream ifs1(resAbsPath);
 	std::ifstream ifs2(resAbsPathGT);
 
@@ -182,9 +179,8 @@ BOOST_AUTO_TEST_CASE(DetectionValidationTEST)
 	// compare 
 	BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
 }
-
 BOOST_AUTO_TEST_SUITE_END() //End Detection validation tests suite
-
+//*/
 
 
 //SORT validation test suite
@@ -193,27 +189,22 @@ BOOST_AUTO_TEST_SUITE(SORTvalidationTestSuite)
 BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
 {
 	frameAnalysis testSORTTWO;
-	fileFinder find;
-	string seqName = "PipeTest.txt";
+	string gtPath = "";
+	string outputName = "";
 
-	testSORTTWO.sortOnFrame(find.absolutePath(seqName));
+	outputName = testSORTTWO.sortOnFrame();
+	gtPath = outputName;
 
 	//results file
-	string outputName = seqName;
-	outputName.replace(outputName.end() - 4, outputName.end(), "_det.txt");
+	gtPath.replace(gtPath.end() - 4, gtPath.end(), "GT.txt");
 
-	//ground truth file
-	string gtFile = "gt" + outputName;
-
-	std::ifstream ifs1(find.absolutePath(outputName));
-	std::ifstream ifs2(find.absolutePath(gtFile));
+	std::ifstream ifs1(outputName);
+	std::ifstream ifs2(gtPath);
 
 	std::istream_iterator<char> b1(ifs1), e1;
 	std::istream_iterator<char> b2(ifs2), e2;
 
-	// compare 
 	BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
-
 }
 
 BOOST_AUTO_TEST_CASE(SORTvalidationTESTDetectionBox)

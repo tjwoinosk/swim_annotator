@@ -69,30 +69,32 @@ void frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 }
 
 
-void frameAnalysis::sortOnFrame(std::string seqName)
+std::string frameAnalysis::sortOnFrame()
 {
-	std::cout << "Processing " << seqName << "..." << std::endl;
-
 	sortTrackerPiplelined SORTprocessor;
 
 	std::vector<TrackingBox> detData;
 	std::vector<std::vector<TrackingBox>> detFrameData;
 
+	fileFinder find;
+	std::string resFileName = "PipeTest.txt";
+	std::string resFileAbsPath = "";
+	std::ofstream resultsFile;
+
+	resFileAbsPath = find.absolutePath(resFileName);
+
 	int maxFrame = 0;
-	getDataFromDetectionFile(seqName, detData);
+	getDataFromDetectionFile(resFileAbsPath, detData);
 	maxFrame = groupingDetectionData(detData, detFrameData);
 
-
 	// prepare result file.
-	std::string resFileName = seqName;
-	resFileName.replace(resFileName.end() - 4, resFileName.end(), "_det.txt");
-	std::ofstream resultsFile;
-	resultsFile.open(resFileName);
+	resFileAbsPath.replace(resFileAbsPath.end() - 4, resFileAbsPath.end(), "_det.txt");
+	resultsFile.open(resFileAbsPath);
 
 	if (!resultsFile.is_open())
 	{
 		std::cerr << "Error: can not create file " << resFileName << std::endl;
-		return;
+		return resFileAbsPath;
 	}
 
 	std::vector<TrackingBox> tempResults;
@@ -101,7 +103,6 @@ void frameAnalysis::sortOnFrame(std::string seqName)
 	for (int fi = 0; fi < maxFrame; fi++)
 	{
 		tempResults.clear();
-
 		tempResults = SORTprocessor.singleFrameSORT(detFrameData[fi]);
 
 		for (auto tb : tempResults)
@@ -111,6 +112,8 @@ void frameAnalysis::sortOnFrame(std::string seqName)
 	}
 
 	resultsFile.close();
+	
+	return resFileAbsPath;
 }
 
 void frameAnalysis::sortOnFrameDet(std::string seqName)
@@ -166,7 +169,6 @@ std::string frameAnalysis::runDetectorOnFrames()
 	std::string resFileName = "detectionData.txt";
 	std::string resFileAbsPath = "";
 	std::ofstream resultsFile;
-
 
 	try
 	{

@@ -27,7 +27,6 @@ void swimmerDetector::configureDetector()
 
 std::vector<DetectionBox> swimmerDetector::detectSwimmers(cv::Mat frame)
 {
-
     int inpWidth = 416;
     int inpHeight = 416;
 
