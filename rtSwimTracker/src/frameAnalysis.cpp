@@ -116,54 +116,134 @@ std::string frameAnalysis::sortOnFrame()
 	return resFileAbsPath;
 }
 
-void frameAnalysis::sortOnFrameDet(std::string seqName)
+std::string frameAnalysis::sortOnFrameDet()
 {
-	std::cout << "Processing with DetectionBox" << seqName << "..." << std::endl;
-
 	sortTrackerPiplelined SORTprocessor;
 
-	std::vector<DetectionBox> detData;
-	std::vector<std::vector<DetectionBox>> detFrameData;
+	std::vector<TrackingBox> detData;
+	std::vector<std::vector<TrackingBox>> detFrameData;
+
+	fileFinder find;
+	std::string resFileName = "PipeTest.txt";
+	std::string resFileAbsPath = "";
+	std::ofstream resultsFile;
+
+	resFileAbsPath = find.absolutePath(resFileName);
 
 	int maxFrame = 0;
-	getDataFromDetectionFile(seqName, detData); //TODO MAKE THIS DETECTIONBOX VECTOR
+	getDataFromDetectionFile(resFileAbsPath, detData);
 	maxFrame = groupingDetectionData(detData, detFrameData);
 
-	std::cout << std::endl << std::endl << "Size of detFrameData = " << detFrameData.size() << std::endl << std::endl;
-
 	// prepare result file.
-	std::string resFileName = seqName;
-	resFileName.replace(resFileName.end() - 4, resFileName.end(), "_det.txt");
-	std::ofstream resultsFile;
-	resultsFile.open(resFileName);
+	resFileAbsPath.replace(resFileAbsPath.end() - 4, resFileAbsPath.end(), "_det.txt");
+	resultsFile.open(resFileAbsPath);
 
 	if (!resultsFile.is_open())
 	{
 		std::cerr << "Error: can not create file " << resFileName << std::endl;
-		return;
+		return resFileAbsPath;
 	}
 
-	std::vector<DetectionBox> tempResults;
+	std::vector<TrackingBox> tempResults;
+	std::vector<DetectionBox> inputDataDet;
 	tempResults.clear();
+	inputDataDet.clear();
 
 	for (int fi = 0; fi < maxFrame; fi++)
 	{
 		tempResults.clear();
+		inputDataDet.clear();
 
-		tempResults = SORTprocessor.singleFrameSORT(detFrameData[fi]);
-		
-		std::cout << std::endl << std::endl << "Size of tempResults on frame = " << fi << " is " << tempResults.size() << std::endl << std::endl;
+		std::cout << "Testing converting type" << std::endl;
+		for (int i = 0; i < detFrameData[fi].size(); i++) {
+			//TrackingBox* temp = &detFrameData[fi][i];
+			//DetectionBox* c = dynamic_cast<DetectionBox*>(temp);
+			//inputDataDet.push_back(*c);
+			//DetectionBox temp2 = (TrackingBox)detFrameData[fi][i];
+
+			//in >> box.m_frame >> ch >> box.m_boxID >> ch;
+			//in >> tpx >> ch >> tpy >> ch >> tpw >> ch >> tph;
+
+			//box.x = tpx;
+			//box.y = tpy;
+			//box.height = tph;
+			//box.width = tpw;
+			DetectionBox temp;
+			temp.m_frame = detFrameData[fi][i].m_frame;
+			temp.m_boxID = detFrameData[fi][i].m_boxID;
+			temp.updateBox(cv::Rect2f(detFrameData[fi][i].x, detFrameData[fi][i].y, detFrameData[fi][i].height, detFrameData[fi][i].width)); //TODO idk if its right
+			inputDataDet.push_back(temp);
+			//std::cout << "     " << *temp << std::endl;
+
+			std::cout << " ------TESTING CONVERGENCE: here is the original " << detFrameData[fi][i] << std::endl;
+			std::cout << " ------TESTING CONVERGENCE: here is the copy " << temp << std::endl;
+
+		}
+		std::cout << "END Testing converting type" << std::endl;
+
+		tempResults = SORTprocessor.singleFrameSORT(inputDataDet);
+		//tempResults = SORTprocessor.singleFrameSORT(detFrameData[fi]);
 
 		for (auto tb : tempResults)
 		{
-			//resultsFile << tb;
-			resultsFile << tb.m_frame << "," << tb.m_boxID << "," << tb.x << "," << tb.y << "," << tb.width << "," << tb.height << ",1,-1,-1,-1" << std::endl;
-
+			resultsFile << tb;
 		}
 	}
 
 	resultsFile.close();
+
+	return resFileAbsPath;
 }
+
+
+//void frameAnalysis::sortOnFrameDet(std::string seqName)
+//{
+//	std::cout << "Processing with DetectionBox" << seqName << "..." << std::endl;
+//
+//	sortTrackerPiplelined SORTprocessor;
+//
+//	std::vector<DetectionBox> detData;
+//	std::vector<std::vector<DetectionBox>> detFrameData;
+//
+//	int maxFrame = 0;
+//	getDataFromDetectionFile(seqName, detData); //TODO MAKE THIS DETECTIONBOX VECTOR
+//	maxFrame = groupingDetectionData(detData, detFrameData);
+//
+//	std::cout << std::endl << std::endl << "Size of detFrameData = " << detFrameData.size() << std::endl << std::endl;
+//
+//	// prepare result file.
+//	std::string resFileName = seqName;
+//	resFileName.replace(resFileName.end() - 4, resFileName.end(), "_det.txt");
+//	std::ofstream resultsFile;
+//	resultsFile.open(resFileName);
+//
+//	if (!resultsFile.is_open())
+//	{
+//		std::cerr << "Error: can not create file " << resFileName << std::endl;
+//		return;
+//	}
+//
+//	std::vector<DetectionBox> tempResults;
+//	tempResults.clear();
+//
+//	for (int fi = 0; fi < maxFrame; fi++)
+//	{
+//		tempResults.clear();
+//
+//		tempResults = SORTprocessor.singleFrameSORT(detFrameData[fi]);
+//		
+//		std::cout << std::endl << std::endl << "Size of tempResults on frame = " << fi << " is " << tempResults.size() << std::endl << std::endl;
+//
+//		for (auto tb : tempResults)
+//		{
+//			//resultsFile << tb;
+//			resultsFile << tb.m_frame << "," << tb.m_boxID << "," << tb.x << "," << tb.y << "," << tb.width << "," << tb.height << ",1,-1,-1,-1" << std::endl;
+//
+//		}
+//	}
+//
+//	resultsFile.close();
+//}
 
 std::string frameAnalysis::runDetectorOnFrames()
 {

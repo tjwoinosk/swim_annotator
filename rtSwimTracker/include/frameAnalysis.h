@@ -26,7 +26,7 @@ public:
 
 	std::string sortOnFrame();
 
-	void sortOnFrameDet(std::string seqName);
+	std::string sortOnFrameDet();
 
 	std::string runDetectorOnFrames();
 

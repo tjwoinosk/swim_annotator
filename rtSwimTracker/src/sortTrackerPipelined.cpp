@@ -14,6 +14,9 @@ for that frame, as well as adjust the trackers accordingly
 std::vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(std::vector<TrackingBox> frameDetections)
 {
 	inputDetectionData(frameDetections);
+	for (int i = 0; i < m_frameData.size(); i++) {
+		std::cout << "                M_FRAME_DATA :      " << m_frameData[i] << std::endl;
+	}
 	m_frameTrackingResults.clear();
 
 	processFrame();
@@ -25,23 +28,40 @@ std::vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(std::vector<Trac
 	return frameDetections;
 }
 
-std::vector<DetectionBox> sortTrackerPiplelined::singleFrameSORT(std::vector<DetectionBox> frameDetections)
+std::vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(std::vector<DetectionBox> frameDetections)
 {
+	m_frameData.clear(); //TODO is this okay?
 	inputDetectionData(frameDetections);
 
 	std::cout << std::endl << std::endl << " SINGLE FRAME SORT DETECTIONBOX frameDetections size = " << frameDetections.size() << std::endl;
 
-	std::cout << std::endl << std::endl << " SINGLE FRAME SORT DETECTIONBOX m_frameData_det size = " << m_frameData_det.size() << std::endl;
+	std::cout << std::endl << std::endl << " SINGLE FRAME SORT DETECTIONBOX m_frameData size = " << m_frameData.size() << std::endl;
 
-	m_frameTrackingResults_det.clear();
+	for (int i = 0; i < m_frameData.size(); i++) {
+		std::cout << "                M_FRAME_DATA :      " << m_frameData[i] << std::endl;
+	}
+	//m_frameTrackingResults_det.clear();
+	m_frameTrackingResults.clear();
 
-	processFrame_det();
+	//processFrame_det();
+	std::cout << std::endl << std::endl << " SINGLE FRAME SORT  start process" << std::endl;
 
-	frameDetections.clear();
-	for (int ii = 0; ii < m_frameTrackingResults_det.size(); ii++)
-		frameDetections.push_back(m_frameTrackingResults_det[ii]);
+	processFrame();
 
-	return frameDetections;
+	std::cout << std::endl << std::endl << " SINGLE FRAME SORT  done process" << std::endl;
+
+	//frameDetections.clear();
+	std::vector<TrackingBox> resultsFrameData;
+	resultsFrameData.clear();
+	//for (int ii = 0; ii < m_frameTrackingResults_det.size(); ii++)
+	//	frameDetections.push_back(m_frameTrackingResults_det[ii]);
+	for (int ii = 0; ii < m_frameTrackingResults.size(); ii++)
+		resultsFrameData.push_back(m_frameTrackingResults[ii]);
+
+	std::cout << std::endl << std::endl << " SINGLE FRAME SORT  done COMPLETELY" << std::endl;
+
+	//return frameDetections;
+	return resultsFrameData;
 }
 
 
@@ -348,9 +368,21 @@ void sortTrackerPiplelined::inputDetectionData(const std::vector<DetectionBox>& 
 	//m_frameData_det = detFrameData;
 
 	//TODO i dont think this is right... but idea comes from https://stackoverflow.com/questions/5966698/error-use-of-deleted-function
-	for (int i = 0; i < detFrameData.size(); i++) {
-		m_frameData_det.push_back(detFrameData.at(i));
-	}
+	//for (int i = 0; i < detFrameData.size(); i++) {
+	//	m_frameData_det.push_back(detFrameData.at(i));
+	//}
 
+	//m_numDetections = static_cast<int>(detFrameData.size());
+
+
+	//https://stackoverflow.com/questions/9365318/c-can-i-cast-a-vector-derived-class-to-a-vector-base-class-during-a-funct
+	//though it should be a vector of pointers maybe - but that would require passing it in as such
+
+	for (int i = 0; i < detFrameData.size(); i++) {
+		TrackingBox temp = (DetectionBox)detFrameData[i];
+		std::cout << "      SORT TRACKING BOX = " << temp << std::endl;
+		m_frameData.push_back(temp);
+	}
 	m_numDetections = static_cast<int>(detFrameData.size());
+
 }
