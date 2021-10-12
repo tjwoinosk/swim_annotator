@@ -153,7 +153,9 @@ void frameAnalysis::sortOnFrameDet(std::string seqName)
 
 		for (auto tb : tempResults)
 		{
-			resultsFile << tb;
+			//resultsFile << tb;
+			resultsFile << tb.m_frame << "," << tb.m_boxID << "," << tb.x << "," << tb.y << "," << tb.width << "," << tb.height << ",1,-1,-1,-1" << std::endl;
+
 		}
 	}
 

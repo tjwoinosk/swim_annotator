@@ -216,6 +216,7 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
 
 }
 
+
 BOOST_AUTO_TEST_CASE(SORTvalidationTESTDetectionBox)
 {
 	frameAnalysis testSORTTWO;
@@ -241,4 +242,76 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTESTDetectionBox)
 	BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
 
 }
+
+BOOST_AUTO_TEST_CASE(SORTvalidationTESTDetectionBoxReadFile)
+{
+	std::cout << std::endl << "comparing detection box to tracking box reading files" << std::endl << std::endl;
+
+	frameAnalysis testSORTTWO;
+	fileFinder find;
+	sortTrackerPiplelined SORTprocessor;
+	std::vector<DetectionBox> detDataDet;
+	std::vector<std::vector<DetectionBox>> detFrameDataDet;
+	std::vector<TrackingBox> detData;
+	std::vector<std::vector<TrackingBox>> detFrameData;
+	string seqName = "PipeTestDetectionBox.txt";
+	string baseFileName = "TestUpdatesTWO.txt";
+	int maxFrame = 0;
+	int maxFrameDet = 0;
+
+	testSORTTWO.getDataFromDetectionFile(find.absolutePath(seqName), detData); //TODO MAKE THIS DETECTIONBOX VECTOR
+	maxFrame = testSORTTWO.groupingDetectionData(detData, detFrameData);
+
+	testSORTTWO.getDataFromDetectionFile(find.absolutePath(seqName), detDataDet); //TODO MAKE THIS DETECTIONBOX VECTOR
+	maxFrameDet = testSORTTWO.groupingDetectionData(detDataDet, detFrameDataDet);
+
+	//results file
+	std::string resFileName = baseFileName;
+	resFileName.replace(resFileName.end() - 4, resFileName.end(), "DETB.txt");
+	std::ofstream resultsFile;
+	std::ofstream resultsFileDet;
+
+	resultsFile.open(baseFileName);
+	if (!resultsFile.is_open())
+	{
+		std::cerr << "Error: can not create file " << baseFileName << std::endl;
+		return;
+	}
+	resultsFileDet.open(resFileName);
+	if (!resultsFileDet.is_open())
+	{
+		std::cerr << "Error: can not create file " << resFileName << std::endl;
+		return;
+	}
+
+	std::cout << std::endl << "outputting to one file" << std::endl << std::endl;
+
+	for (int i = 0; i < detFrameData.size(); i++) {
+		for (int j = 0; j < detFrameData[i].size(); j++) {
+			resultsFile << detFrameData[i][j];
+		}
+	}
+
+	std::cout << std::endl << "outputting to another file" << std::endl << std::endl;
+
+	for (int i = 0; i < detFrameDataDet.size(); i++) {
+		for (int j = 0; j < detFrameDataDet[i].size(); j++) {
+			resultsFileDet << detFrameDataDet[i][j];
+		}
+	}
+
+	//ground truth file
+
+
+	std::ifstream ifs1(find.absolutePath(baseFileName));
+	std::ifstream ifs2(find.absolutePath(resFileName));
+
+	std::istream_iterator<char> b1(ifs1), e1;
+	std::istream_iterator<char> b2(ifs2), e2;
+
+	// compare 
+	BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
+	//TODO this marks it as passed but when i manually open the two files they are different at the end
+}
+
 BOOST_AUTO_TEST_SUITE_END() //End SORT validation tests suite
