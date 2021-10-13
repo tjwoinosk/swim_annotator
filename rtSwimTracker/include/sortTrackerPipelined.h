@@ -32,19 +32,13 @@ private:
 	void inputDetectionData(const std::vector<DetectionBox>& detFrameData);
 
 	void initializeTrackersUsing(const std::vector<TrackingBox>& detFrameData);
-	//void initializeTrackersUsing(const std::vector<DetectionBox>& detFrameData);
 	void processFrame();
-	void processFrame_det();
 	std::vector<cv::Rect_<float>>& createTrajecotoryPredictions(std::vector<cv::Rect_<float>>& initializedValue);
 	std::vector<std::vector<double>>& constructIOUCostMat(const std::vector<cv::Rect_<float>>& trajectoryPredictions, std::vector<std::vector<double>>& iouCostMatrix);
-	std::vector<std::vector<double>>& constructIOUCostMatDet(const std::vector<cv::Rect_<float>>& trajectoryPredictions, std::vector<std::vector<double>>& iouCostMatrix);
 	std::vector<cv::Point>& matchDetectionsToTrajectories(const std::vector<std::vector<double>>& iouCostMatrix, std::vector<cv::Point>& pairs);
 	void updateTrackers(const std::vector<cv::Point>& pairs);
-	void updateTrackersDet(const std::vector<cv::Point>& pairs);
 	void createNewTrackersWithLeftoverDetections();
-	void createNewTrackersWithLeftoverDetectionsDet();
 	void collectResultsWhileKillingTrackers();
-	void collectResultsWhileKillingTrackersDet();
 	void fillUnmatchedDetections(const std::vector<int>& assignments);
 	void fillUnmatchedTrajectories(const std::vector<int>& assignments);
 	double GetIOU(cv::Rect_<float> bb_test, cv::Rect_<float> bb_gt);

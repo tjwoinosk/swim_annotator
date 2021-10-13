@@ -165,35 +165,16 @@ std::string frameAnalysis::sortOnFrameDet()
 		tempResults.clear();
 		inputDataDet.clear();
 
-		std::cout << "Testing converting type" << std::endl;
 		for (int i = 0; i < detFrameData[fi].size(); i++) {
-			//TrackingBox* temp = &detFrameData[fi][i];
-			//DetectionBox* c = dynamic_cast<DetectionBox*>(temp);
-			//inputDataDet.push_back(*c);
-			//DetectionBox temp2 = (TrackingBox)detFrameData[fi][i];
-
-			//in >> box.m_frame >> ch >> box.m_boxID >> ch;
-			//in >> tpx >> ch >> tpy >> ch >> tpw >> ch >> tph;
-
-			//box.x = tpx;
-			//box.y = tpy;
-			//box.height = tph;
-			//box.width = tpw;
+			//Converting to DetectionBox type to test the singleFrameSORT with input of vector<DetectionBox>
 			DetectionBox temp;
 			temp.m_frame = detFrameData[fi][i].m_frame;
 			temp.m_boxID = detFrameData[fi][i].m_boxID;
 			temp.updateBox(cv::Rect2f(detFrameData[fi][i].x, detFrameData[fi][i].y, detFrameData[fi][i].width, detFrameData[fi][i].height)); //TODO idk if its right
 			inputDataDet.push_back(temp);
-			//std::cout << "     " << *temp << std::endl;
-
-			std::cout << " ------TESTING CONVERGENCE: here is the original " << detFrameData[fi][i] << std::endl;
-			std::cout << " ------TESTING CONVERGENCE: here is the copy " << temp << std::endl;
-			std::cout << " ------TESTING CONVERGENCE: here is the copy in original output " << temp.m_frame << "," << temp.m_boxID << "," << temp.x << "," << temp.y << "," << temp.width << "," << temp.height << ",1,-1,-1,-1" << std::endl;
 		}
-		std::cout << "END Testing converting type" << std::endl;
 
 		tempResults = SORTprocessor.singleFrameSORT(inputDataDet);
-		//tempResults = SORTprocessor.singleFrameSORT(detFrameData[fi]);
 
 		for (auto tb : tempResults)
 		{
@@ -304,32 +285,6 @@ void frameAnalysis::getDataFromDetectionFile(std::string detFileName, std::vecto
 	return;
 }
 
-void frameAnalysis::getDataFromDetectionFile(std::string detFileName, std::vector<DetectionBox>& detData)
-{
-	std::string detLine;
-	std::istringstream ss;
-	std::ifstream detectionFile;
-
-	detectionFile.open(detFileName);
-	if (!detectionFile.is_open())
-	{
-		std::cerr << "Error: can not find file " << detFileName << std::endl;
-		return;
-	}
-
-	DetectionBox tb;
-	while (getline(detectionFile, detLine))
-	{
-		ss.str(detLine);
-		ss >> tb;
-		detData.push_back(tb);
-	}
-	detectionFile.close();
-
-	return;
-}
-
-
 /*
 This function takes an input detData that is all the detection data stored in a vector of TrackingBox
 and then grouping TrackingBoxes for a single frame into a vector, and storing this vector into another
@@ -340,29 +295,6 @@ int frameAnalysis::groupingDetectionData(std::vector<TrackingBox> detData, std::
 {
 	int maxFrame = 0;
 	std::vector<TrackingBox> tempVec;
-
-	for (auto tb : detData) // find max frame number
-	{
-		if (maxFrame < tb.m_frame)
-			maxFrame = tb.m_frame;
-	}
-
-
-	for (int fi = 0; fi < maxFrame; fi++)
-	{
-		for (auto tb : detData)
-			if (tb.m_frame == fi + 1) // frame num starts from 1
-				tempVec.push_back(tb);
-		detFrameData.push_back(tempVec);
-		tempVec.clear();
-	}
-	return maxFrame;
-}
-
-int frameAnalysis::groupingDetectionData(std::vector<DetectionBox> detData, std::vector<std::vector<DetectionBox>>& detFrameData)
-{
-	int maxFrame = 0;
-	std::vector<DetectionBox> tempVec;
 
 	for (auto tb : detData) // find max frame number
 	{

@@ -34,9 +34,6 @@ public:
 	void getDataFromDetectionFile(std::string detFileName, std::vector<TrackingBox>& detData);
 	int groupingDetectionData(std::vector<TrackingBox> detData, std::vector<std::vector<TrackingBox>>& detFrameData);
 
-	void getDataFromDetectionFile(std::string detFileName, std::vector<DetectionBox>& detData);
-	int groupingDetectionData(std::vector<DetectionBox> detData, std::vector<std::vector<DetectionBox>>& detFrameData);
-
 	frameAnalysis();
 
 	void analyzeVideo(std::string videoToAnalyzeName);
