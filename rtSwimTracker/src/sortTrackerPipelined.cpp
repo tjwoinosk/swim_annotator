@@ -38,7 +38,7 @@ std::vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(std::vector<Dete
 	std::cout << std::endl << std::endl << " SINGLE FRAME SORT DETECTIONBOX m_frameData size = " << m_frameData.size() << std::endl;
 
 	for (int i = 0; i < m_frameData.size(); i++) {
-		std::cout << "                M_FRAME_DATA :      " << m_frameData[i] << std::endl;
+		std::cout << "   ************M_FRAME_DATA :      " << m_frameData[i] << std::endl;
 	}
 	//m_frameTrackingResults_det.clear();
 	m_frameTrackingResults.clear();

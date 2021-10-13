@@ -124,7 +124,7 @@ std::string frameAnalysis::sortOnFrameDet()
 	std::vector<std::vector<TrackingBox>> detFrameData;
 
 	fileFinder find;
-	std::string resFileName = "PipeTest.txt";
+	std::string resFileName = "PipeTestDB.txt";
 	std::string resFileAbsPath = "";
 	std::ofstream resultsFile;
 
@@ -171,13 +171,13 @@ std::string frameAnalysis::sortOnFrameDet()
 			DetectionBox temp;
 			temp.m_frame = detFrameData[fi][i].m_frame;
 			temp.m_boxID = detFrameData[fi][i].m_boxID;
-			temp.updateBox(cv::Rect2f(detFrameData[fi][i].x, detFrameData[fi][i].y, detFrameData[fi][i].height, detFrameData[fi][i].width)); //TODO idk if its right
+			temp.updateBox(cv::Rect2f(detFrameData[fi][i].x, detFrameData[fi][i].y, detFrameData[fi][i].width, detFrameData[fi][i].height)); //TODO idk if its right
 			inputDataDet.push_back(temp);
 			//std::cout << "     " << *temp << std::endl;
 
 			std::cout << " ------TESTING CONVERGENCE: here is the original " << detFrameData[fi][i] << std::endl;
 			std::cout << " ------TESTING CONVERGENCE: here is the copy " << temp << std::endl;
-
+			std::cout << " ------TESTING CONVERGENCE: here is the copy in original output " << temp.m_frame << "," << temp.m_boxID << "," << temp.x << "," << temp.y << "," << temp.width << "," << temp.height << ",1,-1,-1,-1" << std::endl;
 		}
 		std::cout << "END Testing converting type" << std::endl;
 

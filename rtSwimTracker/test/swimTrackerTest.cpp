@@ -245,6 +245,10 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTESTDetectionBox)
 	BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
 
 }
+
+
+
+
 //
 //BOOST_AUTO_TEST_CASE(SORTvalidationTESTDetectionBoxReadFile)
 //{
