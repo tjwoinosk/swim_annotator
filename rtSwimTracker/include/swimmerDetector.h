@@ -19,7 +19,7 @@ public:
 private:
 
 	std::vector<DetectionBox> postprocess(cv::Mat& frame, const std::vector<cv::Mat>& outs, int frame_num);
-	std::vector<std::string> getOutputsNames(const cv::dnn::Net& net);
+	std::vector<std::string> getOutputLayerIDStrings(const cv::dnn::Net& net);
 
 	std::string m_classesFile = "classes.names";
 	std::string m_modelConfiguration = "yolov3.cfg";

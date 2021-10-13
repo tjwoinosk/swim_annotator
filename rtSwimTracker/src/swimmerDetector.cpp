@@ -20,9 +20,7 @@ void swimmerDetector::configureDetector()
 
     m_net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
     m_net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
-
-
-
+    //m_net.setPreferableTarget(cv::dnn::DNN_TARGET_OPENCL);
 }
 
 std::vector<DetectionBox> swimmerDetector::detectSwimmers(cv::Mat frame)
@@ -40,7 +38,7 @@ std::vector<DetectionBox> swimmerDetector::detectSwimmers(cv::Mat frame)
 
     // Runs the forward pass to get output of the output layers
     std::vector<cv::Mat> outs;
-    m_net.forward(outs, getOutputsNames(m_net));
+    m_net.forward(outs, getOutputLayerIDStrings(m_net));
 
     // Remove the bounding boxes with low confidence
     // Also saves the results in results
@@ -119,9 +117,8 @@ std::vector<DetectionBox> swimmerDetector::postprocess(cv::Mat& frame, const std
 
 //Get the names of the output layers
 //This fuction is used in the make detection file system
-std::vector<std::string> swimmerDetector::getOutputsNames(const cv::dnn::Net& net)
+std::vector<std::string> swimmerDetector::getOutputLayerIDStrings(const cv::dnn::Net& net)
 {
-
     static std::vector < std::string > names;
     if (names.empty())
     {
@@ -137,6 +134,5 @@ std::vector<std::string> swimmerDetector::getOutputsNames(const cv::dnn::Net& ne
             names[i] = layersNames[outLayers[i] - 1];
     }
     return names;
-
     return std::vector<std::string>();
 }
