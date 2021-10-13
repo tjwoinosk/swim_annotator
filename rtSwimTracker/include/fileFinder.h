@@ -19,6 +19,8 @@ public:
 
 private:
 
+	std::string createNewDir(bf::path newDir);
+
 	const std::string testDataLocation = "test\\testData\\";
 	const std::string speedTestDataLocation = "test\\speedTestResults\\";
 
