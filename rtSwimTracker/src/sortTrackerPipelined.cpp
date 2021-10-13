@@ -3,6 +3,7 @@
 
 sortTrackerPiplelined::sortTrackerPiplelined()
 {
+	KalmanTracker::kf_count = 0; // tracking id relies on this, so we have to reset it in each seq.
 	m_numberFramesProcessed = 0;
 }
 
@@ -30,6 +31,7 @@ std::vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(std::vector<Trac
 
 std::vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(std::vector<DetectionBox> frameDetections)
 {
+
 	m_frameData.clear(); //TODO is this okay?
 	inputDetectionData(frameDetections);
 
@@ -86,28 +88,28 @@ void sortTrackerPiplelined::processFrame()
 		collectResultsWhileKillingTrackers();
 	}
 }
-
-void sortTrackerPiplelined::processFrame_det()
-{
-	std::vector<std::vector<double>> iouCostMatrix;
-	std::vector<cv::Rect_<float>> trajectoryPredictions;
-	std::vector<cv::Point> pairs;
-
-	m_numberFramesProcessed++;
-	if (m_vectorOfTrackers.size() == 0)
-	{
-		initializeTrackersUsing(m_frameData_det);
-	}
-	else
-	{
-		trajectoryPredictions = createTrajecotoryPredictions(trajectoryPredictions); 
-		iouCostMatrix = constructIOUCostMatDet(trajectoryPredictions, iouCostMatrix);
-		pairs = matchDetectionsToTrajectories(iouCostMatrix, pairs);
-		updateTrackersDet(pairs);
-		createNewTrackersWithLeftoverDetectionsDet();
-		collectResultsWhileKillingTrackersDet();
-	}
-}
+//
+//void sortTrackerPiplelined::processFrame_det()
+//{
+//	std::vector<std::vector<double>> iouCostMatrix;
+//	std::vector<cv::Rect_<float>> trajectoryPredictions;
+//	std::vector<cv::Point> pairs;
+//
+//	m_numberFramesProcessed++;
+//	if (m_vectorOfTrackers.size() == 0)
+//	{
+//		initializeTrackersUsing(m_frameData_det);
+//	}
+//	else
+//	{
+//		trajectoryPredictions = createTrajecotoryPredictions(trajectoryPredictions); 
+//		iouCostMatrix = constructIOUCostMatDet(trajectoryPredictions, iouCostMatrix);
+//		pairs = matchDetectionsToTrajectories(iouCostMatrix, pairs);
+//		updateTrackersDet(pairs);
+//		createNewTrackersWithLeftoverDetectionsDet();
+//		collectResultsWhileKillingTrackersDet();
+//	}
+//}
 
 
 void sortTrackerPiplelined::initializeTrackersUsing(const std::vector<TrackingBox>& trackingBoxData)
@@ -125,22 +127,22 @@ void sortTrackerPiplelined::initializeTrackersUsing(const std::vector<TrackingBo
 		m_frameTrackingResults.push_back(tb);
 	}
 }
-
-void sortTrackerPiplelined::initializeTrackersUsing(const std::vector<DetectionBox>& trackingBoxData)
-{
-	DetectionBox tb;
-	KalmanTracker trk;
-	for (int i = 0; i < trackingBoxData.size(); i++)
-	{
-		trk = KalmanTracker(trackingBoxData[i]);
-		m_vectorOfTrackers.push_back(trk);
-
-		tb.updateBox(trk.get_state());
-		tb.m_boxID = trk.m_id + 1;
-		tb.m_frame = m_numberFramesProcessed;
-		m_frameTrackingResults_det.push_back(tb);
-	}
-}
+//
+//void sortTrackerPiplelined::initializeTrackersUsing(const std::vector<DetectionBox>& trackingBoxData)
+//{
+//	DetectionBox tb;
+//	KalmanTracker trk;
+//	for (int i = 0; i < trackingBoxData.size(); i++)
+//	{
+//		trk = KalmanTracker(trackingBoxData[i]);
+//		m_vectorOfTrackers.push_back(trk);
+//
+//		tb.updateBox(trk.get_state());
+//		tb.m_boxID = trk.m_id + 1;
+//		tb.m_frame = m_numberFramesProcessed;
+//		m_frameTrackingResults_det.push_back(tb);
+//	}
+//}
 
 
 std::vector<cv::Rect_<float>>& sortTrackerPiplelined::createTrajecotoryPredictions(std::vector<cv::Rect_<float>>& initializedValue)

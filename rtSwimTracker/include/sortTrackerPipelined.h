@@ -32,7 +32,7 @@ private:
 	void inputDetectionData(const std::vector<DetectionBox>& detFrameData);
 
 	void initializeTrackersUsing(const std::vector<TrackingBox>& detFrameData);
-	void initializeTrackersUsing(const std::vector<DetectionBox>& detFrameData);
+	//void initializeTrackersUsing(const std::vector<DetectionBox>& detFrameData);
 	void processFrame();
 	void processFrame_det();
 	std::vector<cv::Rect_<float>>& createTrajecotoryPredictions(std::vector<cv::Rect_<float>>& initializedValue);
