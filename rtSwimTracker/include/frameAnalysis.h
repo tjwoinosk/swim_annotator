@@ -15,6 +15,7 @@
 #include "DetectionBox.h"
 #include "sortTrackerPipelined.h"
 #include "swimmerDetector.h"
+#include "SpeedReporter.h"
 
 class frameAnalysis
 {
@@ -24,11 +25,11 @@ private:
 
 public:
 
-	std::string sortOnFrame();
+	std::string sortOnFrame(SpeedReporter* report = NULL);
 
 	std::string sortOnFrameDet();
 
-	std::string runDetectorOnFrames();
+	std::string runDetectorOnFrames(SpeedReporter* report = NULL);
 
 	void getDataFromDetectionFile(std::string detFileName, std::vector<TrackingBox>& detData);
 	int groupingDetectionData(std::vector<TrackingBox> detData, std::vector<std::vector<TrackingBox>>& detFrameData);

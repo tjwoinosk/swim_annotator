@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -342,6 +342,7 @@
     <ClCompile Include="src\KalmanTracker.cpp" />
     <ClCompile Include="src\objectCentering.cpp" />
     <ClCompile Include="src\sortTrackerPipelined.cpp" />
+    <ClCompile Include="src\SpeedReporter.cpp" />
     <ClCompile Include="src\TrackingBox.cpp" />
     <ClCompile Include="src\sort_tracker.cpp" />
     <ClCompile Include="src\swimmerDetector.cpp" />
@@ -367,6 +368,7 @@
     <ClInclude Include="include\KalmanTracker.h" />
     <ClInclude Include="include\objectCentering.h" />
     <ClInclude Include="include\sortTrackerPipelined.h" />
+    <ClInclude Include="include\SpeedReporter.h" />
     <ClInclude Include="include\TrackingBox.h" />
     <ClInclude Include="include\sort_tracker.h" />
     <ClInclude Include="include\swimmerDetector.h" />

@@ -69,7 +69,7 @@ void frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 }
 
 
-std::string frameAnalysis::sortOnFrame()
+std::string frameAnalysis::sortOnFrame(SpeedReporter* report)
 {
 	sortTrackerPiplelined SORTprocessor;
 
@@ -80,6 +80,7 @@ std::string frameAnalysis::sortOnFrame()
 	std::string resFileName = "PipeTest.txt";
 	std::string resFileAbsPath = "";
 	std::ofstream resultsFile;
+	boost::timer::cpu_timer measureSORT;
 
 	resFileAbsPath = find.absolutePath(resFileName);
 
@@ -99,16 +100,26 @@ std::string frameAnalysis::sortOnFrame()
 
 	std::vector<TrackingBox> tempResults;
 	tempResults.clear();
-
+	measureSORT.start();
+	measureSORT.stop();
 	for (int fi = 0; fi < maxFrame; fi++)
 	{
 		tempResults.clear();
+
+		measureSORT.resume();
 		tempResults = SORTprocessor.singleFrameSORT(detFrameData[fi]);
+		measureSORT.stop();
 
 		for (auto tb : tempResults)
 		{
 			resultsFile << tb;
 		}
+	}
+
+	if ((report != NULL) && !report->isBase())
+	{
+		report->inputMeasurement(measureSORT.elapsed(), maxFrame);
+		report->reportSpeed();
 	}
 
 	resultsFile.close();
@@ -195,62 +206,14 @@ std::string frameAnalysis::sortOnFrameDet()
 	return resFileAbsPath;
 }
 
-
-//void frameAnalysis::sortOnFrameDet(std::string seqName)
-//{
-//	std::cout << "Processing with DetectionBox" << seqName << "..." << std::endl;
-//
-//	sortTrackerPiplelined SORTprocessor;
-//
-//	std::vector<DetectionBox> detData;
-//	std::vector<std::vector<DetectionBox>> detFrameData;
-//
-//	int maxFrame = 0;
-//	getDataFromDetectionFile(seqName, detData); //TODO MAKE THIS DETECTIONBOX VECTOR
-//	maxFrame = groupingDetectionData(detData, detFrameData);
-//
-//	std::cout << std::endl << std::endl << "Size of detFrameData = " << detFrameData.size() << std::endl << std::endl;
-//
-//	// prepare result file.
-//	std::string resFileName = seqName;
-//	resFileName.replace(resFileName.end() - 4, resFileName.end(), "_det.txt");
-//	std::ofstream resultsFile;
-//	resultsFile.open(resFileName);
-//
-//	if (!resultsFile.is_open())
-//	{
-//		std::cerr << "Error: can not create file " << resFileName << std::endl;
-//		return;
-//	}
-//
-//	std::vector<DetectionBox> tempResults;
-//	tempResults.clear();
-//
-//	for (int fi = 0; fi < maxFrame; fi++)
-//	{
-//		tempResults.clear();
-//
-//		tempResults = SORTprocessor.singleFrameSORT(detFrameData[fi]);
-//		
-//		std::cout << std::endl << std::endl << "Size of tempResults on frame = " << fi << " is " << tempResults.size() << std::endl << std::endl;
-//
-//		for (auto tb : tempResults)
-//		{
-//			//resultsFile << tb;
-//			resultsFile << tb.m_frame << "," << tb.m_boxID << "," << tb.x << "," << tb.y << "," << tb.width << "," << tb.height << ",1,-1,-1,-1" << std::endl;
-//
-//		}
-//	}
-//
-//	resultsFile.close();
-//}
-
-std::string frameAnalysis::runDetectorOnFrames()
+std::string frameAnalysis::runDetectorOnFrames(SpeedReporter* report)
 {
 	fileFinder find;
 	std::string resFileName = "detectionData.txt";
 	std::string resFileAbsPath = "";
 	std::ofstream resultsFile;
+	boost::timer::cpu_timer measure;
+	int numberFrames = 0;
 
 	try
 	{
@@ -273,6 +236,8 @@ std::string frameAnalysis::runDetectorOnFrames()
 
 	detect.configureDetector();
 
+	measure.start();
+	measure.stop();
 	for (int ii = 0; ii < possibleNumImages; ii++)
 	{
 		sprintf_s(buff, buffSize, "%04i", ii);
@@ -285,7 +250,10 @@ std::string frameAnalysis::runDetectorOnFrames()
 		results.clear();
 		img = cv::imread(imgPath);
 
+		numberFrames++;
+		measure.resume();
 		results = detect.detectSwimmers(img);
+		measure.stop();
 
 		for (int jj = 0; jj < results.size(); jj++)
 		{
@@ -297,12 +265,18 @@ std::string frameAnalysis::runDetectorOnFrames()
 		resultsFile << std::endl;
 	}
 
+	if ((report != NULL) && !report->isBase())
+	{
+		report->inputMeasurement(measure.elapsed(), numberFrames);
+		report->reportSpeed();
+	}
+
 	resultsFile.close();
 	return resFileAbsPath;
 }
 
 /*
-The purpose of this function is to read in the file whose name is speciied by the input detFileName
+The purpose of this function is to read in the file whose name is specified by the input detFileName
 and put the information of this file into a vector of TrackingBoxes, which is the argument detData
 */
 void frameAnalysis::getDataFromDetectionFile(std::string detFileName, std::vector<TrackingBox>& detData)
