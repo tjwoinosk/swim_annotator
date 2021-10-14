@@ -12,7 +12,6 @@
 #include "fileFinder.h"
 
 #include "TrackingBox.h"
-//#include "DetectionBox.h"
 #include "sortTrackerPipelined.h"
 #include "swimmerDetector.h"
 #include "SpeedReporter.h"

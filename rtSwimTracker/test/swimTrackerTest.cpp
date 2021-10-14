@@ -17,37 +17,17 @@
 #include <fstream>
 #include <iterator>
 
-//TODO can we delete the bottom commented part?
-/*
-BOOST_AUTO_TEST_SUITE(sortSubFunctions)
-BOOST_AUTO_TEST_CASE(testVectorized)
-{
-
-	string videoName = "0_01_sub_video.avi";
-	frameAnalysis mainfuncTest;
-	mainfuncTest.analyzeVideo(videoName); //TODO make a proper test case from this. maybe function returns bool?
-}
-
-BOOST_AUTO_TEST_CASE(testDetectionBoxSORT)
-{
-	//TODO add test cases for the detection box sort
-	sortTrackerPiplelined SORTprocessor;
-	std::vector<DetectionBox> resultsDetector;
-	//	resultsSORT = SORTprocessor.singleFrameSORT(resultsDetector);
-
-}
-BOOST_AUTO_TEST_SUITE_END()
-
 
 BOOST_AUTO_TEST_SUITE(FrameAnalysisSubFunctions)
-
 BOOST_AUTO_TEST_CASE(testFrameAnalysisMain)
 {
-
+	string videoName = "0_01_sub_video.avi";
+	frameAnalysis mainfuncTest;
+	//mainfuncTest.analyzeVideo(videoName); //TODO make a proper test case from this. maybe function returns bool?
 }
 
 BOOST_AUTO_TEST_SUITE_END() //End blank Tests
-*/
+
 
 //File FinderTests Tests
 BOOST_AUTO_TEST_SUITE(fileFinderTests)

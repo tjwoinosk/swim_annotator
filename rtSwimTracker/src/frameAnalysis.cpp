@@ -63,7 +63,7 @@ void frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 	resultsDetector = detect.detectSwimmers(frameToAnalyze);
 
 	//2. use sort algorithm on the output of the detector
-	//resultsSORT = SORTprocessor.singleFrameSORT(resultsDetector);
+	resultsSORT = SORTprocessor.singleFrameSORT(resultsDetector);
 
 	//TODO do something with output to test it - output detector and sort information, and show video
 }
@@ -182,7 +182,6 @@ std::string frameAnalysis::runDetectorOnFrames(SpeedReporter* report)
 			//TODO check this new code/method works fine for adjusting the frame number
 			results[jj].m_frame = std::stoi(buff);
 
-			//resultsFile << results[jj];
 			results[jj].outputToFileDetection(resultsFile);
 
 		}

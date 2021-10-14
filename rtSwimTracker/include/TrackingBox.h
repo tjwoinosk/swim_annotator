@@ -29,8 +29,8 @@ public:
 
 	int m_frame;
 	int m_boxID;
-	int m_swimmerClass; //TODO properly deal with constructor
-	float m_confScore; //TODO properly deal with constructor
+	int m_swimmerClass; 
+	float m_confScore; 
 
 	friend std::ostream& operator<< (std::ostream& out, const TrackingBox& box);
 	friend std::istream& operator>> (std::istream& in, TrackingBox& box);
@@ -41,17 +41,13 @@ public:
 
 	virtual double GetIOU(const TrackingBox& bb_gt);
 
-	void outputToFile(std::ostream& out); // Similar to overloaded operator<< (can delete the overloaded operator)
-	void inputFromFile(std::istream& in); //Similar to overloaded operator>> (can delete the overloaded operator)
+	void outputToFile(std::ostream& out); // Similar to overloaded operator<< (can use either)
+	void inputFromFile(std::istream& in); //Similar to overloaded operator>> (can use either)
 	void outputToFileDetection(std::ostream& out);
 	void inputFromFileDetection(std::istream& in);
 
 private:
-	//enum Classes { On_Block = 0, Diving, Swimming, Underwater, Turning, Finishing };
-	//const std::string CLASSES[6] { "On_Block", "Diving", "Swimming", "Underwater", "Turning", "Finishing" }; //the six possible classes
 	std::string CLASSES[6] = { "On_Block", "Diving", "Swimming", "Underwater", "Turning", "Finishing" }; //the six possible classes
-	//const char *CLASSES[6] = { "On_Block", "Diving", "Swimming", "Underwater", "Turning", "Finishing" }; //the six possible classes
-
 };
 
 #endif // !TRACKINGBOX_H

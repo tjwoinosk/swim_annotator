@@ -107,7 +107,6 @@ std::vector<TrackingBox> swimmerDetector::postprocess(cv::Mat& frame, const std:
         temp.m_confScore = confidences[idx];
         temp.m_frame = frame_num;
         temp.m_boxID = -1;
-        //results.push_back(temp); //TODO we need to return something to save the results
         results.push_back(temp);
     }
 
