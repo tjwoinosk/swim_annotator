@@ -27,7 +27,7 @@ public:
 
 	std::string sortOnFrame(SpeedReporter* report = NULL);
 
-	std::string sortOnFrameDet();
+	//std::string sortOnFrameDet();
 
 	std::string runDetectorOnFrames(SpeedReporter* report = NULL);
 

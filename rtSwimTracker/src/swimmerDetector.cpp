@@ -23,7 +23,8 @@ void swimmerDetector::configureDetector()
     //m_net.setPreferableTarget(cv::dnn::DNN_TARGET_OPENCL);
 }
 
-std::vector<DetectionBox> swimmerDetector::detectSwimmers(cv::Mat frame)
+//std::vector<DetectionBox> swimmerDetector::detectSwimmers(cv::Mat frame)
+std::vector<TrackingBox> swimmerDetector::detectSwimmers(cv::Mat frame)
 {
     int inpWidth = 416;
     int inpHeight = 416;
@@ -42,7 +43,8 @@ std::vector<DetectionBox> swimmerDetector::detectSwimmers(cv::Mat frame)
 
     // Remove the bounding boxes with low confidence
     // Also saves the results in results
-    std::vector<DetectionBox> results = postprocess(frame, outs, 1); //TODO is it okay to just set the frame number to one?
+    //std::vector<DetectionBox> results = postprocess(frame, outs, 1); //TODO is it okay to just set the frame number to one?
+    std::vector<TrackingBox> results = postprocess(frame, outs, 1); //TODO is it okay to just set the frame number to one?
 
     return results;
 }
@@ -51,7 +53,8 @@ std::vector<DetectionBox> swimmerDetector::detectSwimmers(cv::Mat frame)
 //Remove the bounding boxes with low confidence using non-maxima suppression
 //saves the detection results into the classes reuslts var
 //This fuction is used in the maek detection file system
-std::vector<DetectionBox> swimmerDetector::postprocess(cv::Mat& frame, const std::vector<cv::Mat>& outs, int frame_num) {
+//std::vector<DetectionBox> swimmerDetector::postprocess(cv::Mat& frame, const std::vector<cv::Mat>& outs, int frame_num) {
+std::vector<TrackingBox> swimmerDetector::postprocess(cv::Mat& frame, const std::vector<cv::Mat>& outs, int frame_num) {
 
     std::vector<int> classIds;
     std::vector<float> confidences;
@@ -91,8 +94,10 @@ std::vector<DetectionBox> swimmerDetector::postprocess(cv::Mat& frame, const std
     // Perform non maximum suppression to eliminate redundant overlapping boxes with
     // lower confidences
     std::vector<int> indices;
-    std::vector<DetectionBox> results; //TODO added this - check if works
-    DetectionBox temp;
+   // std::vector<DetectionBox> results; //TODO added this - check if works
+    std::vector<TrackingBox> results; //TODO added this - check if works
+    //DetectionBox temp;
+    TrackingBox temp;
 
     cv::dnn::NMSBoxes(boxes, confidences, confThreshold, nmsThreshold, indices);
     //clear the containers for network preformance
