@@ -53,11 +53,9 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 void frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 {
 	swimmerDetector detect;
-	//std::vector<DetectionBox> resultsDetector;
 	std::vector<TrackingBox> resultsDetector;
 
 	sortTrackerPiplelined SORTprocessor;
-	//std::vector<DetectionBox> resultsSORT;
 	std::vector<TrackingBox> resultsSORT;
 
 	//1. use detector on the frame
@@ -130,66 +128,6 @@ std::string frameAnalysis::sortOnFrame(SpeedReporter* report)
 }
 
 
-//std::string frameAnalysis::sortOnFrameDet()
-//{
-//	sortTrackerPiplelined SORTprocessor;
-//
-//	std::vector<TrackingBox> detData;
-//	std::vector<std::vector<TrackingBox>> detFrameData;
-//
-//	fileFinder find;
-//	std::string resFileName = "PipeTestDB.txt";
-//	std::string resFileAbsPath = "";
-//	std::ofstream resultsFile;
-//
-//	resFileAbsPath = find.absolutePath(resFileName);
-//
-//	int maxFrame = 0;
-//	getDataFromDetectionFile(resFileAbsPath, detData);
-//	maxFrame = groupingDetectionData(detData, detFrameData);
-//
-//	// prepare result file.
-//	resFileAbsPath.replace(resFileAbsPath.end() - 4, resFileAbsPath.end(), "_det.txt");
-//	resultsFile.open(resFileAbsPath);
-//
-//	if (!resultsFile.is_open())
-//	{
-//		std::cerr << "Error: can not create file " << resFileName << std::endl;
-//		return resFileAbsPath;
-//	}
-//
-//	std::vector<TrackingBox> tempResults;
-//	std::vector<DetectionBox> inputDataDet;
-//	tempResults.clear();
-//	inputDataDet.clear();
-//
-//	for (int fi = 0; fi < maxFrame; fi++)
-//	{
-//		tempResults.clear();
-//		inputDataDet.clear();
-//
-//		for (int i = 0; i < detFrameData[fi].size(); i++) {
-//			//Converting to DetectionBox type to test the singleFrameSORT with input of vector<DetectionBox>
-//			DetectionBox temp;
-//			temp.m_frame = detFrameData[fi][i].m_frame;
-//			temp.m_boxID = detFrameData[fi][i].m_boxID;
-//			temp.updateBox(cv::Rect2f(detFrameData[fi][i].x, detFrameData[fi][i].y, detFrameData[fi][i].width, detFrameData[fi][i].height)); //TODO idk if its right
-//			inputDataDet.push_back(temp);
-//		}
-//
-//		tempResults = SORTprocessor.singleFrameSORT(inputDataDet);
-//
-//		for (auto tb : tempResults)
-//		{
-//			resultsFile << tb;
-//		}
-//	}
-//
-//	resultsFile.close();
-//
-//	return resFileAbsPath;
-//}
-
 std::string frameAnalysis::runDetectorOnFrames(SpeedReporter* report)
 {
 	fileFinder find;
@@ -216,7 +154,6 @@ std::string frameAnalysis::runDetectorOnFrames(SpeedReporter* report)
 	char buff[buffSize]{};
 	cv::Mat img;
 	swimmerDetector detect;
-	//std::vector<DetectionBox> results;
 	std::vector<TrackingBox> results;
 
 	detect.configureDetector();

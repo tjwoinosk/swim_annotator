@@ -12,7 +12,7 @@
 #include "fileFinder.h"
 
 #include "TrackingBox.h"
-#include "DetectionBox.h"
+//#include "DetectionBox.h"
 #include "sortTrackerPipelined.h"
 #include "swimmerDetector.h"
 #include "SpeedReporter.h"
@@ -26,8 +26,6 @@ private:
 public:
 
 	std::string sortOnFrame(SpeedReporter* report = NULL);
-
-	//std::string sortOnFrameDet();
 
 	std::string runDetectorOnFrames(SpeedReporter* report = NULL);
 

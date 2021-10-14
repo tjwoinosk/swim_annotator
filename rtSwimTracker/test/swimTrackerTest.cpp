@@ -146,21 +146,6 @@ BOOST_AUTO_TEST_CASE(testTrackingBoxOutStreamFunctionsNew)
 	BOOST_CHECK(testBox == groundBox);
 	BOOST_CHECK_GE(testBox.GetIOU(groundBox), 0.999);
 }
-//BOOST_AUTO_TEST_CASE(testDetectionBoxInStreamFunctions)
-//{
-//	cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
-//	DetectionBox testBox(1, 0.78665f, 10, 5, tBox);
-//
-//	stringstream ssGround;
-//	ssGround << testBox.m_frame << "," << testBox.m_boxID;
-//	ssGround << "," << testBox.x << "," << testBox.y << "," << testBox.width << "," << testBox.height;
-//	ssGround << "," << testBox.m_confScore << "," << testBox.m_swimmerClass << std::endl;
-//
-//	stringstream ss;
-//	ss << testBox;
-//
-//	BOOST_CHECK_EQUAL(ssGround.str(), ss.str());
-//}
 BOOST_AUTO_TEST_CASE(testDetectionBoxInStreamFunctionsNEW)
 {
 	cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
@@ -177,22 +162,6 @@ BOOST_AUTO_TEST_CASE(testDetectionBoxInStreamFunctionsNEW)
 
 	BOOST_CHECK_EQUAL(ssGround.str(), ss.str());
 }
-//BOOST_AUTO_TEST_CASE(testDetectionBoxOutStreamFunctions)
-//{
-//	cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
-//	DetectionBox groundBox(1, 0.78665f, 10, 5, tBox);
-//
-//	std::stringstream ssTester;
-//	ssTester << groundBox.m_frame << "," << groundBox.m_boxID;
-//	ssTester << "," << groundBox.x << "," << groundBox.y << "," << groundBox.width << "," << groundBox.height;
-//	ssTester << "," << groundBox.m_confScore << groundBox.m_swimmerClass << std::endl;
-//
-//	DetectionBox testBox;
-//
-//	ssTester >> testBox;
-//
-//	BOOST_CHECK_GE(testBox.GetIOU(groundBox), 0.999);
-//}
 BOOST_AUTO_TEST_CASE(testDetectionBoxOutStreamFunctionsNew)
 {
 	cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
@@ -262,25 +231,4 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
 
 	BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
 }
-//BOOST_AUTO_TEST_CASE(SORTvalidationTESTDetectionBox)
-//{
-//	frameAnalysis testSORTTWO;
-//	string gtPath = "";
-//	string outputName = "";
-//
-//	outputName = testSORTTWO.sortOnFrameDet();
-//	gtPath = outputName;
-//
-//	//results file
-//	gtPath.replace(gtPath.end() - 4, gtPath.end(), "GT.txt");
-//
-//	std::ifstream ifs1(outputName);
-//	std::ifstream ifs2(gtPath);
-//
-//	std::istream_iterator<char> b1(ifs1), e1;
-//	std::istream_iterator<char> b2(ifs2), e2;
-//
-//	BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
-//
-//}
 BOOST_AUTO_TEST_SUITE_END() //End SORT validation tests suite

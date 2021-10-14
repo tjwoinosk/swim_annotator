@@ -26,24 +26,6 @@ std::vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(std::vector<Trac
 	return frameDetections;
 }
 
-//std::vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(std::vector<DetectionBox> frameDetections)
-//{
-//	std::vector<TrackingBox> resultsFrameData;
-//
-//	inputDetectionData(frameDetections);
-//
-//	m_frameTrackingResults.clear();
-//
-//	processFrame();
-//
-//	resultsFrameData.clear();
-//
-//	for (int ii = 0; ii < m_frameTrackingResults.size(); ii++)
-//		resultsFrameData.push_back(m_frameTrackingResults[ii]);
-//
-//	return resultsFrameData;
-//}
-
 void sortTrackerPiplelined::processFrame()
 {
 	std::vector<std::vector<double>> iouCostMatrix;
@@ -233,17 +215,3 @@ double sortTrackerPiplelined::GetIOU(cv::Rect_<float> bb_test, cv::Rect_<float> 
 
 	return (double)(in / un);
 }
-
-//void sortTrackerPiplelined::inputDetectionData(const std::vector<DetectionBox>& detFrameData) {
-//	// https://stackoverflow.com/questions/5966698/error-use-of-deleted-function
-//	//https://stackoverflow.com/questions/9365318/c-can-i-cast-a-vector-derived-class-to-a-vector-base-class-during-a-funct
-//
-//	m_frameData.clear(); 
-//
-//	for (int i = 0; i < detFrameData.size(); i++) {
-//		TrackingBox temp = (DetectionBox)detFrameData[i];
-//		m_frameData.push_back(temp);
-//	}
-//	m_numDetections = static_cast<int>(detFrameData.size());
-//
-//}

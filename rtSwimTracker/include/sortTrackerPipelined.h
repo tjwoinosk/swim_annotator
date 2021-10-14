@@ -21,7 +21,6 @@ public:
 
 	sortTrackerPiplelined();
 	std::vector<TrackingBox> singleFrameSORT(std::vector<TrackingBox> swimmerDetections);
-	//std::vector<TrackingBox> singleFrameSORT(std::vector<DetectionBox> swimmerDetections);
 
 private:
 	void inputDetectionData(const std::vector<TrackingBox>& detFrameData)
@@ -29,7 +28,6 @@ private:
 		m_frameData = detFrameData; 
 		m_numDetections = static_cast<int>(detFrameData.size());
 	}
-	//void inputDetectionData(const std::vector<DetectionBox>& detFrameData);
 
 	void initializeTrackersUsing(const std::vector<TrackingBox>& detFrameData);
 	void processFrame();
