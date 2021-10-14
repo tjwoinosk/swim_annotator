@@ -41,16 +41,15 @@ public:
 
 	virtual double GetIOU(const TrackingBox& bb_gt);
 
-	void outputToFile(std::ostream& out);
-	void inputFromFile(std::istream& in);
+	void outputToFile(std::ostream& out); // Similar to overloaded operator<< (can delete the overloaded operator)
+	void inputFromFile(std::istream& in); //Similar to overloaded operator>> (can delete the overloaded operator)
 	void outputToFileDetection(std::ostream& out);
 	void inputFromFileDetection(std::istream& in);
 
 private:
-
-	//const std::string CLASSESDET[6] = { "On_Block", "Diving", "Swimming", "Underwater", "Turning", "Finishing" }; //the six possible classes
+	enum Classes { On_Block = 1, Diving, Swimming, Underwater, Turning, Finishing };
+	//const std::string CLASSES[6] = { "On_Block", "Diving", "Swimming", "Underwater", "Turning", "Finishing" }; //the six possible classes
 
 };
 
 #endif // !TRACKINGBOX_H
-
