@@ -7,7 +7,6 @@
 
 #include "KalmanTracker.h"
 #include "TrackingBox.h"
-#include "DetectionBox.h"
 
 #include <opencv2/core.hpp>
 

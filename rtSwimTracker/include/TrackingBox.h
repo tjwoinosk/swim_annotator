@@ -47,8 +47,10 @@ public:
 	void inputFromFileDetection(std::istream& in);
 
 private:
-	enum Classes { On_Block = 1, Diving, Swimming, Underwater, Turning, Finishing };
-	//const std::string CLASSES[6] = { "On_Block", "Diving", "Swimming", "Underwater", "Turning", "Finishing" }; //the six possible classes
+	//enum Classes { On_Block = 0, Diving, Swimming, Underwater, Turning, Finishing };
+	//const std::string CLASSES[6] { "On_Block", "Diving", "Swimming", "Underwater", "Turning", "Finishing" }; //the six possible classes
+	std::string CLASSES[6] = { "On_Block", "Diving", "Swimming", "Underwater", "Turning", "Finishing" }; //the six possible classes
+	//const char *CLASSES[6] = { "On_Block", "Diving", "Swimming", "Underwater", "Turning", "Finishing" }; //the six possible classes
 
 };
 
