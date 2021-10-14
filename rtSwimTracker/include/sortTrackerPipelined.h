@@ -46,8 +46,6 @@ private:
 	std::vector<KalmanTracker> m_vectorOfTrackers;
 	std::vector<TrackingBox> m_frameData;
 	std::vector<TrackingBox> m_frameTrackingResults;
-	std::vector<DetectionBox> m_frameData_det;
-	std::vector<DetectionBox> m_frameTrackingResults_det;
 	std::set<int> m_unmatchedDetections;
 	std::set<int> m_unmatchedTrajectories;
 	int m_numTrajectories;
