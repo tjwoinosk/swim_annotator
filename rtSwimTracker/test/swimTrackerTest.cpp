@@ -73,6 +73,19 @@ BOOST_AUTO_TEST_SUITE_END() //End file Finder Tests
 
 //Tracking Box Tests
 BOOST_AUTO_TEST_SUITE(BoxTests)
+BOOST_AUTO_TEST_CASE(testTrackingBoxInStreamFunctionsNEW)
+{
+	cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
+	TrackingBox testBox(10, 5, tBox);
+
+	stringstream ssGround;
+	ssGround << testBox.m_frame << "," << testBox.m_boxID << "," << testBox.x << "," << testBox.y << "," << testBox.width << "," << testBox.height << ",1,-1,-1,-1" << std::endl;
+
+	stringstream ss;
+	testBox.outputToFile(ss);
+
+	BOOST_CHECK_EQUAL(ssGround.str(), ss.str());
+}
 BOOST_AUTO_TEST_CASE(testTrackingBoxInStreamFunctions)
 {
 	cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
@@ -117,6 +130,22 @@ BOOST_AUTO_TEST_CASE(testTrackingBoxOutStreamFunctions)
 	BOOST_CHECK_GE(testBox.GetIOU(groundBox), 0.999);
 
 }
+BOOST_AUTO_TEST_CASE(testTrackingBoxOutStreamFunctionsNew)
+{
+	cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
+	TrackingBox groundBox(10, 5, tBox);
+
+	stringstream ssTester;
+	ssTester << groundBox.m_frame << "," << groundBox.m_boxID << "," << groundBox.x << "," << groundBox.y << "," << groundBox.width << "," << groundBox.height << ",1,-1,-1,-1" << std::endl;
+
+	TrackingBox testBox;
+
+	//ssTester >> testBox;
+	testBox.inputFromFile(ssTester);
+
+	BOOST_CHECK(testBox == groundBox);
+	BOOST_CHECK_GE(testBox.GetIOU(groundBox), 0.999);
+}
 BOOST_AUTO_TEST_CASE(testDetectionBoxInStreamFunctions)
 {
 	cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
@@ -129,6 +158,22 @@ BOOST_AUTO_TEST_CASE(testDetectionBoxInStreamFunctions)
 
 	stringstream ss;
 	ss << testBox;
+
+	BOOST_CHECK_EQUAL(ssGround.str(), ss.str());
+}
+BOOST_AUTO_TEST_CASE(testDetectionBoxInStreamFunctionsNEW)
+{
+	cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
+	TrackingBox testBox(1, 0.78665f, 10, 5, tBox);
+
+	stringstream ssGround;
+	ssGround << testBox.m_frame << "," << testBox.m_boxID;
+	ssGround << "," << testBox.x << "," << testBox.y << "," << testBox.width << "," << testBox.height;
+	ssGround << "," << testBox.m_confScore << "," << testBox.m_swimmerClass << std::endl;
+
+	stringstream ss;
+	//ss << testBox;
+	testBox.outputToFileDetection(ss);
 
 	BOOST_CHECK_EQUAL(ssGround.str(), ss.str());
 }
@@ -145,6 +190,23 @@ BOOST_AUTO_TEST_CASE(testDetectionBoxOutStreamFunctions)
 	DetectionBox testBox;
 
 	ssTester >> testBox;
+
+	BOOST_CHECK_GE(testBox.GetIOU(groundBox), 0.999);
+}
+BOOST_AUTO_TEST_CASE(testDetectionBoxOutStreamFunctionsNew)
+{
+	cv::Rect_<float> tBox(5.3f, 3.4f, 6.8f, 9.00f);
+	TrackingBox groundBox(1, 0.78665f, 10, 5, tBox);
+
+	std::stringstream ssTester;
+	ssTester << groundBox.m_frame << "," << groundBox.m_boxID;
+	ssTester << "," << groundBox.x << "," << groundBox.y << "," << groundBox.width << "," << groundBox.height;
+	ssTester << "," << groundBox.m_confScore << groundBox.m_swimmerClass << std::endl;
+
+	TrackingBox testBox;
+
+	//ssTester >> testBox;
+	testBox.inputFromFileDetection(ssTester);
 
 	BOOST_CHECK_GE(testBox.GetIOU(groundBox), 0.999);
 }
