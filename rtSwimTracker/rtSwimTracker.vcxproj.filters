@@ -55,9 +55,6 @@
     <ClCompile Include="src\TrackingBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\DetectionBox.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\SpeedReporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -91,9 +88,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\TrackingBox.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\DetectionBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\SpeedReporter.h">
