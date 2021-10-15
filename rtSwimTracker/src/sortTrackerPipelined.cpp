@@ -58,8 +58,8 @@ void sortTrackerPiplelined::initializeTrackersUsing(const std::vector<TrackingBo
 		m_vectorOfTrackers.push_back(trk);
 
 		tb.updateBox(trk.get_state());
-		tb.m_boxID = trk.m_id + 1;
-		tb.m_frame = m_numberFramesProcessed;
+		tb.set_m_boxID(trk.m_id + 1); //TODO print result if fails?
+		tb.set_m_frame(m_numberFramesProcessed); //TODO print result if fails?
 		m_frameTrackingResults.push_back(tb);
 	}
 }
@@ -195,8 +195,8 @@ void sortTrackerPiplelined::collectResultsWhileKillingTrackers()
 		{
 			TrackingBox res;
 			res.updateBox(it->get_state());
-			res.m_boxID = it->m_id + 1;
-			res.m_frame = m_numberFramesProcessed;
+			res.set_m_boxID(it->m_id + 1); //TODO print result if fails?
+			res.set_m_frame(m_numberFramesProcessed);//TODO print result if fails?
 			m_frameTrackingResults.push_back(res);
 			it++;
 		}

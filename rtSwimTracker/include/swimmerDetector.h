@@ -16,6 +16,11 @@ public:
 
 	void configureDetector();
 
+	bool setConfThreshold(float valSet);
+	float getConfThreshold();
+	bool setNmsThreshold(float valSet);
+	float getNmsThreshold();
+
 private:
 
 	std::vector<TrackingBox> postprocess(cv::Mat& frame, const std::vector<cv::Mat>& outs, int frame_num);
@@ -27,6 +32,8 @@ private:
 
 	cv::dnn::Net m_net;
 
+	float confThreshold;
+	float nmsThreshold;
 };
 
 #endif // !SWIMMERDETECTOR_H

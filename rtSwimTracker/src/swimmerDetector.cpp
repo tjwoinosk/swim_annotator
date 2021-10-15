@@ -23,6 +23,30 @@ void swimmerDetector::configureDetector()
     //m_net.setPreferableTarget(cv::dnn::DNN_TARGET_OPENCL);
 }
 
+bool swimmerDetector::setConfThreshold(float valSet)
+{
+    if (valSet < 0.0f || valSet > 1.0f) {return false;} //TODO is this the right condition?
+    confThreshold = valSet;
+    return true;
+}
+
+float swimmerDetector::getConfThreshold()
+{
+    return confThreshold;
+}
+
+bool swimmerDetector::setNmsThreshold(float valSet)
+{
+    if (valSet < 0.0f || valSet > 1.0f) { return false; } //TODO is this the right condition?
+    nmsThreshold = valSet;
+    return true;
+}
+
+float swimmerDetector::getNmsThreshold()
+{
+    return nmsThreshold;
+}
+
 std::vector<TrackingBox> swimmerDetector::detectSwimmers(cv::Mat frame)
 {
     int inpWidth = 416;
@@ -42,7 +66,7 @@ std::vector<TrackingBox> swimmerDetector::detectSwimmers(cv::Mat frame)
 
     // Remove the bounding boxes with low confidence
     // Also saves the results in results
-    std::vector<TrackingBox> results = postprocess(frame, outs, 1); //TODO is it okay to just set the frame number to one?
+    std::vector<TrackingBox> results = postprocess(frame, outs, 1); 
 
     return results;
 }
@@ -56,8 +80,8 @@ std::vector<TrackingBox> swimmerDetector::postprocess(cv::Mat& frame, const std:
     std::vector<int> classIds;
     std::vector<float> confidences;
     std::vector<cv::Rect> boxes;
-    float confThreshold = 0.5f; //TODO should these be private/public variables in the class?
-    float nmsThreshold = 0.3f; //TODO should these be private/public variables in the class?
+    confThreshold = 0.5f; //TODO use setter?
+    nmsThreshold = 0.3f; //TODO use setter?
 
     for (size_t i = 0; i < outs.size(); ++i)
     {
@@ -91,7 +115,7 @@ std::vector<TrackingBox> swimmerDetector::postprocess(cv::Mat& frame, const std:
     // Perform non maximum suppression to eliminate redundant overlapping boxes with
     // lower confidences
     std::vector<int> indices;
-    std::vector<TrackingBox> results; //TODO added this - check if works
+    std::vector<TrackingBox> results; 
     TrackingBox temp;
 
     cv::dnn::NMSBoxes(boxes, confidences, confThreshold, nmsThreshold, indices);
@@ -103,10 +127,10 @@ std::vector<TrackingBox> swimmerDetector::postprocess(cv::Mat& frame, const std:
 
         //save results for later processing
         temp.updateBox(box);
-        temp.m_swimmerClass = classIds[idx];
-        temp.m_confScore = confidences[idx];
-        temp.m_frame = frame_num;
-        temp.m_boxID = -1;
+        temp.set_m_swimmerClass(classIds[idx]); //TODO print results if fails?
+        temp.set_m_confScore(confidences[idx]); //TODO print results if fails?
+        temp.set_m_frame(frame_num); //TODO print results if fails?
+        temp.set_m_boxID(-1); //TODO print results if fails?
         results.push_back(temp);
     }
 

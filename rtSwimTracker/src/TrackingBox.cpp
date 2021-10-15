@@ -81,6 +81,54 @@ void TrackingBox::inputFromFileDetection(std::istream& in)
 	m_swimmerClass = swimmerClass;
 }
 
+bool TrackingBox::set_m_frame(int setVal)
+{
+	if (setVal < 0) { return false; } //TODO is this condition okay?
+	m_frame = setVal;
+	return true;
+}
+
+int TrackingBox::get_m_frame()
+{
+	return m_frame;
+}
+
+bool TrackingBox::set_m_boxID(int setVal)
+{
+	if (setVal < -1) { return false; } //TODO is this condition okay?
+	m_boxID = setVal;
+	return true;
+}
+
+int TrackingBox::get_m_boxID()
+{
+	return m_boxID;
+}
+
+bool TrackingBox::set_m_swimmerClass(int setVal)
+{
+	if (setVal < 0 || setVal > 5) { return false; } //TODO is this condition okay?
+	m_swimmerClass = setVal;
+	return true;
+}
+
+int TrackingBox::get_m_swimmerClass()
+{
+	return m_swimmerClass;
+}
+
+bool TrackingBox::set_m_confScore(float setVal)
+{
+	if (setVal < 0.0f || setVal > 1.0f) { return false; } //TODO is this condition okay?
+	m_confScore = setVal;
+	return true;
+}
+
+float TrackingBox::get_m_confScore()
+{
+	return m_confScore;
+}
+
 double TrackingBox::GetIOU(const TrackingBox& bb_gt)
 {
 	float in = ((*this) & bb_gt).area();

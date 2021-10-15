@@ -64,8 +64,6 @@ void frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 
 	//2. use sort algorithm on the output of the detector
 	resultsSORT = SORTprocessor.singleFrameSORT(resultsDetector);
-
-	//TODO do something with output to test it - output detector and sort information, and show video
 }
 
 
@@ -180,7 +178,7 @@ std::string frameAnalysis::runDetectorOnFrames(SpeedReporter* report)
 		for (int jj = 0; jj < results.size(); jj++)
 		{
 			//TODO check this new code/method works fine for adjusting the frame number
-			results[jj].m_frame = std::stoi(buff);
+			results[jj].set_m_frame(std::stoi(buff)); //TODO print result if fails?
 
 			results[jj].outputToFileDetection(resultsFile);
 
@@ -240,15 +238,15 @@ int frameAnalysis::groupingDetectionData(std::vector<TrackingBox> detData, std::
 
 	for (auto tb : detData) // find max frame number
 	{
-		if (maxFrame < tb.m_frame)
-			maxFrame = tb.m_frame;
+		if (maxFrame < tb.get_m_frame())
+			maxFrame = tb.get_m_frame();
 	}
 
 
 	for (int fi = 0; fi < maxFrame; fi++)
 	{
 		for (auto tb : detData)
-			if (tb.m_frame == fi + 1) // frame num starts from 1
+			if (tb.get_m_frame() == fi + 1) // frame num starts from 1
 				tempVec.push_back(tb);
 		detFrameData.push_back(tempVec);
 		tempVec.clear();
