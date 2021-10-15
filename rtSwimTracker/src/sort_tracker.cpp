@@ -1046,7 +1046,7 @@ for that frame, as well as adjust the trackers accordingly
 			//resultsFile << tb.frame << "," << id + 1 << "," << tb.box.x << "," << tb.box.y << "," << tb.box.width << "," << tb.box.height << ",1,-1,-1,-1" << endl;
 			//Save to results in swimmer_tracking.h
 
-			tb.id = id + 1; //TODO should this be dealt in another way?
+			tb.id = id + 1;
 			frameTrackingResult.push_back(tb);
 		}
 		return frameTrackingResult;

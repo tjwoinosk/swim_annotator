@@ -21,7 +21,7 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 		std::cout << "Could not open video file for analysis" << std::endl;
 		return;
 	}
-	
+
 	videoToAnalyze >> frame;
 
 	while (true) { //TODO do we want it to be infinite?
@@ -50,40 +50,63 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 
 }
 
-void frameAnalysis::sortOnFrame(std::string seqName)
+void frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 {
-	std::cout << "Processing " << seqName << "..." << std::endl;
+	swimmerDetector detect;
+	std::vector<TrackingBox> resultsDetector;
 
+	sortTrackerPiplelined SORTprocessor;
+	std::vector<TrackingBox> resultsSORT;
+
+	//1. use detector on the frame
+	detect.configureDetector();
+	resultsDetector = detect.detectSwimmers(frameToAnalyze);
+
+	//2. use sort algorithm on the output of the detector
+	resultsSORT = SORTprocessor.singleFrameSORT(resultsDetector);
+}
+
+
+std::string frameAnalysis::sortOnFrame(SpeedReporter* report)
+{
 	sortTrackerPiplelined SORTprocessor;
 
 	std::vector<TrackingBox> detData;
 	std::vector<std::vector<TrackingBox>> detFrameData;
 
+	fileFinder find;
+	std::string resFileName = "PipeTest.txt";
+	std::string resFileAbsPath = "";
+	std::ofstream resultsFile;
+	boost::timer::cpu_timer measureSORT;
+
+	resFileAbsPath = find.absolutePath(resFileName);
+
 	int maxFrame = 0;
-	getDataFromDetectionFile(seqName, detData);
+	getDataFromDetectionFile(resFileAbsPath, detData);
 	maxFrame = groupingDetectionData(detData, detFrameData);
 
-
 	// prepare result file.
-	std::string resFileName = seqName;
-	resFileName.replace(resFileName.end() - 4, resFileName.end(), "_det.txt");
-	std::ofstream resultsFile;
-	resultsFile.open(resFileName);
+	resFileAbsPath.replace(resFileAbsPath.end() - 4, resFileAbsPath.end(), "_det.txt");
+	resultsFile.open(resFileAbsPath);
 
 	if (!resultsFile.is_open())
 	{
 		std::cerr << "Error: can not create file " << resFileName << std::endl;
-		return;
+		return resFileAbsPath;
 	}
 
 	std::vector<TrackingBox> tempResults;
 	tempResults.clear();
-	
+	measureSORT.start();
+	measureSORT.stop();
 	for (int fi = 0; fi < maxFrame; fi++)
 	{
 		tempResults.clear();
 
+		measureSORT.resume();
 		tempResults = SORTprocessor.singleFrameSORT(detFrameData[fi]);
+		measureSORT.stop();
 
 		for (auto tb : tempResults)
 		{
@@ -91,24 +114,34 @@ void frameAnalysis::sortOnFrame(std::string seqName)
 		}
 	}
 
+	if ((report != NULL) && !report->isBase())
+	{
+		report->inputMeasurement(measureSORT.elapsed(), maxFrame);
+		report->reportSpeed();
+	}
+
 	resultsFile.close();
+	
+	return resFileAbsPath;
 }
 
-std::string frameAnalysis::runDetectorOnFrames()
+
+std::string frameAnalysis::runDetectorOnFrames(SpeedReporter* report)
 {
 	fileFinder find;
 	std::string resFileName = "detectionData.txt";
 	std::string resFileAbsPath = "";
 	std::ofstream resultsFile;
-	
+	boost::timer::cpu_timer measure;
+	int numberFrames = 0;
 
-	try 
+	try
 	{
 		resFileAbsPath = find.returnDataLocation() + resFileName;
 		resultsFile.open(resFileAbsPath);
 	}
-	catch (const std::exception & e) 
-	{ 
+	catch (const std::exception& e)
+	{
 		std::cout << "Could not open " << resFileAbsPath << std::endl << e.what() << std::endl;
 		return std::string();
 	}
@@ -119,30 +152,44 @@ std::string frameAnalysis::runDetectorOnFrames()
 	char buff[buffSize]{};
 	cv::Mat img;
 	swimmerDetector detect;
-	std::vector<DetectionBox> results;
+	std::vector<TrackingBox> results;
 
 	detect.configureDetector();
 
+	measure.start();
+	measure.stop();
 	for (int ii = 0; ii < possibleNumImages; ii++)
 	{
-		sprintf_s(buff,buffSize,"%04i", ii);
+		sprintf_s(buff, buffSize, "%04i", ii);
 		imgPath.assign(buff);
 		imgPath = find.absolutePath(imgPath + ".bmp");
-		
+
 		if (imgPath.empty())
 			continue;
 
 		results.clear();
 		img = cv::imread(imgPath);
-		
+
+		numberFrames++;
+		measure.resume();
 		results = detect.detectSwimmers(img);
+		measure.stop();
 
 		for (int jj = 0; jj < results.size(); jj++)
 		{
+			//TODO check this new code/method works fine for adjusting the frame number
+			results[jj].set_m_frame(std::stoi(buff)); //TODO print result if fails?
 
-			resultsFile << results[jj];
+			results[jj].outputToFileDetection(resultsFile);
+
 		}
 		resultsFile << std::endl;
+	}
+
+	if ((report != NULL) && !report->isBase())
+	{
+		report->inputMeasurement(measure.elapsed(), numberFrames);
+		report->reportSpeed();
 	}
 
 	resultsFile.close();
@@ -150,7 +197,7 @@ std::string frameAnalysis::runDetectorOnFrames()
 }
 
 /*
-The purpose of this function is to read in the file whose name is speciied by the input detFileName
+The purpose of this function is to read in the file whose name is specified by the input detFileName
 and put the information of this file into a vector of TrackingBoxes, which is the argument detData
 */
 void frameAnalysis::getDataFromDetectionFile(std::string detFileName, std::vector<TrackingBox>& detData)
@@ -178,7 +225,6 @@ void frameAnalysis::getDataFromDetectionFile(std::string detFileName, std::vecto
 	return;
 }
 
-
 /*
 This function takes an input detData that is all the detection data stored in a vector of TrackingBox
 and then grouping TrackingBoxes for a single frame into a vector, and storing this vector into another
@@ -192,18 +238,19 @@ int frameAnalysis::groupingDetectionData(std::vector<TrackingBox> detData, std::
 
 	for (auto tb : detData) // find max frame number
 	{
-		if (maxFrame < tb.m_frame)
-			maxFrame = tb.m_frame;
+		if (maxFrame < tb.get_m_frame())
+			maxFrame = tb.get_m_frame();
 	}
 
 
 	for (int fi = 0; fi < maxFrame; fi++)
 	{
 		for (auto tb : detData)
-			if (tb.m_frame == fi + 1) // frame num starts from 1
+			if (tb.get_m_frame() == fi + 1) // frame num starts from 1
 				tempVec.push_back(tb);
 		detFrameData.push_back(tempVec);
 		tempVec.clear();
 	}
 	return maxFrame;
 }
+

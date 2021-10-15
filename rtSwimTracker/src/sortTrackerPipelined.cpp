@@ -3,9 +3,9 @@
 
 sortTrackerPiplelined::sortTrackerPiplelined()
 {
+	KalmanTracker::kf_count = 0; // tracking id relies on this, so we have to reset it in each seq.
 	m_numberFramesProcessed = 0;
 }
-
 
 /*
 This function will take trackers and data for a single frame (frame number fi) and produce predictions
@@ -14,6 +14,7 @@ for that frame, as well as adjust the trackers accordingly
 std::vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(std::vector<TrackingBox> frameDetections)
 {
 	inputDetectionData(frameDetections);
+
 	m_frameTrackingResults.clear();
 
 	processFrame();
@@ -24,7 +25,6 @@ std::vector<TrackingBox> sortTrackerPiplelined::singleFrameSORT(std::vector<Trac
 
 	return frameDetections;
 }
-
 
 void sortTrackerPiplelined::processFrame()
 {
@@ -48,7 +48,6 @@ void sortTrackerPiplelined::processFrame()
 	}
 }
 
-
 void sortTrackerPiplelined::initializeTrackersUsing(const std::vector<TrackingBox>& trackingBoxData)
 {
 	TrackingBox tb;
@@ -59,12 +58,11 @@ void sortTrackerPiplelined::initializeTrackersUsing(const std::vector<TrackingBo
 		m_vectorOfTrackers.push_back(trk);
 
 		tb.updateBox(trk.get_state());
-		tb.m_boxID = trk.m_id + 1;
-		tb.m_frame = m_numberFramesProcessed;
+		tb.set_m_boxID(trk.m_id + 1); //TODO print result if fails?
+		tb.set_m_frame(m_numberFramesProcessed); //TODO print result if fails?
 		m_frameTrackingResults.push_back(tb);
 	}
 }
-
 
 std::vector<cv::Rect_<float>>& sortTrackerPiplelined::createTrajecotoryPredictions(std::vector<cv::Rect_<float>>& initializedValue)
 {
@@ -86,7 +84,6 @@ std::vector<cv::Rect_<float>>& sortTrackerPiplelined::createTrajecotoryPredictio
 	return initializedValue;
 }
 
-
 std::vector<std::vector<double>>& sortTrackerPiplelined::constructIOUCostMat(const std::vector<cv::Rect_<float>>& trajectoryPredictions, std::vector<std::vector<double>>& iouCostMatrix)
 {
 	iouCostMatrix.resize(m_numTrajectories, std::vector<double>(m_numDetections, 0));
@@ -101,7 +98,6 @@ std::vector<std::vector<double>>& sortTrackerPiplelined::constructIOUCostMat(con
 	}
 	return iouCostMatrix;
 }
-
 
 std::vector<cv::Point>& sortTrackerPiplelined::matchDetectionsToTrajectories(const std::vector<std::vector<double>>& iouCostMatrix, std::vector<cv::Point>& pairs)
 {
@@ -129,7 +125,6 @@ std::vector<cv::Point>& sortTrackerPiplelined::matchDetectionsToTrajectories(con
 
 	return pairs;
 }
-
 
 void sortTrackerPiplelined::fillUnmatchedDetections(const std::vector<int>& assignments)
 {
@@ -162,7 +157,6 @@ void sortTrackerPiplelined::fillUnmatchedTrajectories(const std::vector<int>& as
 	}
 }
 
-
 void sortTrackerPiplelined::updateTrackers(const std::vector<cv::Point>& pairs)
 {
 	int detIdx, trkIdx;
@@ -174,7 +168,6 @@ void sortTrackerPiplelined::updateTrackers(const std::vector<cv::Point>& pairs)
 	}
 }
 
-
 void sortTrackerPiplelined::createNewTrackersWithLeftoverDetections()
 {
 	for (auto umd : m_unmatchedDetections)
@@ -183,7 +176,6 @@ void sortTrackerPiplelined::createNewTrackersWithLeftoverDetections()
 		m_vectorOfTrackers.push_back(tracker);
 	}
 }
-
 
 void sortTrackerPiplelined::collectResultsWhileKillingTrackers()
 {
@@ -203,8 +195,8 @@ void sortTrackerPiplelined::collectResultsWhileKillingTrackers()
 		{
 			TrackingBox res;
 			res.updateBox(it->get_state());
-			res.m_boxID = it->m_id + 1;
-			res.m_frame = m_numberFramesProcessed;
+			res.set_m_boxID(it->m_id + 1); //TODO print result if fails?
+			res.set_m_frame(m_numberFramesProcessed);//TODO print result if fails?
 			m_frameTrackingResults.push_back(res);
 			it++;
 		}
@@ -212,7 +204,6 @@ void sortTrackerPiplelined::collectResultsWhileKillingTrackers()
 			it++;
 	}
 }
-
 
 double sortTrackerPiplelined::GetIOU(cv::Rect_<float> bb_test, cv::Rect_<float> bb_gt)
 {

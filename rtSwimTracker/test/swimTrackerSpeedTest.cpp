@@ -1,81 +1,73 @@
-#include <iostream>
-#include <fstream>
+#define BOOST_TEST_MODULE Swim Tracker Speed Tests
+#include <boost/test/included/unit_test.hpp>
+//Add --detect_memory_leak=0 to debug command to remove memory leak output
+//--catch_system_error=no
+//--log_level=test_suite in command for more info https://www.boost.org/doc/libs/1_75_0/libs/test/doc/html/boost_test/utf_reference/rt_param_reference/log_level.html
 
-#include <boost/timer/timer.hpp>
-#include <boost/date_time.hpp>
+#include "frameAnalysis.h"
+#include "sortTrackerPipelined.h"
+#include "swimmerDetector.h"
 
 #include "TrackingBox.h"
-#include "sortTrackerPipelined.h";
-#include "frameAnalysis.h"
 #include "fileFinder.h"
+#include "SpeedReporter.h"
 
-std::string testSORTTrackingSpeed();
+#include <iostream>
+#include <fstream>
+#include <iterator>
 
-namespace bpt = boost::posix_time;
 
-int main()
+BOOST_AUTO_TEST_SUITE(speedTestSuite)
+
+BOOST_AUTO_TEST_CASE(speedTEST)
 {
-	std::cout << "Running Speed Tests..." << std::endl << std::endl;
-	fileFinder find;
+	frameAnalysis testDetector;
+	std::string resAbsPath = "";
+	DetectionSpeedReporter reportDetSpeed;
+	reportDetSpeed.startReporter();
 
-	std::fstream updateFile;
-	std::string logSpeed;
-
-	bpt::ptime now = bpt::second_clock::local_time();
-
-	const std::string SORTLog = "SORTSpeedLog.txt";
-
-	try 
+	if (reportDetSpeed.isReady())
 	{
-		updateFile.open(find.absolutePath(SORTLog), std::ios::app);
-		logSpeed = testSORTTrackingSpeed();
-		updateFile << now << " -> " << logSpeed;
-		updateFile.close();
+		resAbsPath = testDetector.runDetectorOnFrames(&reportDetSpeed);
+
+		//results file
+		std::string resAbsPathGT = resAbsPath;
+		resAbsPathGT.replace(resAbsPathGT.end() - 4, resAbsPathGT.end(), "GT.txt");
+
+		std::ifstream det_ifs1(resAbsPath);
+		std::ifstream det_ifs2(resAbsPathGT);
+
+		std::istream_iterator<char> det_b1(det_ifs1), det_e1;
+		std::istream_iterator<char> det_b2(det_ifs2), det_e2;
+
+		// compare 
+		BOOST_CHECK_EQUAL_COLLECTIONS(det_b1, det_e1, det_b2, det_e2);
 	}
-	catch(const std::exception & e)
+
+	///////////////////////////////////////////////////////////////////////////
+	frameAnalysis testSORTTWO;
+	std::string gtPath = "";
+	std::string outputName = "";
+	TrackingSpeedReporter reportSpeed;
+
+	reportSpeed.startReporter();
+
+	if (reportSpeed.isReady())
 	{
-		std::cout << "Could not open SORT Speed Log: " << e.what() << std::endl;
+		outputName = testSORTTWO.sortOnFrame(&reportSpeed);
+		gtPath = outputName;
+
+		//results file
+		gtPath.replace(gtPath.end() - 4, gtPath.end(), "GT.txt");
+
+		std::ifstream ifs1(outputName);
+		std::ifstream ifs2(gtPath);
+
+		std::istream_iterator<char> b1(ifs1), e1;
+		std::istream_iterator<char> b2(ifs2), e2;
+
+		BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
 	}
-
-
 }
 
-std::string testSORTTrackingSpeed()
-{
-	std::cout << "Start SORT Speed Test" << std::endl;
-
-	boost::timer::cpu_timer measureSORT;
-	fileFinder find;
-
-	frameAnalysis getData;
-	sortTrackerPiplelined SORTprocessor;
-
-	std::vector<TrackingBox> detData;
-	std::vector<std::vector<TrackingBox>> detFrameData;
-	std::string seqName = "PipeTest.txt";
-
-	int maxFrame = 0;
-	getData.getDataFromDetectionFile(find.absolutePath(seqName), detData);
-	maxFrame = getData.groupingDetectionData(detData, detFrameData);
-
-	std::vector<TrackingBox> tempResults;
-	tempResults.clear();
-	measureSORT.start();
-	for (int fi = 0; fi < maxFrame; fi++)
-	{
-		tempResults.clear();
-
-		measureSORT.resume();
-		tempResults = SORTprocessor.singleFrameSORT(detFrameData[fi]);
-		measureSORT.stop();
-	}
-
-	boost::timer::nanosecond_type divTerm = static_cast<boost::timer::nanosecond_type>(maxFrame);
-	boost::timer::cpu_times res = measureSORT.elapsed();
-	res.system /= divTerm;
-	res.user /= divTerm;
-	res.wall /= divTerm;
-
-	return "Single Frame SORT speed (AVG): " + boost::timer::format(res);
-
-}
+BOOST_AUTO_TEST_SUITE_END() //End speed tests suite
