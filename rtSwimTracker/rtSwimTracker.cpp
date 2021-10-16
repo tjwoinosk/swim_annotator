@@ -7,5 +7,7 @@
 int main()
 {
 	buttonGUI test;
-	test.runButton();
+	//test.runButton();
+	test.runButtonTWO();
+	//test.runButtonThree();
 }
