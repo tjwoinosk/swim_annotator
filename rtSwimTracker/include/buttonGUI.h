@@ -13,12 +13,13 @@ class buttonGUI
 {
 
 public:
-	buttonGUI();
+	buttonGUI(); //TODO ssaGUI
 	~buttonGUI();
 
 	void runButton();
 
 private:
+	//TODO integrate ray's code
 	cv::Mat3b canvas;
 	cv::Rect buttonStart;
 	cv::Rect buttonStop;
