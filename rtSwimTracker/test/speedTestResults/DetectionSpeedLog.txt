@@ -3,3 +3,5 @@
 2021-Oct-13 09:11:21 -> Single Frame detection speed (AVG):  1.038108s wall, 2.515625s user + 0.073661s system = 2.589286s CPU (249.4%)
 2021-Oct-14 16:53:28 -> Single Frame detection speed (AVG):  0.579965s wall, 2.551339s user + 0.084821s system = 2.636161s CPU (454.5%)
 2021-Oct-14 16:53:37 -> Single Frame detection speed (AVG):  0.649281s wall, 2.533482s user + 0.125000s system = 2.658482s CPU (409.4%)
+2021-Oct-15 16:59:06 -> Single Frame detection speed (AVG):  0.504867s wall, 2.343750s user + 0.066964s system = 2.410714s CPU (477.5%)
+2021-Oct-15 16:59:12 -> Single Frame detection speed (AVG):  0.586186s wall, 2.401786s user + 0.109375s system = 2.511161s CPU (428.4%)

@@ -2,8 +2,10 @@
 
 
 #include <iostream>
+#include "buttonGUI.h"
 
 int main()
 {
-  std::cout << "It works!" << std::endl;
+	buttonGUI test;
+	test.runButton();
 }
