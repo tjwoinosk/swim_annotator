@@ -18,9 +18,6 @@ public:
 
 	void runButton();
 
-	void runButtonTWO(); //TESTS
-	void runButtonThree(); //testS
-
 private:
 	cv::Mat3b canvas;
 	cv::Rect buttonStart;
