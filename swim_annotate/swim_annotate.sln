@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "swim_annotate", "swim_annot
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rtSwimTracker", "..\rtSwimTracker\rtSwimTracker.vcxproj", "{0F2E015C-3A24-4DCC-B82F-0B0868C36877}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSAGUI", "..\SSAGUI\SSAGUI.vcxproj", "{5714F422-10F6-487B-AF94-D55120E385B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug SwimTrackerTest|x64 = Debug SwimTrackerTest|x64
@@ -51,6 +53,22 @@ Global
 		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Release|x64.Build.0 = Release|x64
 		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Release|x86.ActiveCfg = Release|Win32
 		{0F2E015C-3A24-4DCC-B82F-0B0868C36877}.Release|x86.Build.0 = Release|Win32
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Debug SwimTrackerTest|x64.ActiveCfg = Debug|x64
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Debug SwimTrackerTest|x64.Build.0 = Debug|x64
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Debug SwimTrackerTest|x86.ActiveCfg = Debug|Win32
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Debug SwimTrackerTest|x86.Build.0 = Debug|Win32
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Debug|x64.ActiveCfg = Debug|x64
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Debug|x64.Build.0 = Debug|x64
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Debug|x86.ActiveCfg = Debug|Win32
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Debug|x86.Build.0 = Debug|Win32
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Release SpeedTest|x64.ActiveCfg = Release|x64
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Release SpeedTest|x64.Build.0 = Release|x64
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Release SpeedTest|x86.ActiveCfg = Release|Win32
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Release SpeedTest|x86.Build.0 = Release|Win32
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Release|x64.ActiveCfg = Release|x64
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Release|x64.Build.0 = Release|x64
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Release|x86.ActiveCfg = Release|Win32
+		{5714F422-10F6-487B-AF94-D55120E385B1}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
