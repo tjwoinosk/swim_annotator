@@ -143,7 +143,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="SSAGUI.cpp" />
+    <ClCompile Include="src\App.cpp" />
+    <ClCompile Include="src\util\buttonGUI.cpp" />
+    <ClCompile Include="src\util\SSAGUI.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\buttonGUI.h" />
+    <ClInclude Include="include\SSAGUI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
