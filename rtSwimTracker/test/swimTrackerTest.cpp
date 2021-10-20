@@ -14,6 +14,8 @@
 
 #include "swimmerDetector.h"
 
+#include "postProcessRealTimeTracking.h"
+
 #include <fstream>
 #include <iterator>
 
@@ -289,3 +291,22 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
 	BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
 }
 BOOST_AUTO_TEST_SUITE_END() //End SORT validation tests suite
+
+//postProcessRTTrackingTestSuite test suite
+BOOST_AUTO_TEST_SUITE(postProcessRTTrackingTestSuite)
+BOOST_AUTO_TEST_CASE(postProcessgetCentrevalidationTEST) 
+{
+	int tpx = 0;
+	int tpy = 0;
+	int tpw = 50;
+	int tph = 20;
+	postProcessRealTimeTracking postProcessRTobj;
+	cv::Point_<float> result;
+	cv::Point_<float> truthPoint = Point_<float>((tpx+ tpw)/2, (tpy+ tph)/2);
+
+	result = postProcessRTobj.getCentre(Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph)));
+	
+	BOOST_CHECK_EQUAL(truthPoint.x, result.x);
+	BOOST_CHECK_EQUAL(truthPoint.y, result.y);
+}
+BOOST_AUTO_TEST_SUITE_END() //End postProcessRTTrackingTestSuite test suite
