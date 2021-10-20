@@ -309,4 +309,131 @@ BOOST_AUTO_TEST_CASE(postProcessgetCentrevalidationTEST)
 	BOOST_CHECK_EQUAL(truthPoint.x, result.x);
 	BOOST_CHECK_EQUAL(truthPoint.y, result.y);
 }
+BOOST_AUTO_TEST_CASE(postProcessOneItemVectorTEST) 
+{
+	int tpx = 0;
+	int tpy = 0;
+	int tpw = 50;
+	int tph = 20;
+	int xMouse_test = 2;
+	int yMouse_test = 4;
+	int IDtest = 1;
+	postProcessRealTimeTracking postProcessRTobj;
+	int result = 0;
+	vector<TrackingBox> testVector;
+
+	testVector.push_back(TrackingBox(1, IDtest, Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph))));
+
+	result = postProcessRTobj.trajectoryMatcher(xMouse_test, yMouse_test, testVector);
+
+	BOOST_CHECK_EQUAL(result, IDtest);
+
+}
+BOOST_AUTO_TEST_CASE(postProcessOneItemVectorOutsideTEST)
+{
+	int tpx = 0;
+	int tpy = 0;
+	int tpw = 50;
+	int tph = 20;
+	int xMouse_test = 54;
+	int yMouse_test = 40;
+	int IDtest = 1;
+	postProcessRealTimeTracking postProcessRTobj;
+	int result = 0;
+	vector<TrackingBox> testVector;
+
+	testVector.push_back(TrackingBox(1, IDtest, Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph))));
+
+	result = postProcessRTobj.trajectoryMatcher(xMouse_test, yMouse_test, testVector);
+
+	BOOST_CHECK_EQUAL(result, IDtest);
+
+}
+BOOST_AUTO_TEST_CASE(postProcessTwoItemVectorTEST)
+{
+	int tpx = 0;
+	int tpy = 0;
+	int tpx2 = 100;
+	int tpy2 = 40;
+	int tpw = 50;
+	int tph = 20;
+	int xMouse_test = 150;
+	int yMouse_test = 41;
+	postProcessRealTimeTracking postProcessRTobj;
+	int result = 0;
+	vector<TrackingBox> testVector;
+
+	testVector.push_back(TrackingBox(1, 1, Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph))));
+	testVector.push_back(TrackingBox(1, 2, Rect_<float>(Point_<float>(tpx2, tpy2), Point_<float>(tpx2 + tpw, tpy2 + tph))));
+
+	result = postProcessRTobj.trajectoryMatcher(xMouse_test, yMouse_test, testVector);
+
+	BOOST_CHECK_EQUAL(result, 2);
+}
+BOOST_AUTO_TEST_CASE(postProcessTwoItemVectorTWOTEST)
+{
+	int tpx = 0;
+	int tpy = 0;
+	int tpx2 = 40;
+	int tpy2 = 10;
+	int tpw = 50;
+	int tph = 20;
+	int xMouse_test = 70;
+	int yMouse_test = 21;
+	postProcessRealTimeTracking postProcessRTobj;
+	int result = 0;
+	vector<TrackingBox> testVector;
+
+	testVector.push_back(TrackingBox(1, 1, Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph))));
+	testVector.push_back(TrackingBox(1, 2, Rect_<float>(Point_<float>(tpx2, tpy2), Point_<float>(tpx2 + tpw, tpy2 + tph))));
+
+	result = postProcessRTobj.trajectoryMatcher(xMouse_test, yMouse_test, testVector);
+
+	BOOST_CHECK_EQUAL(result, 2);
+
+}
+BOOST_AUTO_TEST_CASE(postProcessFourItemVectorTEST)
+{
+	Point_<float> p1 = Point_<float>(10, 10);
+	Point_<float> p1_end = Point_<float>(10+10, 10+20);
+	Point_<float> p2 = Point_<float>(18, 15);
+	Point_<float> p2_end = Point_<float>(18 + 22, 15 + 15);
+	Point_<float> p3 = Point_<float>(45, 35);
+	Point_<float> p3_end = Point_<float>(45 + 25, 35 + 15);
+	Point_<float> p4 = Point_<float>(50, 55);
+	Point_<float> p4_end = Point_<float>(50 + 20, 55 + 15);
+
+	int xMouse_1 = 75;
+	int yMouse_1 = 75;
+	int xMouse_2 = 70;
+	int yMouse_2 = 57;
+	int xMouse_3 = 45;
+	int yMouse_3 = 20;
+	int xMouse_4 = 50;
+	int yMouse_4 = 40;
+
+	int result1 = 0;
+	int result2 = 0;
+	int result3 = 0;
+	int result4 = 0;
+
+	postProcessRealTimeTracking postProcessRTobj;
+	vector<TrackingBox> testVector;
+
+	testVector.push_back(TrackingBox(1, 1, Rect_<float>(p1, p1_end)));
+	testVector.push_back(TrackingBox(1, 2, Rect_<float>(p2, p2_end)));
+	testVector.push_back(TrackingBox(1, 3, Rect_<float>(p3, p3_end)));
+	testVector.push_back(TrackingBox(1, 4, Rect_<float>(p4, p4_end)));
+
+	result1 = postProcessRTobj.trajectoryMatcher(xMouse_1, yMouse_1, testVector);
+	result2 = postProcessRTobj.trajectoryMatcher(xMouse_2, yMouse_2, testVector);
+	result3 = postProcessRTobj.trajectoryMatcher(xMouse_3, yMouse_3, testVector);
+	result4 = postProcessRTobj.trajectoryMatcher(xMouse_4, yMouse_4, testVector);
+
+	BOOST_CHECK_EQUAL(result1, 4);
+	BOOST_CHECK_EQUAL(result2, 4);
+	BOOST_CHECK_EQUAL(result3, 2);
+	BOOST_CHECK_EQUAL(result4, 3);
+}
+
 BOOST_AUTO_TEST_SUITE_END() //End postProcessRTTrackingTestSuite test suite
