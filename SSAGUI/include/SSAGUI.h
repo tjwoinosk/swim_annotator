@@ -13,6 +13,7 @@ using namespace std;
 static const string buttonTextStart = "Start";
 static const string buttonTextStop = "Stop";
 static const string appName = "Smart Swim App";
+static const Vec3b buttonColor = Vec3b(200, 200, 200);
 
 class SSAGUI
 {
@@ -20,25 +21,29 @@ public:
 	SSAGUI(string videoFile); //TODO ssaGUI
 	~SSAGUI();
 
+	Mat frame;
+	Rect startButton, stopButton;
+	bool isPlaying = true;
+	
 	void playVideo(int videoDelay);
 
-	void runButton();
 
 private:
 	// private variables for video streaming
 	string video;
 	VideoCapture videoStream;
-	// private variables for 
-	Mat3b canvas;
-	Rect buttonStart;
-	Rect buttonStop;
+
+	// private variables for GUI
+//	Mat frame;
+	//Rect startButton, stopButton;
 
 	VideoCapture getVideoStream();
 	int isVideoStreamValid();
 	void closeVideo();
 
+//	void setupVideoGUI();
 	static void callBackFunc(int event, int x, int y, int, void* userdata);
-	void secondCall(int event, int x, int y);
+	void secondCall( int event, int x, int y);
 };
 
 #endif

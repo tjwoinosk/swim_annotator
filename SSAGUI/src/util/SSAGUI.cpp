@@ -26,25 +26,34 @@ int SSAGUI::isVideoStreamValid() {
 	}
 }
 
-void SSAGUI::playVideo(int videoDelay) {
+void SSAGUI::playVideo(int videoDelay=10) {
+
 	if (isVideoStreamValid()) {
 		while (1) {
+			cout << isPlaying;
 			// Capture frame-by-frame
-			Mat frame;
-			getVideoStream() >> frame;
-            frame(buttonStart) = Vec3b(200, 200, 200); //Colour
-            frame(buttonStop) = Vec3b(200, 200, 200); //Colour
+			if(isPlaying)
+				getVideoStream() >> frame;
 
 			// If the frame is empty, break immediately
 			if (frame.empty())
 				break;
 
+			//TODO: Test an option by displaying buttons and frame on top of an empty canvas
+
+			startButton = Rect(0, 0, frame.cols / 2, 50);
+			stopButton = Rect(frame.cols / 2, 0, frame.cols / 2, 50);
+            frame(startButton) = buttonColor; //Colour
+            frame(stopButton) = buttonColor; //Colour
+            putText(frame, buttonTextStart, Point(startButton.width * 0.35, startButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+            putText(frame, buttonTextStop, Point(stopButton.width + (stopButton.width * 0.35), stopButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+
+
 			// Display the resulting frame
-			imshow("Frame", frame);
+			imshow(appName, frame);
 
-
-			// Delay frames
-			char c = (char)waitKey(videoDelay);
+			setMouseCallback(appName, callBackFunc, this);
+			char c = waitKey(10);
 
 			// Press  ESC on keyboard to exit
 			if (c == 27)
@@ -59,67 +68,43 @@ void SSAGUI::closeVideo() {
     getVideoStream().release();
 }
 
-void SSAGUI::callBackFunc(int event, int x, int y, int, void* userdata)
+void SSAGUI::callBackFunc( int event, int x, int y, int, void* userdata)
 {
-    SSAGUI* ssaGUI = reinterpret_cast<SSAGUI*>(userdata);
-    ssaGUI->secondCall(event, x, y);
+	SSAGUI* buttongui = reinterpret_cast<SSAGUI*>(userdata);
+	buttongui->secondCall( event, x, y);
 }
 
 void SSAGUI::secondCall(int event, int x, int y)
 {
-    if (event == EVENT_LBUTTONDOWN)
-    {
-        if (buttonStart.contains(Point(x, y)))
-        {
-            cout << "**START button clicked!" << endl;
-            rectangle(canvas, buttonStart, Scalar(0, 0, 255), 2);
-        }
-        else if (buttonStop.contains(Point(x, y)))
-        {
-            cout << "--STOP button clicked!" << endl;
-            rectangle(canvas, buttonStop, Scalar(0, 0, 255), 2);
-        }
-    }
-    if (event == EVENT_LBUTTONUP)
-    {
-        rectangle(canvas, buttonStart, Scalar(200, 200, 200), 2);
-        rectangle(canvas, buttonStop, Scalar(200, 200, 200), 2);
-    }
+	if (event == EVENT_LBUTTONDOWN)
+	{
+		if (startButton.contains(Point(x, y)))
+		{
+			cout << "**start button clicked!" << endl;
+			rectangle(frame, startButton, Scalar(0, 0, 255), 2);
+			isPlaying = true;
+		}
+		else if (stopButton.contains(Point(x, y)))
+		{
+			cout << "--stop button clicked!" << endl;
+			rectangle(frame, stopButton, Scalar(0, 0, 255), 2);
+			isPlaying = false;
+		}
+	}
 
-    imshow(appName, canvas);
-    waitKey(1);
+	if (event == EVENT_LBUTTONUP)
+	{
+		rectangle(frame, startButton, Scalar(200, 200, 200), 2);
+		rectangle(frame, stopButton, Scalar(200, 200, 200), 2);
+	}
 }
 
-void SSAGUI::runButton()
-{
-    // An image
-    Mat3b img(400, 400, Vec3b(100, 200, 150));
-
-    // Your button
-    buttonStart = Rect(0, 0, img.cols / 2, 50);
-    buttonStop = Rect(img.cols / 2, 0, img.cols / 2, 50);
-
-    // The canvas
-    canvas = Mat3b(img.rows + buttonStart.height, img.cols, Vec3b(0, 0, 0));
-    //vertical height, width, colour
-
-    // Draw the button
-    canvas(buttonStart) = Vec3b(200, 200, 200); //Colour
-    canvas(buttonStop) = Vec3b(200, 200, 200); //Colour
-    //I think the operator () on canvas will take the input (buttonStart) and adjust the matrix at that
-    //location (in canvas) to match buttonStart based on the x,y coordinates and height, width of buttonstart
-
-    // Draw the image
-    img.copyTo(canvas(Rect(0, buttonStart.height, img.cols, img.rows)));
-
-    //Draw the text on the buttons - Draw last so they show up above all the other drawings
-    putText(canvas, buttonTextStart, Point(buttonStart.width * 0.35, buttonStart.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
-    putText(canvas, buttonTextStop, Point(buttonStop.width + (buttonStop.width * 0.35), buttonStop.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
-
-    // Setup callback function
-    namedWindow(appName);
-    setMouseCallback(appName, callBackFunc, this);
-
-    imshow(appName, canvas);
-    waitKey();
-}
+//void SSAGUI::setupVideoGUI(Mat videoFrame) {
+//    startButton = Rect(0, 0, videoFrame.cols / 2, 50);
+//    stopButton = Rect(videoFrame.cols / 2, 0, frame.cols / 2, 50);
+//    frame(startButton) = Vec3b(200, 200, 200); //Colour
+//    frame(stopButton) = Vec3b(200, 200, 200); //Colour
+//    putText(frame, buttonTextStart, Point(startButton.width * 0.35, startButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+//    putText(frame, buttonTextStop, Point(stopButton.width + (stopButton.width * 0.35), stopButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+//}
+//

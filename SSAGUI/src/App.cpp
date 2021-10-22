@@ -9,7 +9,10 @@ int main()
 {
 
 	SSAGUI ssaVideo("0.avi");
+
 	//ssaVideo.runButton();
+//	buttonGUI test;
+	//test.runButton();
 	ssaVideo.playVideo(10);
 
 }

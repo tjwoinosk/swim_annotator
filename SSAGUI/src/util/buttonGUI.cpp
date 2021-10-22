@@ -42,7 +42,7 @@ void buttonGUI::secondCall(int event, int x, int y)
 void buttonGUI::runButton()
 {
     // An image
-    Mat3b img(400, 400, Vec3b(100, 200, 150));
+    Mat3b img(400, 400, Vec3b(100, 300, 150));
 
     // Your button
     buttonStart = Rect(0, 0, img.cols/2, 50);
@@ -67,7 +67,7 @@ void buttonGUI::runButton()
 
     // Setup callback function
     namedWindow(winName);
-    setMouseCallback(winName, callBackFunc, this);
+    setMouseCallback(winName, callBackFunc,this);
 
     imshow(winName, canvas);
     waitKey();
