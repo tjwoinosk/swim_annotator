@@ -30,7 +30,6 @@ void SSAGUI::playVideo(int videoDelay=10) {
 
 	if (isVideoStreamValid()) {
 		while (1) {
-			cout << isPlaying;
 			// Capture frame-by-frame
 			if(isPlaying)
 				getVideoStream() >> frame;
@@ -89,6 +88,9 @@ void SSAGUI::secondCall(int event, int x, int y)
 			cout << "--stop button clicked!" << endl;
 			rectangle(frame, stopButton, Scalar(0, 0, 255), 2);
 			isPlaying = false;
+		}
+		else {
+			cout << "Coodinates: " << x << ", " << y << endl;
 		}
 	}
 
