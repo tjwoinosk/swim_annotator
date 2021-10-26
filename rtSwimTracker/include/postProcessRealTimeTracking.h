@@ -10,7 +10,7 @@ class postProcessRealTimeTracking
 public:
 	postProcessRealTimeTracking() {};
 
-	int trajectoryMatcher(int xMouse, int yMouse, std::vector<TrackingBox> trajectories);
+	int trajectoryMatcher(cv::Point_<float> mouseClick, std::vector<TrackingBox> trajectories);
 	cv::Point_<float> getCentre(cv::Rect_<float> boxSwimmer); //TODO maybe should be private? For testing habe publix
 
 

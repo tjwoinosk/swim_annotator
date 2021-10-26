@@ -315,8 +315,7 @@ BOOST_AUTO_TEST_CASE(postProcessOneItemVectorTEST)
 	int tpy = 0;
 	int tpw = 50;
 	int tph = 20;
-	int xMouse_test = 2;
-	int yMouse_test = 4;
+	cv::Point_<float> mouse_Test = cv::Point_<float>(2, 4);
 	int IDtest = 1;
 	postProcessRealTimeTracking postProcessRTobj;
 	int result = 0;
@@ -324,7 +323,7 @@ BOOST_AUTO_TEST_CASE(postProcessOneItemVectorTEST)
 
 	testVector.push_back(TrackingBox(1, IDtest, Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph))));
 
-	result = postProcessRTobj.trajectoryMatcher(xMouse_test, yMouse_test, testVector);
+	result = postProcessRTobj.trajectoryMatcher(mouse_Test, testVector);
 
 	BOOST_CHECK_EQUAL(result, IDtest);
 
@@ -335,8 +334,7 @@ BOOST_AUTO_TEST_CASE(postProcessOneItemVectorOutsideTEST)
 	int tpy = 0;
 	int tpw = 50;
 	int tph = 20;
-	int xMouse_test = 54;
-	int yMouse_test = 40;
+	cv::Point_<float> mouse_Test = cv::Point_<float>(54, 40);
 	int IDtest = 1;
 	postProcessRealTimeTracking postProcessRTobj;
 	int result = 0;
@@ -344,7 +342,7 @@ BOOST_AUTO_TEST_CASE(postProcessOneItemVectorOutsideTEST)
 
 	testVector.push_back(TrackingBox(1, IDtest, Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph))));
 
-	result = postProcessRTobj.trajectoryMatcher(xMouse_test, yMouse_test, testVector);
+	result = postProcessRTobj.trajectoryMatcher(mouse_Test, testVector);
 
 	BOOST_CHECK_EQUAL(result, IDtest);
 
@@ -357,8 +355,7 @@ BOOST_AUTO_TEST_CASE(postProcessTwoItemVectorTEST)
 	int tpy2 = 40;
 	int tpw = 50;
 	int tph = 20;
-	int xMouse_test = 150;
-	int yMouse_test = 41;
+	cv::Point_<float> mouse_Test = cv::Point_<float>(150, 41);
 	postProcessRealTimeTracking postProcessRTobj;
 	int result = 0;
 	vector<TrackingBox> testVector;
@@ -366,7 +363,7 @@ BOOST_AUTO_TEST_CASE(postProcessTwoItemVectorTEST)
 	testVector.push_back(TrackingBox(1, 1, Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph))));
 	testVector.push_back(TrackingBox(1, 2, Rect_<float>(Point_<float>(tpx2, tpy2), Point_<float>(tpx2 + tpw, tpy2 + tph))));
 
-	result = postProcessRTobj.trajectoryMatcher(xMouse_test, yMouse_test, testVector);
+	result = postProcessRTobj.trajectoryMatcher(mouse_Test, testVector);
 
 	BOOST_CHECK_EQUAL(result, 2);
 }
@@ -378,8 +375,7 @@ BOOST_AUTO_TEST_CASE(postProcessTwoItemVectorTWOTEST)
 	int tpy2 = 10;
 	int tpw = 50;
 	int tph = 20;
-	int xMouse_test = 70;
-	int yMouse_test = 21;
+	cv::Point_<float> mouse_Test = cv::Point_<float>(70, 21);
 	postProcessRealTimeTracking postProcessRTobj;
 	int result = 0;
 	vector<TrackingBox> testVector;
@@ -387,7 +383,7 @@ BOOST_AUTO_TEST_CASE(postProcessTwoItemVectorTWOTEST)
 	testVector.push_back(TrackingBox(1, 1, Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph))));
 	testVector.push_back(TrackingBox(1, 2, Rect_<float>(Point_<float>(tpx2, tpy2), Point_<float>(tpx2 + tpw, tpy2 + tph))));
 
-	result = postProcessRTobj.trajectoryMatcher(xMouse_test, yMouse_test, testVector);
+	result = postProcessRTobj.trajectoryMatcher(mouse_Test, testVector);
 
 	BOOST_CHECK_EQUAL(result, 2);
 
@@ -403,14 +399,10 @@ BOOST_AUTO_TEST_CASE(postProcessFourItemVectorTEST)
 	Point_<float> p4 = Point_<float>(50, 55);
 	Point_<float> p4_end = Point_<float>(50 + 20, 55 + 15);
 
-	int xMouse_1 = 75;
-	int yMouse_1 = 75;
-	int xMouse_2 = 70;
-	int yMouse_2 = 57;
-	int xMouse_3 = 45;
-	int yMouse_3 = 20;
-	int xMouse_4 = 50;
-	int yMouse_4 = 40;
+	cv::Point_<float> mouse_Test_1 = cv::Point_<float>(75, 75);
+	cv::Point_<float> mouse_Test_2 = cv::Point_<float>(70, 57);
+	cv::Point_<float> mouse_Test_3 = cv::Point_<float>(45, 20);
+	cv::Point_<float> mouse_Test_4 = cv::Point_<float>(50, 40);
 
 	int result1 = 0;
 	int result2 = 0;
@@ -425,15 +417,14 @@ BOOST_AUTO_TEST_CASE(postProcessFourItemVectorTEST)
 	testVector.push_back(TrackingBox(1, 3, Rect_<float>(p3, p3_end)));
 	testVector.push_back(TrackingBox(1, 4, Rect_<float>(p4, p4_end)));
 
-	result1 = postProcessRTobj.trajectoryMatcher(xMouse_1, yMouse_1, testVector);
-	result2 = postProcessRTobj.trajectoryMatcher(xMouse_2, yMouse_2, testVector);
-	result3 = postProcessRTobj.trajectoryMatcher(xMouse_3, yMouse_3, testVector);
-	result4 = postProcessRTobj.trajectoryMatcher(xMouse_4, yMouse_4, testVector);
+	result1 = postProcessRTobj.trajectoryMatcher(mouse_Test_1, testVector);
+	result2 = postProcessRTobj.trajectoryMatcher(mouse_Test_2, testVector);
+	result3 = postProcessRTobj.trajectoryMatcher(mouse_Test_3, testVector);
+	result4 = postProcessRTobj.trajectoryMatcher(mouse_Test_4, testVector);
 
 	BOOST_CHECK_EQUAL(result1, 4);
 	BOOST_CHECK_EQUAL(result2, 4);
 	BOOST_CHECK_EQUAL(result3, 2);
 	BOOST_CHECK_EQUAL(result4, 3);
 }
-
 BOOST_AUTO_TEST_SUITE_END() //End postProcessRTTrackingTestSuite test suite

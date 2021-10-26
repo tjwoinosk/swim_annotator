@@ -1,6 +1,6 @@
 #include "postProcessRealTimeTracking.h"
-
-int postProcessRealTimeTracking::trajectoryMatcher(int xMouse, int yMouse, std::vector<TrackingBox> trajectories)
+//TODO make xMouse, yMouse a point (cv::Point)
+int postProcessRealTimeTracking::trajectoryMatcher(cv::Point_<float> mouseClick, std::vector<TrackingBox> trajectories)
 {
 	cv::Point_<float> centreBox;
 	int euclidianDistance = 0;
@@ -11,8 +11,8 @@ int postProcessRealTimeTracking::trajectoryMatcher(int xMouse, int yMouse, std::
 
 	for (int i = 0; i < trajectories.size(); i++) {
 		centreBox = getCentre(trajectories[i]);
-		tmp1 = pow((centreBox.x - xMouse), 2);
-		tmp2 = pow((centreBox.y - yMouse), 2);
+		tmp1 = pow((centreBox.x - mouseClick.x), 2);
+		tmp2 = pow((centreBox.y - mouseClick.y), 2);
 		euclidianDistance = sqrt(tmp1 + tmp2);
 
 		if (i == 0) {
