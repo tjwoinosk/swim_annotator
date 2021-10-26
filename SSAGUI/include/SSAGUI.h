@@ -24,7 +24,7 @@ public:
 	Mat frame;
 	Rect startButton, stopButton;
 	bool isPlaying = true;
-	
+
 	void playVideo(int videoDelay);
 
 
@@ -32,6 +32,10 @@ private:
 	// private variables for video streaming
 	string video;
 	VideoCapture videoStream;
+	const float vidSize_width = 680;
+	const float vidSize_height = 400;
+	cv::Mat3b canvas;
+	Mat frameResized;
 
 	// private variables for GUI
 //	Mat frame;
@@ -41,9 +45,9 @@ private:
 	int isVideoStreamValid();
 	void closeVideo();
 
-//	void setupVideoGUI();
+	//	void setupVideoGUI();
 	static void callBackFunc(int event, int x, int y, int, void* userdata);
-	void secondCall( int event, int x, int y);
+	void secondCall(int event, int x, int y);
 };
 
 #endif

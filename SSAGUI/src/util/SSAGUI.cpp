@@ -26,30 +26,41 @@ int SSAGUI::isVideoStreamValid() {
 	}
 }
 
-void SSAGUI::playVideo(int videoDelay=10) {
+void SSAGUI::playVideo(int videoDelay = 10) {
 
 	if (isVideoStreamValid()) {
 		while (1) {
 			// Capture frame-by-frame
-			if(isPlaying)
+			if (isPlaying)
 				getVideoStream() >> frame;
 
 			// If the frame is empty, break immediately
 			if (frame.empty())
 				break;
 
-			//TODO: Test an option by displaying buttons and frame on top of an empty canvas
+			//TODO pick which method of resizing is appropriate, and what size
+			/*
+			float resizeRatioWidth = vidSize/ static_cast<float>(frame.rows);
+			float resieRatioHeight = vidSize / static_cast<float>(frame.cols);
+			cv::resize(frame, frameResized, cv::Size(), resizeRatioWidth, resieRatioHeight);
+			*/
+			cv::resize(frame, frameResized, cv::Size(vidSize_width, vidSize_height)); //TODO this is to force to a fixed size
 
-			startButton = Rect(0, 0, frame.cols / 2, 50);
-			stopButton = Rect(frame.cols / 2, 0, frame.cols / 2, 50);
-            frame(startButton) = buttonColor; //Colour
-            frame(stopButton) = buttonColor; //Colour
-            putText(frame, buttonTextStart, Point(startButton.width * 0.35, startButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
-            putText(frame, buttonTextStop, Point(stopButton.width + (stopButton.width * 0.35), stopButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+			startButton = Rect(0, 0, frameResized.cols / 2, 50);
+			stopButton = Rect(frameResized.cols / 2, 0, frameResized.cols / 2, 50);
 
+			canvas = Mat3b(frameResized.rows + startButton.height, frameResized.cols, Vec3b(0, 0, 0));
+
+			canvas(startButton) = buttonColor; //Colour
+			canvas(stopButton) = buttonColor; //Colour
+
+			frameResized.copyTo(canvas(Rect(0, startButton.height, frameResized.cols, frameResized.rows)));
+
+			putText(canvas, buttonTextStart, Point(startButton.width * 0.35, startButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+			putText(canvas, buttonTextStop, Point(stopButton.width + (stopButton.width * 0.35), stopButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
 
 			// Display the resulting frame
-			imshow(appName, frame);
+			imshow(appName, canvas);
 
 			setMouseCallback(appName, callBackFunc, this);
 			char c = waitKey(10);
@@ -63,14 +74,14 @@ void SSAGUI::playVideo(int videoDelay=10) {
 }
 
 void SSAGUI::closeVideo() {
-    destroyAllWindows();
-    getVideoStream().release();
+	destroyAllWindows();
+	getVideoStream().release();
 }
 
-void SSAGUI::callBackFunc( int event, int x, int y, int, void* userdata)
+void SSAGUI::callBackFunc(int event, int x, int y, int, void* userdata)
 {
 	SSAGUI* buttongui = reinterpret_cast<SSAGUI*>(userdata);
-	buttongui->secondCall( event, x, y);
+	buttongui->secondCall(event, x, y);
 }
 
 void SSAGUI::secondCall(int event, int x, int y)

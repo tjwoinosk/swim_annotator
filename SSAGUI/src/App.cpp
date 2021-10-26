@@ -8,7 +8,7 @@
 int main()
 {
 
-	SSAGUI ssaVideo("0.avi");
+	SSAGUI ssaVideo("01.mp4");
 
 	//ssaVideo.runButton();
 //	buttonGUI test;
