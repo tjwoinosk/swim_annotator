@@ -1,5 +1,5 @@
 #include "postProcessRealTimeTracking.h"
-//TODO make xMouse, yMouse a point (cv::Point)
+
 int postProcessRealTimeTracking::trajectoryMatcher(cv::Point_<float> mouseClick, std::vector<TrackingBox> trajectories)
 {
 	cv::Point_<float> centreBox;
