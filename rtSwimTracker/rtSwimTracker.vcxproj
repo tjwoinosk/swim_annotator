@@ -209,6 +209,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>"$(TargetDir)$(TargetName).exe" --result_code=no --report_level=no</Command>
@@ -340,6 +341,7 @@
     <ClCompile Include="src\HungarianAlgorithm.cpp" />
     <ClCompile Include="src\KalmanTracker.cpp" />
     <ClCompile Include="src\objectCentering.cpp" />
+    <ClCompile Include="src\postProcessRealTimeTracking.cpp" />
     <ClCompile Include="src\sortTrackerPipelined.cpp" />
     <ClCompile Include="src\SpeedReporter.cpp" />
     <ClCompile Include="src\TrackingBox.cpp" />
@@ -365,6 +367,7 @@
     <ClInclude Include="include\HungarianAlgorithm.h" />
     <ClInclude Include="include\KalmanTracker.h" />
     <ClInclude Include="include\objectCentering.h" />
+    <ClInclude Include="include\postProcessRealTimeTracking.h" />
     <ClInclude Include="include\sortTrackerPipelined.h" />
     <ClInclude Include="include\SpeedReporter.h" />
     <ClInclude Include="include\TrackingBox.h" />
