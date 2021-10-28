@@ -4,6 +4,9 @@
 #include <iostream>
 #include "buttonGUI.h"
 #include "SSAGUI.h"
+#include "buttonGUI.h"
+#include "sort_tracker.h"
+#include "sortTrackerPipelined.h"
 
 int main()
 {
@@ -14,5 +17,6 @@ int main()
 //	buttonGUI test;
 	//test.runButton();
 	ssaVideo.playVideo(10);
+	sortTrackerPiplelined testPipeline;
 
 }

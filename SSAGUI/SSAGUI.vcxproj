@@ -120,6 +120,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\Kiran\source\repos\swim_annotator\rtSwimTracker\include;C:\Users\Kiran\source\repos\swim_annotator\rtSwimTracker\x64\Debug SwimTrackerTest;C:\Users\Kiran\source\repos\swim_annotator\rtSwimTracker;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,6 +151,11 @@
   <ItemGroup>
     <ClInclude Include="include\buttonGUI.h" />
     <ClInclude Include="include\SSAGUI.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\rtSwimTracker\rtSwimTracker.vcxproj">
+      <Project>{0f2e015c-3a24-4dcc-b82f-0b0868c36877}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
