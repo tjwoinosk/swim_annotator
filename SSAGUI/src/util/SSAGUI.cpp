@@ -5,6 +5,8 @@
 SSAGUI::SSAGUI(string videoFile) {
 	video = videoFile;
 	videoStream.open(videoFile);
+	startAnalyzeSwimmer = false;
+	idSwimmerSelected = -1;
 }
 
 SSAGUI::~SSAGUI() {
@@ -37,6 +39,12 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 			// If the frame is empty, break immediately
 			if (frame.empty())
 				break;
+
+			if (idSwimmerSelected > -1 && startAnalyzeSwimmer == true) {
+				std::vector<TrackingBox> trackingForThisFrame = frameAnalysisObj.analyzeVideo(frame);
+				resultsTrackingSwimmer.push_back(trackingForThisFrame); 
+				//TODO this needs to only push back for selected swimmer
+			}
 
 			//TODO pick which method of resizing is appropriate, and what size
 			/*
@@ -101,7 +109,8 @@ void SSAGUI::secondCall(int event, int x, int y)
 			//TODO putting the video in full doesnt make sense.. should be the frame.. this method does not make sense
 			//have the frame sent in to the detector in this class, not just a function call - that will avoid multithreading too
 			
-			if (frameAnalysisObj.getIDSelectedSwimmer() == -1 || frameAnalysisObj.getAnalyzeSwimmer() == false) { //To deal with clicking with start multiple times
+			/*
+			if (frameAnalysisObj.getIDSelectedSwimmer() == -1 && frameAnalysisObj.getAnalyzeSwimmer() == false) { //To deal with clicking with start multiple times
 				postProcessRealTimeTracking processObj;
 				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
 				int selectedID = processObj.trajectoryMatcher(cv::Point_<float>(x, y), toGetTrajectoryFrom);
@@ -112,7 +121,16 @@ void SSAGUI::secondCall(int event, int x, int y)
 					frameAnalysisObj.analyzeVideo(video);
 				}
 			}
-
+			*/
+			if (idSwimmerSelected == -1 && startAnalyzeSwimmer == false) {
+				resultsTrackingSwimmer.clear();
+				postProcessRealTimeTracking processObj;
+				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
+				idSwimmerSelected = processObj.trajectoryMatcher(cv::Point_<float>(x, y), toGetTrajectoryFrom);
+				startAnalyzeSwimmer = true;
+				resultsTrackingSwimmer.push_back(toGetTrajectoryFrom); //push back analysis from this frame as well so it isn't missed
+				//TODO this needs to only push back for selected swimmer
+			}
 		}
 		else if (stopButton.contains(Point(x, y)))
 		{
@@ -120,10 +138,38 @@ void SSAGUI::secondCall(int event, int x, int y)
 			rectangle(frame, stopButton, Scalar(0, 0, 255), 2);
 			isPlaying = false;
 
-			if (frameAnalysisObj.getIDSelectedSwimmer() > -1 || frameAnalysisObj.getAnalyzeSwimmer() == true) { //To deal with clickign stop multiple times
+			/*
+			if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == true) { //To deal with clickign stop multiple times
 				frameAnalysisObj.setAnalyzeSwimmer(false);
 				bool successReset = frameAnalysisObj.setIDSelectedSwimmer(-1);
 				if (!successReset) { std::cout << "Failed to set the swimmer ID" << std::endl; }
+			}
+			*/
+			if (idSwimmerSelected > -1 && startAnalyzeSwimmer == true) {
+				startAnalyzeSwimmer = false;
+				idSwimmerSelected = -1;
+				//TODO write to file the output - overwrite or append?
+				fileFinder find;
+				std::string resFileName = "detectionDataNEW.txt";
+				std::string resFileAbsPath = "";
+				std::ofstream resultsFile;
+
+				try
+				{
+					resFileAbsPath = find.returnDataLocation() + resFileName;
+					resultsFile.open(resFileAbsPath);
+					for (int i = 0; i < resultsTrackingSwimmer.size(); i++) {
+						for (int j = 0; j < resultsTrackingSwimmer[i].size(); j++) {
+							resultsTrackingSwimmer[i][j].outputToFile(resultsFile);
+						}
+					}
+					resultsFile.close();
+				}
+				catch (const std::exception& e)
+				{
+					std::cout << "Could not open " << resFileAbsPath << std::endl << e.what() << std::endl;
+				}
+
 			}
 		}
 		else {
