@@ -15,7 +15,7 @@ int main()
 	//ssaVideo.runButton();
 //	buttonGUI test;
 	//test.runButton();
-	ssaVideo.playVideo(10);
+	ssaVideo.playVideo(10);	
 	postProcessRealTimeTracking testprocess;
 
 }

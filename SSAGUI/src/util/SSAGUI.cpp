@@ -45,6 +45,13 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 				resultsTrackingSwimmer.push_back(trackingForThisFrame); 
 				//TODO this needs to only push back for selected swimmer
 			}
+			//else if (idSwimmerSelected > -1 && startAnalyzeSwimmer == false) {
+			//	postProcessRealTimeTracking processObj;
+			//	std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
+			//	//rectangle(frameResized, toGetTrajectoryFrom[idSwimmerSelected], Scalar(150, 200, 150), 2);
+			//	rectangle(canvas, toGetTrajectoryFrom[idSwimmerSelected], Scalar(150, 200, 150), 2);
+			//	std::cout << std::endl << std::endl << " finding next box" << std::endl << std::endl;
+			//}
 
 			//TODO pick which method of resizing is appropriate, and what size
 			/*
@@ -66,12 +73,20 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 
 			putText(canvas, buttonTextStart, Point(startButton.width * 0.35, startButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
 			putText(canvas, buttonTextStop, Point(stopButton.width + (stopButton.width * 0.35), stopButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
-
-			// Display the resulting frame
-			imshow(appName, canvas);
+			
+			if (idSwimmerSelected > -1 && startAnalyzeSwimmer == false) {
+				postProcessRealTimeTracking processObj;
+				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
+				rectangle(frameResized, toGetTrajectoryFrom[idSwimmerSelected], Scalar(150, 200, 150), 2);
+				//rectangle(canvas, toGetTrajectoryFrom[idSwimmerSelected], Scalar(150, 200, 150), 2);
+				std::cout << std::endl << std::endl << " finding next box" << std::endl << std::endl;
+			}
 
 			setMouseCallback(appName, callBackFunc, this);
 			char c = waitKey(10);
+
+			// Display the resulting frame
+			imshow(appName, canvas); 
 
 			// Press  ESC on keyboard to exit
 			if (c == 27)
@@ -99,34 +114,13 @@ void SSAGUI::secondCall(int event, int x, int y)
 		if (startButton.contains(Point(x, y)))
 		{
 			cout << "**start button clicked!" << endl;
-			//TODO call detector and SORT for just this one frame?
-			//TODO link the two projects
 
-			rectangle(frame, startButton, Scalar(0, 0, 255), 2);
+			rectangle(canvas, startButton, Scalar(0, 0, 255), 2);
 			isPlaying = true;
-
-			//TODO won't we have to multithread? so that the frameAnalysisObj.analyzeVideo(video) happens in the background
-			//TODO putting the video in full doesnt make sense.. should be the frame.. this method does not make sense
-			//have the frame sent in to the detector in this class, not just a function call - that will avoid multithreading too
-			
-			/*
-			if (frameAnalysisObj.getIDSelectedSwimmer() == -1 && frameAnalysisObj.getAnalyzeSwimmer() == false) { //To deal with clicking with start multiple times
-				postProcessRealTimeTracking processObj;
-				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
-				int selectedID = processObj.trajectoryMatcher(cv::Point_<float>(x, y), toGetTrajectoryFrom);
-				frameAnalysisObj.setAnalyzeSwimmer(true);
-				bool successReset = frameAnalysisObj.setIDSelectedSwimmer(selectedID);
-				if (!successReset) { std::cout << "Failed to set the swimmer ID" << std::endl; }
-				else {
-					frameAnalysisObj.analyzeVideo(video);
-				}
-			}
-			*/
-			if (idSwimmerSelected == -1 && startAnalyzeSwimmer == false) {
+		
+			if (idSwimmerSelected > -1 && startAnalyzeSwimmer == false) { //TODO should we use a varaible in here or frameAnalysis?
 				resultsTrackingSwimmer.clear();
-				postProcessRealTimeTracking processObj;
-				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
-				idSwimmerSelected = processObj.trajectoryMatcher(cv::Point_<float>(x, y), toGetTrajectoryFrom);
+				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame); //TODO error check
 				startAnalyzeSwimmer = true;
 				resultsTrackingSwimmer.push_back(toGetTrajectoryFrom); //push back analysis from this frame as well so it isn't missed
 				//TODO this needs to only push back for selected swimmer
@@ -135,16 +129,9 @@ void SSAGUI::secondCall(int event, int x, int y)
 		else if (stopButton.contains(Point(x, y)))
 		{
 			cout << "--stop button clicked!" << endl;
-			rectangle(frame, stopButton, Scalar(0, 0, 255), 2);
+			rectangle(canvas, stopButton, Scalar(0, 0, 255), 2);
 			isPlaying = false;
 
-			/*
-			if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == true) { //To deal with clickign stop multiple times
-				frameAnalysisObj.setAnalyzeSwimmer(false);
-				bool successReset = frameAnalysisObj.setIDSelectedSwimmer(-1);
-				if (!successReset) { std::cout << "Failed to set the swimmer ID" << std::endl; }
-			}
-			*/
 			if (idSwimmerSelected > -1 && startAnalyzeSwimmer == true) {
 				startAnalyzeSwimmer = false;
 				idSwimmerSelected = -1;
@@ -173,14 +160,25 @@ void SSAGUI::secondCall(int event, int x, int y)
 			}
 		}
 		else {
+
+			//TODO is it okay to assume that a click outside of stop and start button is only on the frame itself?
+			postProcessRealTimeTracking processObj;
+			std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
+			idSwimmerSelected = processObj.trajectoryMatcher(cv::Point_<float>(x, y), toGetTrajectoryFrom); //TODO error check
+			std::cout << std::endl << std::endl <<" SWIMMER ID = " << idSwimmerSelected << std::endl << std::endl;
+			rectangle(frameResized, toGetTrajectoryFrom[idSwimmerSelected], Scalar(150, 200, 150), 2);
+
 			cout << "Coodinates: " << x << ", " << y << endl;
 		}
+
+		imshow(appName, canvas);
+		waitKey(10);
 	}
 
 	if (event == EVENT_LBUTTONUP)
 	{
-		rectangle(frame, startButton, Scalar(200, 200, 200), 2);
-		rectangle(frame, stopButton, Scalar(200, 200, 200), 2);
+		rectangle(canvas, startButton, Scalar(200, 200, 200), 2);
+		rectangle(canvas, stopButton, Scalar(200, 200, 200), 2);
 	}
 }
 
