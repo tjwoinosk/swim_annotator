@@ -4,6 +4,9 @@
 #include <opencv2\opencv.hpp>
 #include <opencv2/videoio/videoio.hpp>
 #include <iostream>
+#include "frameAnalysis.h"
+#include "postProcessRealTimeTracking.h"
+
 using namespace cv;
 using namespace std;
 
@@ -36,6 +39,7 @@ private:
 	const float vidSize_height = 400;
 	cv::Mat3b canvas;
 	Mat frameResized;
+	frameAnalysis frameAnalysisObj;
 
 	// private variables for GUI
 //	Mat frame;

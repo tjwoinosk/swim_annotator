@@ -14,6 +14,8 @@
 
 #include "swimmerDetector.h"
 
+#include "postProcessRealTimeTracking.h"
+
 #include <fstream>
 #include <iterator>
 
@@ -52,7 +54,7 @@ BOOST_AUTO_TEST_SUITE_END() //End file Finder Tests
 
 //File SwimmerDetector Tests
 BOOST_AUTO_TEST_SUITE(SwimmerDetectorTests)
-BOOST_AUTO_TEST_CASE(testPrivateVariables) 
+BOOST_AUTO_TEST_CASE(testPrivateVariables)
 {
 	float valPass = 0.5f;
 	float valFail = 1.1f;
@@ -79,7 +81,7 @@ BOOST_AUTO_TEST_SUITE_END() //End SwimmerDetector Tests
 
 //Tracking Box Tests
 BOOST_AUTO_TEST_SUITE(BoxTests)
-BOOST_AUTO_TEST_CASE(testTrackingBoxPrivateVariables) 
+BOOST_AUTO_TEST_CASE(testTrackingBoxPrivateVariables)
 {
 	int testFrameID = 10;
 	int testFrameIDTWO = 20;
@@ -289,3 +291,140 @@ BOOST_AUTO_TEST_CASE(SORTvalidationTEST)
 	BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
 }
 BOOST_AUTO_TEST_SUITE_END() //End SORT validation tests suite
+
+//postProcessRTTrackingTestSuite test suite
+BOOST_AUTO_TEST_SUITE(postProcessRTTrackingTestSuite)
+BOOST_AUTO_TEST_CASE(postProcessgetCentrevalidationTEST)
+{
+	int tpx = 0;
+	int tpy = 0;
+	int tpw = 50;
+	int tph = 20;
+	postProcessRealTimeTracking postProcessRTobj;
+	cv::Point_<float> result;
+	cv::Point_<float> truthPoint = Point_<float>((tpx + tpw) / 2, (tpy + tph) / 2);
+
+	result = postProcessRTobj.getCentre(Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph)));
+
+	BOOST_CHECK_EQUAL(truthPoint.x, result.x);
+	BOOST_CHECK_EQUAL(truthPoint.y, result.y);
+}
+BOOST_AUTO_TEST_CASE(postProcessOneItemVectorTEST)
+{
+	int tpx = 0;
+	int tpy = 0;
+	int tpw = 50;
+	int tph = 20;
+	cv::Point_<float> mouse_Test = cv::Point_<float>(2, 4);
+	int IDtest = 1;
+	postProcessRealTimeTracking postProcessRTobj;
+	int result = 0;
+	vector<TrackingBox> testVector;
+
+	testVector.push_back(TrackingBox(1, IDtest, Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph))));
+
+	result = postProcessRTobj.trajectoryMatcher(mouse_Test, testVector);
+
+	BOOST_CHECK_EQUAL(result, IDtest);
+
+}
+BOOST_AUTO_TEST_CASE(postProcessOneItemVectorOutsideTEST)
+{
+	int tpx = 0;
+	int tpy = 0;
+	int tpw = 50;
+	int tph = 20;
+	cv::Point_<float> mouse_Test = cv::Point_<float>(54, 40);
+	int IDtest = 1;
+	postProcessRealTimeTracking postProcessRTobj;
+	int result = 0;
+	vector<TrackingBox> testVector;
+
+	testVector.push_back(TrackingBox(1, IDtest, Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph))));
+
+	result = postProcessRTobj.trajectoryMatcher(mouse_Test, testVector);
+
+	BOOST_CHECK_EQUAL(result, IDtest);
+
+}
+BOOST_AUTO_TEST_CASE(postProcessTwoItemVectorTEST)
+{
+	int tpx = 0;
+	int tpy = 0;
+	int tpx2 = 100;
+	int tpy2 = 40;
+	int tpw = 50;
+	int tph = 20;
+	cv::Point_<float> mouse_Test = cv::Point_<float>(150, 41);
+	postProcessRealTimeTracking postProcessRTobj;
+	int result = 0;
+	vector<TrackingBox> testVector;
+
+	testVector.push_back(TrackingBox(1, 1, Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph))));
+	testVector.push_back(TrackingBox(1, 2, Rect_<float>(Point_<float>(tpx2, tpy2), Point_<float>(tpx2 + tpw, tpy2 + tph))));
+
+	result = postProcessRTobj.trajectoryMatcher(mouse_Test, testVector);
+
+	BOOST_CHECK_EQUAL(result, 2);
+}
+BOOST_AUTO_TEST_CASE(postProcessTwoItemVectorTWOTEST)
+{
+	int tpx = 0;
+	int tpy = 0;
+	int tpx2 = 40;
+	int tpy2 = 10;
+	int tpw = 50;
+	int tph = 20;
+	cv::Point_<float> mouse_Test = cv::Point_<float>(70, 21);
+	postProcessRealTimeTracking postProcessRTobj;
+	int result = 0;
+	vector<TrackingBox> testVector;
+
+	testVector.push_back(TrackingBox(1, 1, Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph))));
+	testVector.push_back(TrackingBox(1, 2, Rect_<float>(Point_<float>(tpx2, tpy2), Point_<float>(tpx2 + tpw, tpy2 + tph))));
+
+	result = postProcessRTobj.trajectoryMatcher(mouse_Test, testVector);
+
+	BOOST_CHECK_EQUAL(result, 2);
+
+}
+BOOST_AUTO_TEST_CASE(postProcessFourItemVectorTEST)
+{
+	Point_<float> p1 = Point_<float>(10, 10);
+	Point_<float> p1_end = Point_<float>(10 + 10, 10 + 20);
+	Point_<float> p2 = Point_<float>(18, 15);
+	Point_<float> p2_end = Point_<float>(18 + 22, 15 + 15);
+	Point_<float> p3 = Point_<float>(45, 35);
+	Point_<float> p3_end = Point_<float>(45 + 25, 35 + 15);
+	Point_<float> p4 = Point_<float>(50, 55);
+	Point_<float> p4_end = Point_<float>(50 + 20, 55 + 15);
+
+	cv::Point_<float> mouse_Test_1 = cv::Point_<float>(75, 75);
+	cv::Point_<float> mouse_Test_2 = cv::Point_<float>(70, 57);
+	cv::Point_<float> mouse_Test_3 = cv::Point_<float>(45, 20);
+	cv::Point_<float> mouse_Test_4 = cv::Point_<float>(50, 40);
+
+	int result1 = 0;
+	int result2 = 0;
+	int result3 = 0;
+	int result4 = 0;
+
+	postProcessRealTimeTracking postProcessRTobj;
+	vector<TrackingBox> testVector;
+
+	testVector.push_back(TrackingBox(1, 1, Rect_<float>(p1, p1_end)));
+	testVector.push_back(TrackingBox(1, 2, Rect_<float>(p2, p2_end)));
+	testVector.push_back(TrackingBox(1, 3, Rect_<float>(p3, p3_end)));
+	testVector.push_back(TrackingBox(1, 4, Rect_<float>(p4, p4_end)));
+
+	result1 = postProcessRTobj.trajectoryMatcher(mouse_Test_1, testVector);
+	result2 = postProcessRTobj.trajectoryMatcher(mouse_Test_2, testVector);
+	result3 = postProcessRTobj.trajectoryMatcher(mouse_Test_3, testVector);
+	result4 = postProcessRTobj.trajectoryMatcher(mouse_Test_4, testVector);
+
+	BOOST_CHECK_EQUAL(result1, 4);
+	BOOST_CHECK_EQUAL(result2, 4);
+	BOOST_CHECK_EQUAL(result3, 2);
+	BOOST_CHECK_EQUAL(result4, 3);
+}
+BOOST_AUTO_TEST_SUITE_END() //End postProcessRTTrackingTestSuite test suite

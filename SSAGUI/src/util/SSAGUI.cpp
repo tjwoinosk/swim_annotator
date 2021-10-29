@@ -91,14 +91,40 @@ void SSAGUI::secondCall(int event, int x, int y)
 		if (startButton.contains(Point(x, y)))
 		{
 			cout << "**start button clicked!" << endl;
+			//TODO call detector and SORT for just this one frame?
+			//TODO link the two projects
+
 			rectangle(frame, startButton, Scalar(0, 0, 255), 2);
 			isPlaying = true;
+
+			//TODO won't we have to multithread? so that the frameAnalysisObj.analyzeVideo(video) happens in the background
+			//TODO putting the video in full doesnt make sense.. should be the frame.. this method does not make sense
+			//have the frame sent in to the detector in this class, not just a function call - that will avoid multithreading too
+			
+			if (frameAnalysisObj.getIDSelectedSwimmer() == -1 || frameAnalysisObj.getAnalyzeSwimmer() == false) { //To deal with clicking with start multiple times
+				postProcessRealTimeTracking processObj;
+				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
+				int selectedID = processObj.trajectoryMatcher(cv::Point_<float>(x, y), toGetTrajectoryFrom);
+				frameAnalysisObj.setAnalyzeSwimmer(true);
+				bool successReset = frameAnalysisObj.setIDSelectedSwimmer(selectedID);
+				if (!successReset) { std::cout << "Failed to set the swimmer ID" << std::endl; }
+				else {
+					frameAnalysisObj.analyzeVideo(video);
+				}
+			}
+
 		}
 		else if (stopButton.contains(Point(x, y)))
 		{
 			cout << "--stop button clicked!" << endl;
 			rectangle(frame, stopButton, Scalar(0, 0, 255), 2);
 			isPlaying = false;
+
+			if (frameAnalysisObj.getIDSelectedSwimmer() > -1 || frameAnalysisObj.getAnalyzeSwimmer() == true) { //To deal with clickign stop multiple times
+				frameAnalysisObj.setAnalyzeSwimmer(false);
+				bool successReset = frameAnalysisObj.setIDSelectedSwimmer(-1);
+				if (!successReset) { std::cout << "Failed to set the swimmer ID" << std::endl; }
+			}
 		}
 		else {
 			cout << "Coodinates: " << x << ", " << y << endl;

@@ -21,6 +21,8 @@ class frameAnalysis
 private:
 
 	// global variables 
+	bool analyzeSwimmer;
+	int idSelectedSwimmer;
 
 public:
 
@@ -34,7 +36,12 @@ public:
 	frameAnalysis();
 
 	void analyzeVideo(std::string videoToAnalyzeName);
-	void analyzeVideo(cv::Mat frameToAnalyze);
+	std::vector<TrackingBox> analyzeVideo(cv::Mat frameToAnalyze);
+
+	void setAnalyzeSwimmer(bool valSetTo);
+	bool setIDSelectedSwimmer(int valSetTo);
+	bool getAnalyzeSwimmer();
+	int getIDSelectedSwimmer();
 };
 
 

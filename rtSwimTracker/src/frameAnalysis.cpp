@@ -3,18 +3,28 @@
 
 frameAnalysis::frameAnalysis()
 {
+	analyzeSwimmer = false;
+	idSelectedSwimmer = -1;
 }
 
 void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 {
-	//Read video object frame by frame - keep reading until the end
-
-	//Call detector on the single frame
-	//Call SORT on the output of the detector on the single frame
-
-	//Use the object SORT returns to write to a file output
 	cv::VideoCapture videoToAnalyze;
 	cv::Mat frame;
+	fileFinder find;
+	std::string resFileName = "PipeTest_SingleSwimmer.txt";
+	std::string resFileAbsPath = "";
+	std::ofstream resultsFile;
+	resFileAbsPath = find.absolutePath(resFileName);
+	std::vector <TrackingBox> resultsAllSwimmers;
+
+	resultsFile.open(resFileAbsPath);
+
+	if (!resultsFile.is_open())
+	{
+		std::cerr << "Error: can not create file " << resFileName << std::endl;
+		return;
+	}
 
 	videoToAnalyze.open(videoToAnalyzeName);
 	if (!videoToAnalyze.isOpened()) {
@@ -22,35 +32,30 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 		return;
 	}
 
-	videoToAnalyze >> frame;
+	videoToAnalyze >> frame; //TODO should we have this outside the while loop? since it happens again
 
-	while (true) { //TODO do we want it to be infinite?
-
+	while (analyzeSwimmer && idSelectedSwimmer != -1) {
 		videoToAnalyze >> frame;
-		// Stop the program if reached end of video
+
 		if (frame.empty()) {
-			std::cout << "Done processing !!!" << std::endl;
 			break;
 		}
 
-		//call detector and SORT here
-		// 
-		//TODO test code:
-		std::cout << "processing frame" << std::endl;
-		imshow("test", frame);
-		cv::waitKey(30);
-		//TODO end test code
+		resultsAllSwimmers = analyzeVideo(frame);
+
+		for (auto tb : resultsAllSwimmers)
+		{
+			if (tb.get_m_boxID() == idSelectedSwimmer) {
+				resultsFile << tb; //TODO do this in a more efficient way
+			}
+		}
 	}
 
-	//TODO test code:
-	std::cout << "Done processing" << std::endl;
-	//TODO end test code
-
+	resultsFile.close();
 	return;
-
 }
 
-void frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
+std::vector<TrackingBox> frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 {
 	swimmerDetector detect;
 	std::vector<TrackingBox> resultsDetector;
@@ -64,6 +69,29 @@ void frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 
 	//2. use sort algorithm on the output of the detector
 	resultsSORT = SORTprocessor.singleFrameSORT(resultsDetector);
+	return resultsSORT;
+}
+
+void frameAnalysis::setAnalyzeSwimmer(bool valSetTo)
+{
+	analyzeSwimmer = valSetTo;
+}
+
+bool frameAnalysis::setIDSelectedSwimmer(int valSetTo)
+{
+	if (valSetTo < -1) { return false; }
+	idSelectedSwimmer = valSetTo;
+	return true;
+}
+
+bool frameAnalysis::getAnalyzeSwimmer()
+{
+	return analyzeSwimmer;
+}
+
+int frameAnalysis::getIDSelectedSwimmer()
+{
+	return idSelectedSwimmer;
 }
 
 
@@ -121,7 +149,7 @@ std::string frameAnalysis::sortOnFrame(SpeedReporter* report)
 	}
 
 	resultsFile.close();
-	
+
 	return resFileAbsPath;
 }
 
