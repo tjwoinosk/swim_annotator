@@ -40,47 +40,57 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 			if (frame.empty())
 				break;
 
-			if (idSwimmerSelected > -1 && startAnalyzeSwimmer == true) {
-				std::vector<TrackingBox> trackingForThisFrame = frameAnalysisObj.analyzeVideo(frame);
-				resultsTrackingSwimmer.push_back(trackingForThisFrame); 
-				//TODO this needs to only push back for selected swimmer
-			}
-			//else if (idSwimmerSelected > -1 && startAnalyzeSwimmer == false) {
-			//	postProcessRealTimeTracking processObj;
-			//	std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
-			//	//rectangle(frameResized, toGetTrajectoryFrom[idSwimmerSelected], Scalar(150, 200, 150), 2);
-			//	rectangle(canvas, toGetTrajectoryFrom[idSwimmerSelected], Scalar(150, 200, 150), 2);
-			//	std::cout << std::endl << std::endl << " finding next box" << std::endl << std::endl;
-			//}
-
 			//TODO pick which method of resizing is appropriate, and what size
 			/*
 			float resizeRatioWidth = vidSize/ static_cast<float>(frame.rows);
 			float resieRatioHeight = vidSize / static_cast<float>(frame.cols);
 			cv::resize(frame, frameResized, cv::Size(), resizeRatioWidth, resieRatioHeight);
 			*/
-			cv::resize(frame, frameResized, cv::Size(vidSize_width, vidSize_height)); //TODO this is to force to a fixed size
 
+			cv::resize(frame, frameResized, cv::Size(vidSize_width, vidSize_height)); //TODO this is to force to a fixed size
 			startButton = Rect(0, 0, frameResized.cols / 2, 50);
 			stopButton = Rect(frameResized.cols / 2, 0, frameResized.cols / 2, 50);
-
 			canvas = Mat3b(frameResized.rows + startButton.height, frameResized.cols, Vec3b(0, 0, 0));
 
 			canvas(startButton) = buttonColor; //Colour
 			canvas(stopButton) = buttonColor; //Colour
 
+			if (idSwimmerSelected > -1 && startAnalyzeSwimmer == true) {
+				//std::vector<TrackingBox> trackingForThisFrame = frameAnalysisObj.analyzeVideo(frame);
+				std::vector<TrackingBox> trackingForThisFrame = frameAnalysisObj.analyzeVideo(frameResized); //TODO which one?
+				resultsTrackingSwimmer.push_back(trackingForThisFrame);
+				//TODO this needs to only push back for selected swimmer
+			}
+			else if (idSwimmerSelected > -1 && startAnalyzeSwimmer == false) {
+				postProcessRealTimeTracking processObj;
+				//std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
+				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frameResized);
+				int indexID = 0; //TODO this is not efficient
+				for (int i = 0; i < toGetTrajectoryFrom.size(); i++) {
+					if (toGetTrajectoryFrom[i].get_m_boxID() == idSwimmerSelected)
+						indexID = i;
+				}
+				rectangle(frameResized, toGetTrajectoryFrom[indexID], Scalar(150, 200, 150), 10);
+				std::cout << std::endl << std::endl << " finding next box with ID = " << idSwimmerSelected << "  and index  = " << indexID << std::endl << std::endl;
+				std::cout << toGetTrajectoryFrom[indexID] << std::endl;
+				std::cout << "  x = " << toGetTrajectoryFrom[indexID].x << " y = " << toGetTrajectoryFrom[indexID].y << " w = " << toGetTrajectoryFrom[indexID].width << " h = " << toGetTrajectoryFrom[indexID].height << std::endl;
+				std::cout << "--------------------" << std::endl << std::endl;
+
+				//TODO so we resize the image to fit in a fixed size, but now do we pass in the resized image to the detector or original?
+				// if we pass in original, we need to take the coordinates and find them for the resized
+			}
+
+			//here you must do rectangle(frameResized, cv::Point_<float>(10, 10), cv::Point_<float>(110, 110), Scalar(150, 100, 150), 10); 
+
+
 			frameResized.copyTo(canvas(Rect(0, startButton.height, frameResized.cols, frameResized.rows)));
+
+			//here you must do rectangle(canvas, cv::Point_<float>(110, 110), cv::Point_<float>(210, 210), Scalar(180, 200, 150), 10); 
 
 			putText(canvas, buttonTextStart, Point(startButton.width * 0.35, startButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
 			putText(canvas, buttonTextStop, Point(stopButton.width + (stopButton.width * 0.35), stopButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
 			
-			if (idSwimmerSelected > -1 && startAnalyzeSwimmer == false) {
-				postProcessRealTimeTracking processObj;
-				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
-				rectangle(frameResized, toGetTrajectoryFrom[idSwimmerSelected], Scalar(150, 200, 150), 2);
-				//rectangle(canvas, toGetTrajectoryFrom[idSwimmerSelected], Scalar(150, 200, 150), 2);
-				std::cout << std::endl << std::endl << " finding next box" << std::endl << std::endl;
-			}
+
 
 			setMouseCallback(appName, callBackFunc, this);
 			char c = waitKey(10);
@@ -120,7 +130,8 @@ void SSAGUI::secondCall(int event, int x, int y)
 		
 			if (idSwimmerSelected > -1 && startAnalyzeSwimmer == false) { //TODO should we use a varaible in here or frameAnalysis?
 				resultsTrackingSwimmer.clear();
-				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame); //TODO error check
+				//std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame); //TODO error check
+				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frameResized); //TODO error check
 				startAnalyzeSwimmer = true;
 				resultsTrackingSwimmer.push_back(toGetTrajectoryFrom); //push back analysis from this frame as well so it isn't missed
 				//TODO this needs to only push back for selected swimmer
@@ -163,10 +174,16 @@ void SSAGUI::secondCall(int event, int x, int y)
 
 			//TODO is it okay to assume that a click outside of stop and start button is only on the frame itself?
 			postProcessRealTimeTracking processObj;
-			std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
+			//std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
+			std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frameResized);
 			idSwimmerSelected = processObj.trajectoryMatcher(cv::Point_<float>(x, y), toGetTrajectoryFrom); //TODO error check
 			std::cout << std::endl << std::endl <<" SWIMMER ID = " << idSwimmerSelected << std::endl << std::endl;
-			rectangle(frameResized, toGetTrajectoryFrom[idSwimmerSelected], Scalar(150, 200, 150), 2);
+			int indexID = 0; //TODO this is not efficient
+			for (int i = 0; i < toGetTrajectoryFrom.size(); i++) {
+				if (toGetTrajectoryFrom[i].get_m_boxID() == idSwimmerSelected)
+					indexID = i;
+			}
+			rectangle(frameResized, toGetTrajectoryFrom[indexID], Scalar(150, 200, 150), 2);
 
 			cout << "Coodinates: " << x << ", " << y << endl;
 		}
