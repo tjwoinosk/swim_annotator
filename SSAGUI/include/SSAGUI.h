@@ -37,13 +37,17 @@ private:
 	VideoCapture videoStream;
 	const float vidSize_width = 680;
 	const float vidSize_height = 400;
+	//const float vidSize_width = 1190;
+	//const float vidSize_height = 700;
 	cv::Mat3b canvas;
 	Mat frameResized;
 	frameAnalysis frameAnalysisObj;
 
 	bool startAnalyzeSwimmer;
 	int idSwimmerSelected;
+	int indexSwimmerSelected;
 	std::vector<vector<TrackingBox>> resultsTrackingSwimmer;
+	std::vector<TrackingBox> resultsTrackingSingleSwimmer;
 	// private variables for GUI
 //	Mat frame;
 	//Rect startButton, stopButton;
