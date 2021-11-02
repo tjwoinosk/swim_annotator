@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_SUITE_END() //End file Finder Tests
 
 //File SwimmerDetector Tests
 BOOST_AUTO_TEST_SUITE(SwimmerDetectorTests)
-BOOST_AUTO_TEST_CASE(testPrivateVariables)
+BOOST_AUTO_TEST_CASE(testPrivateVariables) 
 {
 	float valPass = 0.5f;
 	float valFail = 1.1f;
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_SUITE_END() //End SwimmerDetector Tests
 
 //Tracking Box Tests
 BOOST_AUTO_TEST_SUITE(BoxTests)
-BOOST_AUTO_TEST_CASE(testTrackingBoxPrivateVariables)
+BOOST_AUTO_TEST_CASE(testTrackingBoxPrivateVariables) 
 {
 	int testFrameID = 10;
 	int testFrameIDTWO = 20;
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_SUITE_END() //End SORT validation tests suite
 
 //postProcessRTTrackingTestSuite test suite
 BOOST_AUTO_TEST_SUITE(postProcessRTTrackingTestSuite)
-BOOST_AUTO_TEST_CASE(postProcessgetCentrevalidationTEST)
+BOOST_AUTO_TEST_CASE(postProcessgetCentrevalidationTEST) 
 {
 	int tpx = 0;
 	int tpy = 0;
@@ -302,14 +302,14 @@ BOOST_AUTO_TEST_CASE(postProcessgetCentrevalidationTEST)
 	int tph = 20;
 	postProcessRealTimeTracking postProcessRTobj;
 	cv::Point_<float> result;
-	cv::Point_<float> truthPoint = Point_<float>((tpx + tpw) / 2, (tpy + tph) / 2);
+	cv::Point_<float> truthPoint = Point_<float>((tpx+ tpw)/2, (tpy+ tph)/2);
 
 	result = postProcessRTobj.getCentre(Rect_<float>(Point_<float>(tpx, tpy), Point_<float>(tpx + tpw, tpy + tph)));
-
+	
 	BOOST_CHECK_EQUAL(truthPoint.x, result.x);
 	BOOST_CHECK_EQUAL(truthPoint.y, result.y);
 }
-BOOST_AUTO_TEST_CASE(postProcessOneItemVectorTEST)
+BOOST_AUTO_TEST_CASE(postProcessOneItemVectorTEST) 
 {
 	int tpx = 0;
 	int tpy = 0;
@@ -391,7 +391,7 @@ BOOST_AUTO_TEST_CASE(postProcessTwoItemVectorTWOTEST)
 BOOST_AUTO_TEST_CASE(postProcessFourItemVectorTEST)
 {
 	Point_<float> p1 = Point_<float>(10, 10);
-	Point_<float> p1_end = Point_<float>(10 + 10, 10 + 20);
+	Point_<float> p1_end = Point_<float>(10+10, 10+20);
 	Point_<float> p2 = Point_<float>(18, 15);
 	Point_<float> p2_end = Point_<float>(18 + 22, 15 + 15);
 	Point_<float> p3 = Point_<float>(45, 35);

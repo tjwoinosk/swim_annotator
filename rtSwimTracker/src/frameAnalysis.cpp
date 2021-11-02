@@ -5,6 +5,7 @@ frameAnalysis::frameAnalysis()
 {
 	analyzeSwimmer = false;
 	idSelectedSwimmer = -1;
+	frameCount = 0; //TODO this is to test
 }
 
 void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
@@ -57,18 +58,33 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 
 std::vector<TrackingBox> frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 {
-	swimmerDetector detect;
+	frameCount++;//TODO this is to test
+	//swimmerDetector detect;
 	std::vector<TrackingBox> resultsDetector;
 
-	sortTrackerPiplelined SORTprocessor;
+	//sortTrackerPiplelined SORTprocessor;
 	std::vector<TrackingBox> resultsSORT;
 
 	//1. use detector on the frame
-	detect.configureDetector();
-	resultsDetector = detect.detectSwimmers(frameToAnalyze);
-
+	detectSwimmersInVideo.configureDetector();
+	resultsDetector = detectSwimmersInVideo.detectSwimmers(frameToAnalyze);
+	//TODO below line is to test
+	/*
+	for (int i = 0; i < resultsDetector.size(); i++) {
+		std::cout << " framecount = " << frameCount << std::endl;
+		if (!resultsDetector[i].set_m_frame(frameCount)) { std::cout << "ERROR SETTING FRAME NUM ++++++++++++++++++++++++++++" << std::endl; }
+		std::cout << "			++++++ " << resultsDetector[i].get_m_frame() << std::endl << std::endl;
+	}
+	*/
 	//2. use sort algorithm on the output of the detector
-	resultsSORT = SORTprocessor.singleFrameSORT(resultsDetector);
+	resultsSORT = trackSORTprocessorInVideo.singleFrameSORT(resultsDetector);
+	//TODO below line is to test
+	/*
+	for (int i = 0; i < resultsSORT.size(); i++) {
+		std::cout << "			++++++ " << resultsSORT[i].get_m_frame() << std::endl << std::endl;
+	}
+	*/
+
 	return resultsSORT;
 }
 

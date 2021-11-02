@@ -92,6 +92,29 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 				}
 				std::cout << "--------------------" << std::endl << std::endl;
 
+				//TODO TEST ---- TEST --- TEST --- DELETE AFTERWARDS ---------------------------------
+				for (int i = 0; i < toGetTrajectoryFrom.size(); i++) {
+					if (i == indexSwimmerSelected) { continue; }
+					if(toGetTrajectoryFrom[i].get_m_boxID() == 1)
+						rectangle(frameResized, toGetTrajectoryFrom[i], Scalar(250, 0, 0), 5);
+					if (toGetTrajectoryFrom[i].get_m_boxID() == 2)
+						rectangle(frameResized, toGetTrajectoryFrom[i], Scalar(0, 250, 0), 5);
+					if (toGetTrajectoryFrom[i].get_m_boxID() == 3)
+						rectangle(frameResized, toGetTrajectoryFrom[i], Scalar(0, 0, 250), 5);
+					if (toGetTrajectoryFrom[i].get_m_boxID() == 4)
+						rectangle(frameResized, toGetTrajectoryFrom[i], Scalar(90, 90, 0), 5);
+					if (toGetTrajectoryFrom[i].get_m_boxID() == 5)
+						rectangle(frameResized, toGetTrajectoryFrom[i], Scalar(90, 0, 90), 5);
+					if (toGetTrajectoryFrom[i].get_m_boxID() == 6)
+						rectangle(frameResized, toGetTrajectoryFrom[i], Scalar(0, 250, 250), 5);
+					if (toGetTrajectoryFrom[i].get_m_boxID() == 7)
+						rectangle(frameResized, toGetTrajectoryFrom[i], Scalar(250, 250, 0), 5);
+					if (toGetTrajectoryFrom[i].get_m_boxID() == 8)
+						rectangle(frameResized, toGetTrajectoryFrom[i], Scalar(244, 99, 129), 5);
+				}
+
+				//TODO END TEST ---- END TEST --- END TEST --- END DELETE AFTERWARDS ---------------------------------
+
 
 				//TODO so we resize the image to fit in a fixed size, but now do we pass in the resized image to the detector or original?
 				// if we pass in original, we need to take the coordinates and find them for the resized

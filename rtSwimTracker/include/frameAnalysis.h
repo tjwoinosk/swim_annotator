@@ -24,6 +24,12 @@ private:
 	bool analyzeSwimmer;
 	int idSelectedSwimmer;
 
+	//TODO below is to test
+	int frameCount;
+
+	swimmerDetector detectSwimmersInVideo;
+	sortTrackerPiplelined trackSORTprocessorInVideo;
+
 public:
 
 	std::string sortOnFrame(SpeedReporter* report = NULL);
