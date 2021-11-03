@@ -77,6 +77,47 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 				rectangle(frameResized, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(0, 190, 255), 4);
 			}
 
+			//TODO TEST ------ TEST ----- TEST -------------------------------------------------
+			frameAnalysis testFrameOne;
+			frameAnalysis testFrameTWo;
+
+			std::cout << std::endl << std::endl;
+			std::vector<TrackingBox> trackingForThisFrame = testFrameOne.analyzeVideo(frameResized);
+			for (int i = 0; i < trackingForThisFrame.size(); i++) {
+				std::cout << " ++++    " << trackingForThisFrame[i] << std::endl;
+			}
+			
+			std::vector<TrackingBox> trackingForThisFrameTWO = testFrameTWo.analyzeVideo(frame);
+			float scaleX = static_cast<float>(frame.cols) / static_cast<float>(frameResized.cols);
+			float scaleY = static_cast<float>(frame.rows) / static_cast<float>(frameResized.rows);
+			std::cout << " FRAME WIDTH = " << frame.cols << " RESIZED = " << frameResized.cols << std::endl;
+			std::cout << " FRAME HEIGHT = " << frame.rows << " RESIZED = " << frameResized.rows << std::endl;
+
+			std::cout << " ------- X = " << scaleX << " Y = " << scaleY << std::endl;
+			std::cout << " ------- 1/X = " << 1/scaleX << " 1/Y = " << 1/scaleY << std::endl;
+
+			for (int i = 0; i < trackingForThisFrameTWO.size(); i++) {
+				std::cout << " ^^^^   " << trackingForThisFrameTWO[i] << std::endl;
+			}
+			for (int i = 0; i < trackingForThisFrameTWO.size(); i++) {
+				float x1New = (1 / scaleX) * trackingForThisFrameTWO[i].x;
+				float y1New = (1 / scaleY) * trackingForThisFrameTWO[i].y;
+				//cv::Point_<float> p1 = cv::Point_<float>((1 / scaleX) * trackingForThisFrameTWO[i].x, (1 / scaleY) * trackingForThisFrameTWO[i].y);
+				int newWidth = (1 / scaleX) * trackingForThisFrameTWO[i].width;
+				int newHeight = (1 / scaleY) * trackingForThisFrameTWO[i].height;
+
+				trackingForThisFrameTWO[i].x = x1New;
+				trackingForThisFrameTWO[i].y = y1New;
+				trackingForThisFrameTWO[i].width = newWidth;
+				trackingForThisFrameTWO[i].height = newHeight;
+			}
+
+			for (int i = 0; i < trackingForThisFrame.size(); i++) {
+				std::cout << " ****    " << trackingForThisFrameTWO[i] << std::endl;
+			}
+			//TODO END TEST ------ END TEST ----- END TEST -------------------------------------------------
+
+
 			frameResized.copyTo(canvas(Rect(0, startButton.height, frameResized.cols, frameResized.rows)));
 
 			putText(canvas, buttonTextStart, Point(startButton.width * 0.35, startButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
