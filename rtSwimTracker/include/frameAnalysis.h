@@ -23,9 +23,7 @@ private:
 	// global variables 
 	bool analyzeSwimmer;
 	int idSelectedSwimmer;
-
-	//TODO below is to test
-	int frameCount;
+	int indexSelectedSwimmer;
 
 	swimmerDetector detectSwimmersInVideo;
 	sortTrackerPiplelined trackSORTprocessorInVideo;
@@ -48,6 +46,9 @@ public:
 	bool setIDSelectedSwimmer(int valSetTo);
 	bool getAnalyzeSwimmer();
 	int getIDSelectedSwimmer();
+	bool setindexSelectedSwimmer(int valSetTo);
+	int getindexSelectedSwimmer();
+	int findindexSelectedSwimmer(int idSwimmer, std::vector<TrackingBox> allSwimmers);
 };
 
 

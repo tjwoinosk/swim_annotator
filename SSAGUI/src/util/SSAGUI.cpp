@@ -5,9 +5,12 @@
 SSAGUI::SSAGUI(string videoFile) {
 	video = videoFile;
 	videoStream.open(videoFile);
-	startAnalyzeSwimmer = false;
-	idSwimmerSelected = -1;
-	indexSwimmerSelected = 0;
+	//startAnalyzeSwimmer = false;
+	frameAnalysisObj.setAnalyzeSwimmer(false);
+	//idSwimmerSelected = -1;
+	frameAnalysisObj.setIDSelectedSwimmer(-1);
+	//indexSwimmerSelected = 0;
+	frameAnalysisObj.setindexSelectedSwimmer(0); //TODO should this be zero?
 }
 
 SSAGUI::~SSAGUI() {
@@ -48,7 +51,9 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 			cv::resize(frame, frameResized, cv::Size(), resizeRatioWidth, resieRatioHeight);
 			*/
 
-			cv::resize(frame, frameResized, cv::Size(vidSize_width, vidSize_height)); //TODO this is to force to a fixed size
+			//Videos can come in multiple sizes, need output in a fixed size
+			cv::resize(frame, frameResized, cv::Size(vidSize_width, vidSize_height)); 
+
 			startButton = Rect(0, 0, frameResized.cols / 2, 50);
 			stopButton = Rect(frameResized.cols / 2, 0, frameResized.cols / 2, 50);
 			canvas = Mat3b(frameResized.rows + startButton.height, frameResized.cols, Vec3b(0, 0, 0));
@@ -56,11 +61,13 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 			canvas(startButton) = buttonColor; //Colour
 			canvas(stopButton) = buttonColor; //Colour
 
-			if (idSwimmerSelected > -1 && startAnalyzeSwimmer == true) {
+			//if (idSwimmerSelected > -1 && startAnalyzeSwimmer == true) {
+			if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == true) {
 				//std::vector<TrackingBox> trackingForThisFrame = frameAnalysisObj.analyzeVideo(frame);
 				std::vector<TrackingBox> trackingForThisFrame = frameAnalysisObj.analyzeVideo(frameResized); //TODO which one?
 				//resultsTrackingSwimmer.push_back(trackingForThisFrame); 
-				resultsTrackingSingleSwimmer.push_back(trackingForThisFrame[indexSwimmerSelected]); //TODO we should only track one swimmer
+				//resultsTrackingSingleSwimmer.push_back(trackingForThisFrame[indexSwimmerSelected]); //TODO we should only track one swimmer
+				resultsTrackingSingleSwimmer.push_back(trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]); //TODO we should only track one swimmer
 				//TODO this needs to only push back for selected swimmer
 				//TODO do we want to draw the box in this case as well?
 				std::cout << "--------TRACKING------------" << std::endl << std::endl;
@@ -69,7 +76,8 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 				}
 				std::cout << "---------TRACKING END-----------" << std::endl << std::endl;
 			}
-			else if (idSwimmerSelected > -1 && startAnalyzeSwimmer == false) {
+			//else if (idSwimmerSelected > -1 && startAnalyzeSwimmer == false) {
+			else if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == false) {
 				postProcessRealTimeTracking processObj;
 				//std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
 				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frameResized);
@@ -82,10 +90,11 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 				cv::Point_<float> p2 = cv::Point_<float>((1 / scaleX) * (toGetTrajectoryFrom[indexID].x + toGetTrajectoryFrom[indexID].width), (1 / scaleY) * (toGetTrajectoryFrom[indexID].y + toGetTrajectoryFrom[indexID].height));
 				rectangle(frameResized, p1, p2, Scalar(150, 200, 150), 10);*/
 				//TODO end
-				rectangle(frameResized, toGetTrajectoryFrom[indexSwimmerSelected], Scalar(150, 200, 150), 10);
-				std::cout << std::endl << std::endl << " finding next box with ID = " << idSwimmerSelected << "  and index  = " << indexSwimmerSelected << std::endl << std::endl;
-				std::cout << toGetTrajectoryFrom[indexSwimmerSelected] << std::endl;
-				std::cout << "  x = " << toGetTrajectoryFrom[indexSwimmerSelected].x << " y = " << toGetTrajectoryFrom[indexSwimmerSelected].y << " w = " << toGetTrajectoryFrom[indexSwimmerSelected].width << " h = " << toGetTrajectoryFrom[indexSwimmerSelected].height << std::endl;
+				//rectangle(frameResized, toGetTrajectoryFrom[indexSwimmerSelected], Scalar(150, 200, 150), 10);
+				rectangle(frameResized, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
+				std::cout << std::endl << std::endl << " finding next box with ID = " << frameAnalysisObj.getIDSelectedSwimmer() << "  and index  = " << frameAnalysisObj.getindexSelectedSwimmer() << std::endl << std::endl;
+				std::cout << toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()] << std::endl;
+				std::cout << "  x = " << toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()].x << " y = " << toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()].y << " w = " << toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()].width << " h = " << toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()].height << std::endl;
 				
 				for (int i = 0; i < toGetTrajectoryFrom.size(); i++) {
 					std::cout << " *** " << toGetTrajectoryFrom[i] << std::endl;
@@ -94,7 +103,7 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 
 				//TODO TEST ---- TEST --- TEST --- DELETE AFTERWARDS ---------------------------------
 				for (int i = 0; i < toGetTrajectoryFrom.size(); i++) {
-					if (i == indexSwimmerSelected) { continue; }
+					if (i == frameAnalysisObj.getindexSelectedSwimmer()) { continue; }
 					if(toGetTrajectoryFrom[i].get_m_boxID() == 1)
 						rectangle(frameResized, toGetTrajectoryFrom[i], Scalar(250, 0, 0), 5);
 					if (toGetTrajectoryFrom[i].get_m_boxID() == 2)
@@ -164,14 +173,17 @@ void SSAGUI::secondCall(int event, int x, int y)
 			rectangle(canvas, startButton, Scalar(0, 0, 255), 2);
 			isPlaying = true;
 		
-			if (idSwimmerSelected > -1 && startAnalyzeSwimmer == false) { //TODO should we use a varaible in here or frameAnalysis?
+			//if (idSwimmerSelected > -1 && startAnalyzeSwimmer == false) { //TODO should we use a varaible in here or frameAnalysis?
+			if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == false) { //TODO should we use a varaible in here or frameAnalysis?
 				//resultsTrackingSwimmer.clear();
 				resultsTrackingSingleSwimmer.clear();
 				//std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame); //TODO error check
-				startAnalyzeSwimmer = true;
+				//startAnalyzeSwimmer = true;
+				frameAnalysisObj.setAnalyzeSwimmer(true);
 				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frameResized); //TODO error check
 				//resultsTrackingSwimmer.push_back(toGetTrajectoryFrom); //push back analysis from this frame as well so it isn't missed
-				resultsTrackingSingleSwimmer.push_back(toGetTrajectoryFrom[indexSwimmerSelected]);
+				resultsTrackingSingleSwimmer.push_back(toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
+				//resultsTrackingSingleSwimmer.push_back(toGetTrajectoryFrom[indexSwimmerSelected]);
 				//TODO this needs to only push back for selected swimmer
 			}
 		}
@@ -181,9 +193,12 @@ void SSAGUI::secondCall(int event, int x, int y)
 			rectangle(canvas, stopButton, Scalar(0, 0, 255), 2);
 			isPlaying = false;
 
-			if (idSwimmerSelected > -1 && startAnalyzeSwimmer == true) {
-				startAnalyzeSwimmer = false;
-				idSwimmerSelected = -1;
+			//if (idSwimmerSelected > -1 && startAnalyzeSwimmer == true) {
+			if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == true) {
+				//startAnalyzeSwimmer = false;
+				frameAnalysisObj.setAnalyzeSwimmer(false);
+				//idSwimmerSelected = -1;
+				frameAnalysisObj.setIDSelectedSwimmer(-1);
 				//TODO write to file the output - overwrite or append?
 				fileFinder find;
 				std::string resFileName = "detectionDataNEW.txt";
@@ -219,13 +234,18 @@ void SSAGUI::secondCall(int event, int x, int y)
 			postProcessRealTimeTracking processObj;
 			//std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
 			std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frameResized);
-			idSwimmerSelected = processObj.trajectoryMatcher(cv::Point_<float>(x, y), toGetTrajectoryFrom); //TODO error check
-			std::cout << std::endl << std::endl <<" SWIMMER ID = " << idSwimmerSelected << std::endl << std::endl;
+			//idSwimmerSelected = processObj.trajectoryMatcher(cv::Point_<float>(x, y), toGetTrajectoryFrom); //TODO error check
+			int idFound = processObj.trajectoryMatcher(cv::Point_<float>(x, y), toGetTrajectoryFrom); //TODO error check
+			if (!frameAnalysisObj.setIDSelectedSwimmer(idFound)) { std::cout << std::endl<< "Failed to set ID of swimmer" << std::endl; }
+			std::cout << std::endl << std::endl <<" SWIMMER ID = " << frameAnalysisObj.getIDSelectedSwimmer() << std::endl << std::endl;
 			//TODO below is not efficient
-			for (int i = 0; i < toGetTrajectoryFrom.size(); i++) {
+			int indexSwimmer = frameAnalysisObj.findindexSelectedSwimmer(frameAnalysisObj.getIDSelectedSwimmer(), toGetTrajectoryFrom);
+			if (!frameAnalysisObj.setindexSelectedSwimmer(indexSwimmer)) { std::cout << std::endl << "Failed to set index of swimmer" << std::endl; }
+			/*for (int i = 0; i < toGetTrajectoryFrom.size(); i++) {
 				if (toGetTrajectoryFrom[i].get_m_boxID() == idSwimmerSelected)
 					indexSwimmerSelected = i;
-			}
+			}*/
+
 			//TODO is this waht we want to do to deal with resizing? will this work?
 			/*float scaleX = frame.cols / vidSize_width;
 			float scaleY = frame.rows / vidSize_height;
@@ -237,7 +257,8 @@ void SSAGUI::secondCall(int event, int x, int y)
 			for (int i = 0; i < toGetTrajectoryFrom.size(); i++) {
 				std::cout << " *** " << toGetTrajectoryFrom[i] << std::endl;
 			}
-			rectangle(frameResized, toGetTrajectoryFrom[indexSwimmerSelected], Scalar(150, 200, 150), 10);
+			rectangle(frameResized, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
+			//rectangle(frameResized, toGetTrajectoryFrom[indexSwimmerSelected], Scalar(150, 200, 150), 10);
 		}
 
 		imshow(appName, canvas);

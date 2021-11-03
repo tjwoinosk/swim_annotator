@@ -5,9 +5,10 @@ frameAnalysis::frameAnalysis()
 {
 	analyzeSwimmer = false;
 	idSelectedSwimmer = -1;
-	frameCount = 0; //TODO this is to test
+	indexSelectedSwimmer = 0;
 }
 
+//TODO the below function needs to be tested - also it could interfere with analyzeVideo(Mat frame) due to overlap in use of private variables
 void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 {
 	cv::VideoCapture videoToAnalyze;
@@ -58,58 +59,19 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 
 std::vector<TrackingBox> frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 {
-	frameCount++;//TODO this is to test
-	//swimmerDetector detect;
 	std::vector<TrackingBox> resultsDetector;
-
-	//sortTrackerPiplelined SORTprocessor;
 	std::vector<TrackingBox> resultsSORT;
 
 	//1. use detector on the frame
 	detectSwimmersInVideo.configureDetector();
 	resultsDetector = detectSwimmersInVideo.detectSwimmers(frameToAnalyze);
-	//TODO below line is to test
-	/*
-	for (int i = 0; i < resultsDetector.size(); i++) {
-		std::cout << " framecount = " << frameCount << std::endl;
-		if (!resultsDetector[i].set_m_frame(frameCount)) { std::cout << "ERROR SETTING FRAME NUM ++++++++++++++++++++++++++++" << std::endl; }
-		std::cout << "			++++++ " << resultsDetector[i].get_m_frame() << std::endl << std::endl;
-	}
-	*/
+	//TODO do we need to reset m_frame in vector from detector?
+	
 	//2. use sort algorithm on the output of the detector
 	resultsSORT = trackSORTprocessorInVideo.singleFrameSORT(resultsDetector);
-	//TODO below line is to test
-	/*
-	for (int i = 0; i < resultsSORT.size(); i++) {
-		std::cout << "			++++++ " << resultsSORT[i].get_m_frame() << std::endl << std::endl;
-	}
-	*/
 
 	return resultsSORT;
 }
-
-void frameAnalysis::setAnalyzeSwimmer(bool valSetTo)
-{
-	analyzeSwimmer = valSetTo;
-}
-
-bool frameAnalysis::setIDSelectedSwimmer(int valSetTo)
-{
-	if (valSetTo < -1) { return false; }
-	idSelectedSwimmer = valSetTo;
-	return true;
-}
-
-bool frameAnalysis::getAnalyzeSwimmer()
-{
-	return analyzeSwimmer;
-}
-
-int frameAnalysis::getIDSelectedSwimmer()
-{
-	return idSelectedSwimmer;
-}
-
 
 std::string frameAnalysis::sortOnFrame(SpeedReporter* report)
 {
@@ -168,7 +130,6 @@ std::string frameAnalysis::sortOnFrame(SpeedReporter* report)
 
 	return resFileAbsPath;
 }
-
 
 std::string frameAnalysis::runDetectorOnFrames(SpeedReporter* report)
 {
@@ -298,3 +259,45 @@ int frameAnalysis::groupingDetectionData(std::vector<TrackingBox> detData, std::
 	return maxFrame;
 }
 
+void frameAnalysis::setAnalyzeSwimmer(bool valSetTo)
+{
+	analyzeSwimmer = valSetTo;
+}
+
+bool frameAnalysis::setIDSelectedSwimmer(int valSetTo)
+{
+	if (valSetTo < -1) { return false; }
+	idSelectedSwimmer = valSetTo;
+	return true;
+}
+
+bool frameAnalysis::getAnalyzeSwimmer()
+{
+	return analyzeSwimmer;
+}
+
+int frameAnalysis::getIDSelectedSwimmer()
+{
+	return idSelectedSwimmer;
+}
+
+bool frameAnalysis::setindexSelectedSwimmer(int valSetTo)
+{
+	if (valSetTo < 0) { return false; } //TODO it should also compare to the size of the vector
+	indexSelectedSwimmer = valSetTo;
+	return true;
+}
+
+int frameAnalysis::getindexSelectedSwimmer()
+{
+	return indexSelectedSwimmer;
+}
+
+int frameAnalysis::findindexSelectedSwimmer(int idSwimmer, std::vector<TrackingBox> allSwimmers)
+{
+	for (int i = 0; i < allSwimmers.size(); i++) {
+		if (allSwimmers[i].get_m_boxID() == idSwimmer)
+			return i;
+	}
+	return -1; //TODO should we return -1 or 0?
+}
