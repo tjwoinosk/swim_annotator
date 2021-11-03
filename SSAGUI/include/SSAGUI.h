@@ -43,7 +43,6 @@ private:
 	Mat frameResized;
 	frameAnalysis frameAnalysisObj;
 
-	std::vector<vector<TrackingBox>> resultsTrackingSwimmer;
 	std::vector<TrackingBox> resultsTrackingSingleSwimmer;
 	// private variables for GUI
 //	Mat frame;
