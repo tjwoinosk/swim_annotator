@@ -160,14 +160,15 @@ void SSAGUI::secondCall(int event, int x, int y)
 		else {
 			postProcessRealTimeTracking processObj;
 			std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
+			float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
+			float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
+			frameAnalysisObj.resizeBoxes(scaleX, scaleY, toGetTrajectoryFrom);
 			int idFound = processObj.trajectoryMatcher(cv::Point_<float>(x, y), toGetTrajectoryFrom); //TODO error check
 			if (!frameAnalysisObj.setIDSelectedSwimmer(idFound)) { std::cout << std::endl<< "Failed to set ID of swimmer" << std::endl; }
 			int indexSwimmer = frameAnalysisObj.findindexSelectedSwimmer(frameAnalysisObj.getIDSelectedSwimmer(), toGetTrajectoryFrom);
 			if (!frameAnalysisObj.setindexSelectedSwimmer(indexSwimmer)) { std::cout << std::endl << "Failed to set index of swimmer" << std::endl; }
-			float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
-			float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-			TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
-			rectangle(frameResized, newBox, Scalar(150, 200, 150), 10);
+			
+			rectangle(frameResized, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
 		}
 
 		imshow(appName, canvas);
