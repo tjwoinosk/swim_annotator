@@ -24,35 +24,29 @@ public:
 	SSAGUI(string videoFile); //TODO ssaGUI
 	~SSAGUI();
 
-	Mat frame;
-	Rect startButton, stopButton;
-	bool isPlaying = true;
+	
 
 	void playVideo(int videoDelay);
 
 
 private:
 	// private variables for video streaming
+	Mat frame; 
+	Rect startButton, stopButton;
+	bool isPlaying = true;
 	string video;
 	VideoCapture videoStream;
 	const float vidSize_width = 680;
 	const float vidSize_height = 400;
-	//const float vidSize_width = 1190;
-	//const float vidSize_height = 700;
 	cv::Mat3b canvas;
 	Mat frameResized;
 	frameAnalysis frameAnalysisObj;
-
 	std::vector<TrackingBox> resultsTrackingSingleSwimmer;
-	// private variables for GUI
-//	Mat frame;
-	//Rect startButton, stopButton;
-
+	
 	VideoCapture getVideoStream();
 	int isVideoStreamValid();
 	void closeVideo();
 
-	//	void setupVideoGUI();
 	static void callBackFunc(int event, int x, int y, int, void* userdata);
 	void secondCall(int event, int x, int y);
 };

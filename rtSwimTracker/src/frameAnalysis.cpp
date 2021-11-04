@@ -304,7 +304,6 @@ int frameAnalysis::findindexSelectedSwimmer(int idSwimmer, std::vector<TrackingB
 
 void frameAnalysis::resizeBoxes(float scaleX, float scaleY, std::vector<TrackingBox>& dataToResize)
 {
-	std::cout << std::endl << " ---------------" << std::endl;
 	for (int i = 0; i < dataToResize.size(); i++) {
 		float x1New = scaleX * dataToResize[i].x;
 		float y1New = scaleY * dataToResize[i].y;
@@ -315,10 +314,7 @@ void frameAnalysis::resizeBoxes(float scaleX, float scaleY, std::vector<Tracking
 		dataToResize[i].y = y1New;
 		dataToResize[i].width = newWidth;
 		dataToResize[i].height = newHeight;
-		std::cout << std::endl << "SCALING -- X = " << dataToResize[i].x << " Y = " << dataToResize[i].y << " W = " << dataToResize[i].width << " H = " << dataToResize[i].height << std::endl << std::endl;
 	}
-	std::cout << std::endl << " ---------------" << std::endl;
-
 	return;
 }
 

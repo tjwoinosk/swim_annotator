@@ -63,26 +63,17 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 				resultsTrackingSingleSwimmer.push_back(trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]); 
 				float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
 				float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-				std::cout << std::endl << " TRACKING -- scale X = " << scaleX << "   scaleY = " << scaleY << std::endl << std::endl;
-				//frameAnalysisObj.resizeBoxes(scaleX, scaleY, trackingForThisFrame);
 				TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]);
 				rectangle(frameResized, newBox, Scalar(100, 230, 0), 4);
-				//rectangle(frameResized, trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(100, 230, 0), 4);
 			}
 			else if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == false) {
 				//A swimmer is selected but we are not yet tracking the swimmer
 				postProcessRealTimeTracking processObj;
 				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame); 
-				for (int i = 0; i < toGetTrajectoryFrom.size(); i++) { std::cout << " +++ " << toGetTrajectoryFrom[i] << std::endl; }
-				if (toGetTrajectoryFrom.size() == 0) { std::cout << std::endl << " THERE ARE NO TRACKING FROM THE BEGINNING!!!!!!!! " << std::endl << std::endl; }
 				float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
 				float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-				std::cout << std::endl << " NOT TRACKING -- scale X = " << scaleX << "   scaleY = " << scaleY << std::endl << std::endl;
-				if (toGetTrajectoryFrom.size() == 0) { std::cout << std::endl << " THERE ARE NO TRACKING!!!!!!!! " << std::endl << std::endl; }
-				//frameAnalysisObj.resizeBoxes(scaleX, scaleY, toGetTrajectoryFrom);
 				TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
 				rectangle(frameResized, newBox, Scalar(0, 190, 255), 4);
-				//rectangle(frameResized, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(0, 190, 255), 4);
 			}
 
 			frameResized.copyTo(canvas(Rect(0, startButton.height, frameResized.cols, frameResized.rows)));
@@ -131,9 +122,6 @@ void SSAGUI::secondCall(int event, int x, int y)
 				resultsTrackingSingleSwimmer.push_back(toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
 				float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
 				float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-				std::cout << std::endl << " scale X = " << scaleX << "   scaleY = " << scaleY << std::endl << std::endl;
-				//frameAnalysisObj.resizeBoxes(scaleX, scaleY, toGetTrajectoryFrom);
-				//rectangle(frameResized, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(0, 190, 255), 4);
 				TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
 				rectangle(frameResized, newBox, Scalar(0, 190, 255), 4);
 			}
@@ -178,9 +166,6 @@ void SSAGUI::secondCall(int event, int x, int y)
 			if (!frameAnalysisObj.setindexSelectedSwimmer(indexSwimmer)) { std::cout << std::endl << "Failed to set index of swimmer" << std::endl; }
 			float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
 			float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-			//frameAnalysisObj.resizeBoxes(scaleX, scaleY, toGetTrajectoryFrom);
-			std::cout << std::endl <<" scale X = " << scaleX << "   scaleY = " << scaleY << std::endl << std::endl;
-			//rectangle(frameResized, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
 			TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
 			rectangle(frameResized, newBox, Scalar(150, 200, 150), 10);
 		}
