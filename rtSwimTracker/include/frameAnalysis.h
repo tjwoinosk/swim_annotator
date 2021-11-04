@@ -50,8 +50,9 @@ public:
 	int getindexSelectedSwimmer();
 	int findindexSelectedSwimmer(int idSwimmer, std::vector<TrackingBox> allSwimmers);
 
-	void resizeBoxes(float scaleX, float scaleY, std::vector<TrackingBox>& dataToResize);
+	void resizeBoxes(float scaleX, float scaleY, std::vector<TrackingBox>& dataToResize); //TODO this might be buggy... need to test or remove
 	float findFrameScale(int newFrameSize, int currentFrameSize);
+	TrackingBox resizeBox(float scaleX, float scaleY, TrackingBox boxToResize);
 };
 
 

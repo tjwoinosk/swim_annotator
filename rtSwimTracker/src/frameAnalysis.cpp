@@ -304,6 +304,7 @@ int frameAnalysis::findindexSelectedSwimmer(int idSwimmer, std::vector<TrackingB
 
 void frameAnalysis::resizeBoxes(float scaleX, float scaleY, std::vector<TrackingBox>& dataToResize)
 {
+	std::cout << std::endl << " ---------------" << std::endl;
 	for (int i = 0; i < dataToResize.size(); i++) {
 		float x1New = scaleX * dataToResize[i].x;
 		float y1New = scaleY * dataToResize[i].y;
@@ -314,7 +315,10 @@ void frameAnalysis::resizeBoxes(float scaleX, float scaleY, std::vector<Tracking
 		dataToResize[i].y = y1New;
 		dataToResize[i].width = newWidth;
 		dataToResize[i].height = newHeight;
+		std::cout << std::endl << "SCALING -- X = " << dataToResize[i].x << " Y = " << dataToResize[i].y << " W = " << dataToResize[i].width << " H = " << dataToResize[i].height << std::endl << std::endl;
 	}
+	std::cout << std::endl << " ---------------" << std::endl;
+
 	return;
 }
 
@@ -324,5 +328,15 @@ float frameAnalysis::findFrameScale(int newFrameSize, int currentFrameSize)
 	if (newFrameSize == 0) { return -1; }
 	float scaleDimension = static_cast<float>(newFrameSize) / static_cast<float>(currentFrameSize);
 	return scaleDimension;
+}
+
+TrackingBox frameAnalysis::resizeBox(float scaleX, float scaleY, TrackingBox boxToResize)
+{
+	TrackingBox resizedBox(boxToResize.get_m_swimmerClass(), boxToResize.get_m_confScore(), boxToResize.get_m_frame(), boxToResize.get_m_boxID(), boxToResize);
+	resizedBox.x = scaleX * boxToResize.x;
+	resizedBox.y = scaleY * boxToResize.y;
+	resizedBox.width = scaleX * boxToResize.width;
+	resizedBox.height = scaleY * boxToResize.height;
+	return resizedBox;
 }
 

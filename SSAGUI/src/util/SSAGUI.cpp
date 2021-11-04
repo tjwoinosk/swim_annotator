@@ -58,62 +58,32 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 			canvas(stopButton) = buttonColor; //Colour
 
 			if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == true) {
-				std::vector<TrackingBox> trackingForThisFrame = frameAnalysisObj.analyzeVideo(frameResized);
+				//A swimmer is selected and we want to track the swimmer
+				std::vector<TrackingBox> trackingForThisFrame = frameAnalysisObj.analyzeVideo(frame);
 				resultsTrackingSingleSwimmer.push_back(trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]); 
-				rectangle(frameResized, trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(100, 230, 0), 4);
+				float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
+				float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
+				std::cout << std::endl << " TRACKING -- scale X = " << scaleX << "   scaleY = " << scaleY << std::endl << std::endl;
+				//frameAnalysisObj.resizeBoxes(scaleX, scaleY, trackingForThisFrame);
+				TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]);
+				rectangle(frameResized, newBox, Scalar(100, 230, 0), 4);
+				//rectangle(frameResized, trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(100, 230, 0), 4);
 			}
 			else if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == false) {
+				//A swimmer is selected but we are not yet tracking the swimmer
 				postProcessRealTimeTracking processObj;
-				//std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
-				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frameResized); //TODO should we analyze frameResized or frame? (This applies to all uses of analyzeVideo()
-				//TODO is this waht we want to do to deal with resizing? will this work? I think its buggy but I can't tell ... need to test more
-				/*float scaleX = frame.cols / vidSize_width;
-				float scaleY = frame.rows / vidSize_height;
-				std::cout << " ------- X = " << scaleX << " Y = " << scaleY << std::endl;
-				cv::Point_<float> p1 = cv::Point_<float>((1 / scaleX) * toGetTrajectoryFrom[indexID].x, (1 / scaleY) * toGetTrajectoryFrom[indexID].y);
-				cv::Point_<float> p2 = cv::Point_<float>((1 / scaleX) * (toGetTrajectoryFrom[indexID].x + toGetTrajectoryFrom[indexID].width), (1 / scaleY) * (toGetTrajectoryFrom[indexID].y + toGetTrajectoryFrom[indexID].height));
-				rectangle(frameResized, p1, p2, Scalar(150, 200, 150), 10);*/
-				//TODO end
-				rectangle(frameResized, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(0, 190, 255), 4);
+				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame); 
+				for (int i = 0; i < toGetTrajectoryFrom.size(); i++) { std::cout << " +++ " << toGetTrajectoryFrom[i] << std::endl; }
+				if (toGetTrajectoryFrom.size() == 0) { std::cout << std::endl << " THERE ARE NO TRACKING FROM THE BEGINNING!!!!!!!! " << std::endl << std::endl; }
+				float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
+				float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
+				std::cout << std::endl << " NOT TRACKING -- scale X = " << scaleX << "   scaleY = " << scaleY << std::endl << std::endl;
+				if (toGetTrajectoryFrom.size() == 0) { std::cout << std::endl << " THERE ARE NO TRACKING!!!!!!!! " << std::endl << std::endl; }
+				//frameAnalysisObj.resizeBoxes(scaleX, scaleY, toGetTrajectoryFrom);
+				TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
+				rectangle(frameResized, newBox, Scalar(0, 190, 255), 4);
+				//rectangle(frameResized, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(0, 190, 255), 4);
 			}
-
-			//TODO TEST ------ TEST ----- TEST -------------------------------------------------
-			//---------------------
-			//std::vector<TrackingBox> trackingForThisFrameTWO = testFrameTWo.analyzeVideo(frame);
-			//float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
-			//float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-
-			//frameAnalysisObj.resizeBoxes(scaleX, scaleY, trackingForThisFrameTWO);
-			//------
-			frameAnalysis testFrameOne;
-			frameAnalysis testFrameTWo;
-
-			std::cout << std::endl << std::endl;
-			std::vector<TrackingBox> trackingForThisFrame = testFrameOne.analyzeVideo(frameResized);
-			for (int i = 0; i < trackingForThisFrame.size(); i++) {
-				std::cout << " ++++    " << trackingForThisFrame[i] << std::endl;
-			}
-			
-			std::vector<TrackingBox> trackingForThisFrameTWO = testFrameTWo.analyzeVideo(frame);
-			float scaleX = testFrameTWo.findFrameScale(frameResized.cols, frame.cols);
-			float scaleY = testFrameTWo.findFrameScale(frameResized.rows, frame.rows);
-			std::cout << " FRAME WIDTH = " << frame.cols << " RESIZED = " << frameResized.cols << std::endl;
-			std::cout << " FRAME HEIGHT = " << frame.rows << " RESIZED = " << frameResized.rows << std::endl;
-
-			std::cout << " ------- X = " << scaleX << " Y = " << scaleY << std::endl;
-			std::cout << " ------- 1/X = " << 1/scaleX << " 1/Y = " << 1/scaleY << std::endl;
-
-			for (int i = 0; i < trackingForThisFrameTWO.size(); i++) {
-				std::cout << " ^^^^   " << trackingForThisFrameTWO[i] << std::endl;
-			}
-			testFrameTWo.resizeBoxes(scaleX, scaleY, trackingForThisFrameTWO);
-
-			for (int i = 0; i < trackingForThisFrame.size(); i++) {
-				std::cout << " ****    " << trackingForThisFrameTWO[i] << std::endl;
-			}
-			
-			//TODO END TEST ------ END TEST ----- END TEST -------------------------------------------------
-
 
 			frameResized.copyTo(canvas(Rect(0, startButton.height, frameResized.cols, frameResized.rows)));
 
@@ -157,8 +127,15 @@ void SSAGUI::secondCall(int event, int x, int y)
 			if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == false) { //TODO should we use a varaible in here or frameAnalysis?
 				resultsTrackingSingleSwimmer.clear();
 				frameAnalysisObj.setAnalyzeSwimmer(true);
-				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frameResized); 
+				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame); 
 				resultsTrackingSingleSwimmer.push_back(toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
+				float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
+				float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
+				std::cout << std::endl << " scale X = " << scaleX << "   scaleY = " << scaleY << std::endl << std::endl;
+				//frameAnalysisObj.resizeBoxes(scaleX, scaleY, toGetTrajectoryFrom);
+				//rectangle(frameResized, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(0, 190, 255), 4);
+				TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
+				rectangle(frameResized, newBox, Scalar(0, 190, 255), 4);
 			}
 		}
 		else if (stopButton.contains(Point(x, y)))
@@ -194,22 +171,18 @@ void SSAGUI::secondCall(int event, int x, int y)
 		}
 		else {
 			postProcessRealTimeTracking processObj;
-			std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frameResized);
+			std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
 			int idFound = processObj.trajectoryMatcher(cv::Point_<float>(x, y), toGetTrajectoryFrom); //TODO error check
 			if (!frameAnalysisObj.setIDSelectedSwimmer(idFound)) { std::cout << std::endl<< "Failed to set ID of swimmer" << std::endl; }
 			int indexSwimmer = frameAnalysisObj.findindexSelectedSwimmer(frameAnalysisObj.getIDSelectedSwimmer(), toGetTrajectoryFrom);
 			if (!frameAnalysisObj.setindexSelectedSwimmer(indexSwimmer)) { std::cout << std::endl << "Failed to set index of swimmer" << std::endl; }
-
-			//TODO is this what we want to do to deal with resizing? will this work?
-			/*float scaleX = frame.cols / vidSize_width;
-			float scaleY = frame.rows / vidSize_height;
-			std::cout << " ------- X = " << scaleX << " Y = " << scaleY << std::endl;
-			cv::Point_<float> p1 = cv::Point_<float>((1 / scaleX) * toGetTrajectoryFrom[indexID].x, (1 / scaleY) * toGetTrajectoryFrom[indexID].y);
-			cv::Point_<float> p2 = cv::Point_<float>((1 / scaleX) * (toGetTrajectoryFrom[indexID].x + toGetTrajectoryFrom[indexID].width), (1 / scaleY) * (toGetTrajectoryFrom[indexID].y + toGetTrajectoryFrom[indexID].height));
-			rectangle(frameResized, p1, p2, Scalar(150, 200, 150), 2);*/
-			//TODO end
-			
-			rectangle(frameResized, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
+			float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
+			float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
+			//frameAnalysisObj.resizeBoxes(scaleX, scaleY, toGetTrajectoryFrom);
+			std::cout << std::endl <<" scale X = " << scaleX << "   scaleY = " << scaleY << std::endl << std::endl;
+			//rectangle(frameResized, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
+			TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
+			rectangle(frameResized, newBox, Scalar(150, 200, 150), 10);
 		}
 
 		imshow(appName, canvas);
