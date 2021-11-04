@@ -301,3 +301,28 @@ int frameAnalysis::findindexSelectedSwimmer(int idSwimmer, std::vector<TrackingB
 	}
 	return -1; //TODO should we return -1 or 0?
 }
+
+void frameAnalysis::resizeBoxes(float scaleX, float scaleY, std::vector<TrackingBox>& dataToResize)
+{
+	for (int i = 0; i < dataToResize.size(); i++) {
+		float x1New = scaleX * dataToResize[i].x;
+		float y1New = scaleY * dataToResize[i].y;
+		int newWidth = scaleX * dataToResize[i].width;
+		int newHeight = scaleY * dataToResize[i].height;
+
+		dataToResize[i].x = x1New;
+		dataToResize[i].y = y1New;
+		dataToResize[i].width = newWidth;
+		dataToResize[i].height = newHeight;
+	}
+	return;
+}
+
+
+float frameAnalysis::findFrameScale(int newFrameSize, int currentFrameSize)
+{
+	if (newFrameSize == 0) { return -1; }
+	float scaleDimension = static_cast<float>(newFrameSize) / static_cast<float>(currentFrameSize);
+	return scaleDimension;
+}
+

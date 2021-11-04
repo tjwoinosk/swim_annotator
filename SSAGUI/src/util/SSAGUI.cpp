@@ -78,6 +78,13 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 			}
 
 			//TODO TEST ------ TEST ----- TEST -------------------------------------------------
+			//---------------------
+			//std::vector<TrackingBox> trackingForThisFrameTWO = testFrameTWo.analyzeVideo(frame);
+			//float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
+			//float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
+
+			//frameAnalysisObj.resizeBoxes(scaleX, scaleY, trackingForThisFrameTWO);
+			//------
 			frameAnalysis testFrameOne;
 			frameAnalysis testFrameTWo;
 
@@ -88,8 +95,8 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 			}
 			
 			std::vector<TrackingBox> trackingForThisFrameTWO = testFrameTWo.analyzeVideo(frame);
-			float scaleX = static_cast<float>(frame.cols) / static_cast<float>(frameResized.cols);
-			float scaleY = static_cast<float>(frame.rows) / static_cast<float>(frameResized.rows);
+			float scaleX = testFrameTWo.findFrameScale(frameResized.cols, frame.cols);
+			float scaleY = testFrameTWo.findFrameScale(frameResized.rows, frame.rows);
 			std::cout << " FRAME WIDTH = " << frame.cols << " RESIZED = " << frameResized.cols << std::endl;
 			std::cout << " FRAME HEIGHT = " << frame.rows << " RESIZED = " << frameResized.rows << std::endl;
 
@@ -99,22 +106,12 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 			for (int i = 0; i < trackingForThisFrameTWO.size(); i++) {
 				std::cout << " ^^^^   " << trackingForThisFrameTWO[i] << std::endl;
 			}
-			for (int i = 0; i < trackingForThisFrameTWO.size(); i++) {
-				float x1New = (1 / scaleX) * trackingForThisFrameTWO[i].x;
-				float y1New = (1 / scaleY) * trackingForThisFrameTWO[i].y;
-				//cv::Point_<float> p1 = cv::Point_<float>((1 / scaleX) * trackingForThisFrameTWO[i].x, (1 / scaleY) * trackingForThisFrameTWO[i].y);
-				int newWidth = (1 / scaleX) * trackingForThisFrameTWO[i].width;
-				int newHeight = (1 / scaleY) * trackingForThisFrameTWO[i].height;
-
-				trackingForThisFrameTWO[i].x = x1New;
-				trackingForThisFrameTWO[i].y = y1New;
-				trackingForThisFrameTWO[i].width = newWidth;
-				trackingForThisFrameTWO[i].height = newHeight;
-			}
+			testFrameTWo.resizeBoxes(scaleX, scaleY, trackingForThisFrameTWO);
 
 			for (int i = 0; i < trackingForThisFrame.size(); i++) {
 				std::cout << " ****    " << trackingForThisFrameTWO[i] << std::endl;
 			}
+			
 			//TODO END TEST ------ END TEST ----- END TEST -------------------------------------------------
 
 

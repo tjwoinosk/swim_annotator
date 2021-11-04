@@ -49,6 +49,9 @@ public:
 	bool setindexSelectedSwimmer(int valSetTo);
 	int getindexSelectedSwimmer();
 	int findindexSelectedSwimmer(int idSwimmer, std::vector<TrackingBox> allSwimmers);
+
+	void resizeBoxes(float scaleX, float scaleY, std::vector<TrackingBox>& dataToResize);
+	float findFrameScale(int newFrameSize, int currentFrameSize);
 };
 
 
