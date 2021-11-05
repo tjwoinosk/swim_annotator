@@ -50,8 +50,8 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 			//Videos can come in multiple sizes, need output in a fixed size
 			cv::resize(frame, frameResized, cv::Size(vidSize_width, vidSize_height)); 
 
-			startButton = Rect(0, 0, frameResized.cols / 2, 50);
-			stopButton = Rect(frameResized.cols / 2, 0, frameResized.cols / 2, 50);
+			startButton = Rect(0, 0, frameResized.cols / 2, buttonHeight);
+			stopButton = Rect(frameResized.cols / 2, 0, frameResized.cols / 2, buttonHeight);
 			canvas = Mat3b(frameResized.rows + startButton.height, frameResized.cols, Vec3b(0, 0, 0));
 
 			canvas(startButton) = buttonColor; //Colour
@@ -163,7 +163,9 @@ void SSAGUI::secondCall(int event, int x, int y)
 			float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
 			float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
 			frameAnalysisObj.resizeBoxes(scaleX, scaleY, toGetTrajectoryFrom);
-			int idFound = processObj.trajectoryMatcher(cv::Point_<float>(x, y), toGetTrajectoryFrom); //TODO error check
+
+			int y_inFrame = y - buttonHeight; //Account for offset from buttons to get position on the video image
+			int idFound = processObj.trajectoryMatcher(cv::Point_<float>(x, y_inFrame), toGetTrajectoryFrom); //TODO error check
 			if (!frameAnalysisObj.setIDSelectedSwimmer(idFound)) { std::cout << std::endl<< "Failed to set ID of swimmer" << std::endl; }
 			int indexSwimmer = frameAnalysisObj.findindexSelectedSwimmer(frameAnalysisObj.getIDSelectedSwimmer(), toGetTrajectoryFrom);
 			if (!frameAnalysisObj.setindexSelectedSwimmer(indexSwimmer)) { std::cout << std::endl << "Failed to set index of swimmer" << std::endl; }

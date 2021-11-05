@@ -33,6 +33,7 @@ private:
 	// private variables for video streaming
 	Mat frame; 
 	Rect startButton, stopButton;
+	const int buttonHeight = 50;
 	bool isPlaying = true;
 	string video;
 	VideoCapture videoStream;
