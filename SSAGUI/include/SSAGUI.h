@@ -15,6 +15,7 @@ using namespace std;
 
 static const string buttonTextStart = "Start";
 static const string buttonTextStop = "Stop";
+static const string buttonTextCancel = "Cancel";
 static const string appName = "Smart Swim App";
 static const Vec3b buttonColor = Vec3b(200, 200, 200);
 
@@ -24,15 +25,12 @@ public:
 	SSAGUI(string videoFile); //TODO ssaGUI
 	~SSAGUI();
 
-	
-
 	void playVideo(int videoDelay);
-
 
 private:
 	// private variables for video streaming
 	Mat frame; 
-	Rect startButton, stopButton;
+	Rect startButton, stopButton, cancelButton;
 	const int buttonHeight = 50;
 	bool isPlaying = true;
 	string video;
