@@ -67,8 +67,7 @@ void sub_video::make_subvideo_using_sort_tracker(string file_name)
       }
     }
   }
-
-  /*
+  
   cout << "Object IDs... " << endl;
   for (ii = 0; ii < final_swimmers.size(); ii++) {
     cout << final_swimmers[ii] << endl;
@@ -81,7 +80,7 @@ void sub_video::make_subvideo_using_sort_tracker(string file_name)
     extract_data(final_swimmers[ii]);
     make_video(file_name, change_name);
   }  
-  //*/
+  //
 
   //uncoment to make the video as well
   //make_video(file_name, final_swimmers);
@@ -419,7 +418,7 @@ void sub_video::make_video(string video_name, string sub_video_name)
     //get starting values
     cap >> frame;
     Mat frame_buf(frame.rows + hight * 2, frame.cols + width * 2, frame.depth());
-
+    
     //namedWindow("tester", WINDOW_NORMAL);
 
     for (ii = 0; ii < sorted_data.size(); ii++) {

@@ -27,6 +27,10 @@ public:
 
 	void playVideo(int videoDelay);
 
+	//TODO test - copied from sub_video.cpp
+	//TODO add any references needed
+	void make_video(string video_name, string sub_video_name);
+
 private:
 	// private variables for video streaming
 	Mat frame; 
@@ -48,6 +52,10 @@ private:
 
 	static void callBackFunc(int event, int x, int y, int, void* userdata);
 	void secondCall(int event, int x, int y);
+
+	//TODO test - copied from sub_video.cpp
+	//TODO add any references needed
+	void find_best_aspect(int& hight, int& width);
 };
 
 #endif
