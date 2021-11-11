@@ -25,7 +25,7 @@ public:
 	SSAGUI(string videoFile); //TODO ssaGUI
 	~SSAGUI();
 
-	void playVideo(int videoDelay);
+	void playVideo();
 
 	//TODO test - copied from sub_video.cpp
 	//TODO add any references needed
@@ -35,19 +35,26 @@ public:
 
 private:
 	// private variables for video streaming
-	Mat frame; 
-	Rect startButton, stopButton, cancelButton;
-	const int buttonHeight = 50;
 	bool isPlaying = true;
 	string video;
 	VideoCapture videoStream;
-	const float vidSize_width = 680;
-	const float vidSize_height = 400;
+	
+	// variables for drawing the frames and buttons
 	cv::Mat3b canvas;
+	Mat frame;
 	Mat frameResized;
+	Rect startButton, stopButton, cancelButton;
+
 	frameAnalysis frameAnalysisObj; //TODO update to have in main - needed by controller. Also work on controller.
+	
 	std::vector<TrackingBox> resultsTrackingSingleSwimmer;
 	
+	const int VIDEO_DELAY = 10;
+	const float VIDSIZE_WIDTH = 680;
+	const float VIDSIZE_HEIGHT = 400;
+	const int BUTTON_HEIGHT = 50;
+	
+
 	VideoCapture getVideoStream();
 	int isVideoStreamValid();
 	void closeVideo();

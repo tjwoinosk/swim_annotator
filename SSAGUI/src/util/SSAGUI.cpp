@@ -28,7 +28,7 @@ int SSAGUI::isVideoStreamValid() {
 	}
 }
 
-void SSAGUI::playVideo(int videoDelay = 10) { //TODO find and remove all delays
+void SSAGUI::playVideo() { //TODO find and remove all delays
 
 	if (isVideoStreamValid()) {
 		while (1) {
@@ -43,7 +43,7 @@ void SSAGUI::playVideo(int videoDelay = 10) { //TODO find and remove all delays
 			drawOnFrame();
 
 			setMouseCallback(appName, callBackFunc, this);
-			char c = waitKey(10);
+			char c = waitKey(VIDEO_DELAY);
 
 			// Display the resulting frame
 			imshow(appName, canvas); 
@@ -58,7 +58,7 @@ void SSAGUI::playVideo(int videoDelay = 10) { //TODO find and remove all delays
 
 void SSAGUI::playVideoTest(int frameNum_selectSwimmer, int frameNum_startTracking, int frameNum_stopTracking, cv::Point_<float> mouseClick_Test) //TODO do we want to check if testVid is true/false?
 {
-	//TODO do we want to ensure testing is set so it doesn't interfere with the playVideo(int videoDelay = 10) function? since they use the same variables when using the mouse callback function
+	//TODO do we want to ensure testing is set so it doesn't interfere with the playVideo() function? since they use the same variables when using the mouse callback function
 	if (isVideoStreamValid()) {
 		while (1) {
 			if (isPlaying)
@@ -73,7 +73,7 @@ void SSAGUI::playVideoTest(int frameNum_selectSwimmer, int frameNum_startTrackin
 
 			//Test
 			if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_selectSwimmer) {
-				secondCall(cv::EVENT_LBUTTONDOWN, mouseClick_Test.x, mouseClick_Test.y + buttonHeight); //x,y = location of swimmer on screen, note y = y of swimmer + buttonHeight
+				secondCall(cv::EVENT_LBUTTONDOWN, mouseClick_Test.x, mouseClick_Test.y + BUTTON_HEIGHT); //x,y = location of swimmer on screen, note y = y of swimmer + buttonHeight
 			}
 			else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_startTracking) {
 				secondCall(cv::EVENT_LBUTTONDOWN, startButton.x + 10, startButton.y + 10);
@@ -88,7 +88,7 @@ void SSAGUI::playVideoTest(int frameNum_selectSwimmer, int frameNum_startTrackin
 
 			//end test
 
-			char c = waitKey(10);
+			char c = waitKey(VIDEO_DELAY);
 
 			// Display the resulting frame
 			imshow(appName, canvas);
@@ -111,12 +111,13 @@ void SSAGUI::drawOnFrame()
 	*/
 
 	//Videos can come in multiple sizes, need output in a fixed size
-	cv::resize(frame, frameResized, cv::Size(vidSize_width, vidSize_height));
+	cv::resize(frame, frameResized, cv::Size(VIDSIZE_WIDTH, VIDSIZE_HEIGHT));
+
 
 	int widthButtons = frameResized.cols / 3;
-	startButton = Rect(0, 0, widthButtons, buttonHeight);
-	stopButton = Rect(frameResized.cols / 3, 0, widthButtons + 1, buttonHeight);
-	cancelButton = Rect(stopButton.x + stopButton.width, 0, widthButtons + 1, buttonHeight);
+	startButton = Rect(0, 0, widthButtons, BUTTON_HEIGHT);
+	stopButton = Rect(frameResized.cols / 3, 0, widthButtons + 1, BUTTON_HEIGHT);
+	cancelButton = Rect(stopButton.x + stopButton.width, 0, widthButtons + 1, BUTTON_HEIGHT);
 	canvas = Mat3b(frameResized.rows + startButton.height, frameResized.cols, Vec3b(0, 0, 0));
 
 	canvas(startButton) = buttonColor; //Colour
@@ -235,7 +236,7 @@ void SSAGUI::secondCall(int event, int x, int y)
 			float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
 			frameAnalysisObj.resizeBoxes(scaleX, scaleY, toGetTrajectoryFrom);
 
-			int y_inFrame = y - buttonHeight; //Account for offset from buttons to get position on the video image
+			int y_inFrame = y - BUTTON_HEIGHT; //Account for offset from buttons to get position on the video image
 			int idFound = processObj.trajectoryMatcher(cv::Point_<float>(x, y_inFrame), toGetTrajectoryFrom); //TODO error check
 			if (!frameAnalysisObj.setIDSelectedSwimmer(idFound)) { std::cout << std::endl<< "Failed to set ID of swimmer" << std::endl; }
 			int indexSwimmer = frameAnalysisObj.findindexSelectedSwimmer(frameAnalysisObj.getIDSelectedSwimmer(), toGetTrajectoryFrom);
