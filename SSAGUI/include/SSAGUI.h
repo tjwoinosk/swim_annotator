@@ -55,6 +55,8 @@ private:
 	static void callBackFunc(int event, int x, int y, int, void* userdata);
 	void secondCall(int event, int x, int y);
 
+	void drawOnFrame();
+
 	//TODO test - copied from sub_video.cpp
 	//TODO add any references needed
 	void find_best_aspect(int& hight, int& width);

@@ -40,52 +40,7 @@ void SSAGUI::playVideo(int videoDelay = 10) { //TODO find and remove all delays
 			if (frame.empty())
 				break;
 
-			//TODO pick which method of resizing is appropriate, and what size
-			/*
-			float resizeRatioWidth = vidSize/ static_cast<float>(frame.rows);
-			float resieRatioHeight = vidSize / static_cast<float>(frame.cols);
-			cv::resize(frame, frameResized, cv::Size(), resizeRatioWidth, resieRatioHeight);
-			*/
-
-			//Videos can come in multiple sizes, need output in a fixed size
-			cv::resize(frame, frameResized, cv::Size(vidSize_width, vidSize_height)); 
-
-			int widthButtons = frameResized.cols / 3;
-			startButton = Rect(0, 0, widthButtons, buttonHeight);
-			stopButton = Rect(frameResized.cols / 3, 0, widthButtons+1, buttonHeight);
-			cancelButton = Rect(stopButton.x+stopButton.width, 0, widthButtons+1, buttonHeight);
-			canvas = Mat3b(frameResized.rows + startButton.height, frameResized.cols, Vec3b(0, 0, 0));
-
-			canvas(startButton) = buttonColor; //Colour
-			canvas(stopButton) = buttonColor; //Colour
-			canvas(cancelButton) = buttonColor; //Colour
-
-			if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == true) {
-				//A swimmer is selected and we want to track the swimmer
-				std::cout << std::endl << "in main - tracking" << std::endl;
-				std::vector<TrackingBox> trackingForThisFrame = frameAnalysisObj.analyzeVideo(frame);
-				resultsTrackingSingleSwimmer.push_back(trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]); 
-				float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
-				float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-				TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]);
-				rectangle(frameResized, newBox, Scalar(100, 230, 0), 4);
-			}
-			else if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == false) {
-				//A swimmer is selected but we are not yet tracking the swimmer
-				std::cout << std::endl << "in main - selected but not tracking" << std::endl;
-				postProcessRealTimeTracking processObj;
-				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame); 
-				float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
-				float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-				TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
-				rectangle(frameResized, newBox, Scalar(0, 190, 255), 4);
-			}
-
-			frameResized.copyTo(canvas(Rect(0, startButton.height, frameResized.cols, frameResized.rows)));
-
-			putText(canvas, buttonTextStart, Point(startButton.width * 0.35, startButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
-			putText(canvas, buttonTextStop, Point(stopButton.x + (stopButton.width * 0.35), stopButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
-			putText(canvas, buttonTextCancel, Point(cancelButton.x + (cancelButton.width * 0.35), cancelButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+			drawOnFrame();
 
 			setMouseCallback(appName, callBackFunc, this);
 			char c = waitKey(10);
@@ -112,51 +67,13 @@ void SSAGUI::playVideoTest(int frameNum_selectSwimmer, int frameNum_startTrackin
 			if (frame.empty())
 				break;
 
-			//Videos can come in multiple sizes, need output in a fixed size
-			cv::resize(frame, frameResized, cv::Size(vidSize_width, vidSize_height));
-
-			int widthButtons = frameResized.cols / 3;
-			startButton = Rect(0, 0, widthButtons, buttonHeight);
-			stopButton = Rect(frameResized.cols / 3, 0, widthButtons + 1, buttonHeight);
-			cancelButton = Rect(stopButton.x + stopButton.width, 0, widthButtons + 1, buttonHeight);
-			canvas = Mat3b(frameResized.rows + startButton.height, frameResized.cols, Vec3b(0, 0, 0));
-
-			canvas(startButton) = buttonColor; 
-			canvas(stopButton) = buttonColor; 
-			canvas(cancelButton) = buttonColor; 
-
-			if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == true) {
-				//A swimmer is selected and we want to track the swimmer
-				std::cout << std::endl << "in main - tracking" << std::endl;
-				std::vector<TrackingBox> trackingForThisFrame = frameAnalysisObj.analyzeVideo(frame);
-				resultsTrackingSingleSwimmer.push_back(trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]);
-				float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
-				float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-				TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]);
-				rectangle(frameResized, newBox, Scalar(100, 230, 0), 4);
-			}
-			else if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == false) {
-				//A swimmer is selected but we are not yet tracking the swimmer
-				std::cout << std::endl << "in main - selected but not tracking" << std::endl;
-				postProcessRealTimeTracking processObj;
-				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
-				float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
-				float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-				TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
-				rectangle(frameResized, newBox, Scalar(0, 190, 255), 4);
-			}
-
-			frameResized.copyTo(canvas(Rect(0, startButton.height, frameResized.cols, frameResized.rows)));
-
-			putText(canvas, buttonTextStart, Point(startButton.width * 0.35, startButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
-			putText(canvas, buttonTextStop, Point(stopButton.x + (stopButton.width * 0.35), stopButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
-			putText(canvas, buttonTextCancel, Point(cancelButton.x + (cancelButton.width * 0.35), cancelButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+			drawOnFrame();
 
 			//setMouseCallback(appName, callBackFunc, this);
 
 			//Test
 			if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_selectSwimmer) {
-				secondCall(cv::EVENT_LBUTTONDOWN, mouseClick_Test.x, mouseClick_Test.y+buttonHeight); //x,y = location of swimmer on screen, note y = y of swimmer + buttonHeight
+				secondCall(cv::EVENT_LBUTTONDOWN, mouseClick_Test.x, mouseClick_Test.y + buttonHeight); //x,y = location of swimmer on screen, note y = y of swimmer + buttonHeight
 			}
 			else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_startTracking) {
 				secondCall(cv::EVENT_LBUTTONDOWN, startButton.x + 10, startButton.y + 10);
@@ -182,6 +99,58 @@ void SSAGUI::playVideoTest(int frameNum_selectSwimmer, int frameNum_startTrackin
 		}
 		closeVideo();
 	}
+}
+
+void SSAGUI::drawOnFrame()
+{
+	//TODO pick which method of resizing is appropriate, and what size
+	/*
+	float resizeRatioWidth = vidSize/ static_cast<float>(frame.rows);
+	float resieRatioHeight = vidSize / static_cast<float>(frame.cols);
+	cv::resize(frame, frameResized, cv::Size(), resizeRatioWidth, resieRatioHeight);
+	*/
+
+	//Videos can come in multiple sizes, need output in a fixed size
+	cv::resize(frame, frameResized, cv::Size(vidSize_width, vidSize_height));
+
+	int widthButtons = frameResized.cols / 3;
+	startButton = Rect(0, 0, widthButtons, buttonHeight);
+	stopButton = Rect(frameResized.cols / 3, 0, widthButtons + 1, buttonHeight);
+	cancelButton = Rect(stopButton.x + stopButton.width, 0, widthButtons + 1, buttonHeight);
+	canvas = Mat3b(frameResized.rows + startButton.height, frameResized.cols, Vec3b(0, 0, 0));
+
+	canvas(startButton) = buttonColor; //Colour
+	canvas(stopButton) = buttonColor; //Colour
+	canvas(cancelButton) = buttonColor; //Colour
+
+	if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == true) {
+		//A swimmer is selected and we want to track the swimmer
+		std::cout << std::endl << "in main - tracking" << std::endl;
+		std::vector<TrackingBox> trackingForThisFrame = frameAnalysisObj.analyzeVideo(frame);
+		resultsTrackingSingleSwimmer.push_back(trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]);
+		float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
+		float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
+		TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]);
+		rectangle(frameResized, newBox, Scalar(100, 230, 0), 4);
+	}
+	else if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == false) {
+		//A swimmer is selected but we are not yet tracking the swimmer
+		std::cout << std::endl << "in main - selected but not tracking" << std::endl;
+		postProcessRealTimeTracking processObj;
+		std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
+		float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
+		float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
+		TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
+		rectangle(frameResized, newBox, Scalar(0, 190, 255), 4);
+	}
+
+	frameResized.copyTo(canvas(Rect(0, startButton.height, frameResized.cols, frameResized.rows)));
+
+	putText(canvas, buttonTextStart, Point(startButton.width * 0.35, startButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+	putText(canvas, buttonTextStop, Point(stopButton.x + (stopButton.width * 0.35), stopButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+	putText(canvas, buttonTextCancel, Point(cancelButton.x + (cancelButton.width * 0.35), cancelButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+
+	return;
 }
 
 void SSAGUI::closeVideo() {
