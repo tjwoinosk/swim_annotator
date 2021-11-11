@@ -31,6 +31,8 @@ public:
 	//TODO add any references needed
 	void make_video(string video_name, string sub_video_name);
 
+	void playVideoTest(int frameNum_selectSwimmer, int frameNum_startTracking, int frameNum_stopTracking, cv::Point_<float> mouseClick_Test); //TODO this is to test playVideo
+
 private:
 	// private variables for video streaming
 	Mat frame; 
@@ -43,7 +45,7 @@ private:
 	const float vidSize_height = 400;
 	cv::Mat3b canvas;
 	Mat frameResized;
-	frameAnalysis frameAnalysisObj;
+	frameAnalysis frameAnalysisObj; //TODO update to have in main - needed by controller. Also work on controller.
 	std::vector<TrackingBox> resultsTrackingSingleSwimmer;
 	
 	VideoCapture getVideoStream();

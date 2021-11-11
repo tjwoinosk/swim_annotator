@@ -28,7 +28,7 @@ int SSAGUI::isVideoStreamValid() {
 	}
 }
 
-void SSAGUI::playVideo(int videoDelay = 10) {
+void SSAGUI::playVideo(int videoDelay = 10) { //TODO find and remove all delays
 
 	if (isVideoStreamValid()) {
 		while (1) {
@@ -101,6 +101,89 @@ void SSAGUI::playVideo(int videoDelay = 10) {
 	}
 }
 
+void SSAGUI::playVideoTest(int frameNum_selectSwimmer, int frameNum_startTracking, int frameNum_stopTracking, cv::Point_<float> mouseClick_Test) //TODO do we want to check if testVid is true/false?
+{
+	//TODO do we want to ensure testing is set so it doesn't interfere with the playVideo(int videoDelay = 10) function? since they use the same variables when using the mouse callback function
+	if (isVideoStreamValid()) {
+		while (1) {
+			if (isPlaying)
+				getVideoStream() >> frame;
+
+			if (frame.empty())
+				break;
+
+			//Videos can come in multiple sizes, need output in a fixed size
+			cv::resize(frame, frameResized, cv::Size(vidSize_width, vidSize_height));
+
+			int widthButtons = frameResized.cols / 3;
+			startButton = Rect(0, 0, widthButtons, buttonHeight);
+			stopButton = Rect(frameResized.cols / 3, 0, widthButtons + 1, buttonHeight);
+			cancelButton = Rect(stopButton.x + stopButton.width, 0, widthButtons + 1, buttonHeight);
+			canvas = Mat3b(frameResized.rows + startButton.height, frameResized.cols, Vec3b(0, 0, 0));
+
+			canvas(startButton) = buttonColor; 
+			canvas(stopButton) = buttonColor; 
+			canvas(cancelButton) = buttonColor; 
+
+			if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == true) {
+				//A swimmer is selected and we want to track the swimmer
+				std::cout << std::endl << "in main - tracking" << std::endl;
+				std::vector<TrackingBox> trackingForThisFrame = frameAnalysisObj.analyzeVideo(frame);
+				resultsTrackingSingleSwimmer.push_back(trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]);
+				float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
+				float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
+				TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]);
+				rectangle(frameResized, newBox, Scalar(100, 230, 0), 4);
+			}
+			else if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == false) {
+				//A swimmer is selected but we are not yet tracking the swimmer
+				std::cout << std::endl << "in main - selected but not tracking" << std::endl;
+				postProcessRealTimeTracking processObj;
+				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
+				float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
+				float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
+				TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
+				rectangle(frameResized, newBox, Scalar(0, 190, 255), 4);
+			}
+
+			frameResized.copyTo(canvas(Rect(0, startButton.height, frameResized.cols, frameResized.rows)));
+
+			putText(canvas, buttonTextStart, Point(startButton.width * 0.35, startButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+			putText(canvas, buttonTextStop, Point(stopButton.x + (stopButton.width * 0.35), stopButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+			putText(canvas, buttonTextCancel, Point(cancelButton.x + (cancelButton.width * 0.35), cancelButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+
+			//setMouseCallback(appName, callBackFunc, this);
+
+			//Test
+			if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_selectSwimmer) {
+				secondCall(cv::EVENT_LBUTTONDOWN, mouseClick_Test.x, mouseClick_Test.y+buttonHeight); //x,y = location of swimmer on screen, note y = y of swimmer + buttonHeight
+			}
+			else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_startTracking) {
+				secondCall(cv::EVENT_LBUTTONDOWN, startButton.x + 10, startButton.y + 10);
+			}
+			else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_stopTracking && isPlaying != false) {
+				secondCall(cv::EVENT_LBUTTONDOWN, stopButton.x + 10, stopButton.y + 10);
+			}
+			else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_stopTracking && isPlaying == false) {
+				waitKey(50);
+				secondCall(cv::EVENT_LBUTTONDOWN, startButton.x + 10, startButton.y + 10);
+			}
+
+			//end test
+
+			char c = waitKey(10);
+
+			// Display the resulting frame
+			imshow(appName, canvas);
+
+			// Press  ESC on keyboard to exit
+			if (c == 27)
+				break;
+		}
+		closeVideo();
+	}
+}
+
 void SSAGUI::closeVideo() {
 	destroyAllWindows();
 	getVideoStream().release();
@@ -122,7 +205,7 @@ void SSAGUI::secondCall(int event, int x, int y)
 			rectangle(canvas, startButton, Scalar(0, 0, 255), 2);
 			isPlaying = true;
 		
-			if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == false) { 
+			if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == false) {  //TODO deal with index error checking - in case ID went to another index
 				std::cout << std::endl << " start button - tracking" << std::endl;
 				resultsTrackingSingleSwimmer.clear();
 				frameAnalysisObj.setAnalyzeSwimmer(true);
@@ -176,7 +259,7 @@ void SSAGUI::secondCall(int event, int x, int y)
 			}
 		}
 		else {
-			std::cout << std::endl << " on screen clicked" << std::endl;
+			std::cout << std::endl << " on screen clicked at x = " << x << " , y = " << y << std::endl;
 			postProcessRealTimeTracking processObj;
 			std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
 			float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
@@ -256,7 +339,7 @@ void SSAGUI::make_video(string video_name, string sub_video_name)
 
 			// get frame from the video
 			if (resultsTrackingSingleSwimmer[ii].get_m_frame() != cap.get(CAP_PROP_POS_FRAMES)) {
-				cap.set(CAP_PROP_POS_FRAMES, resultsTrackingSingleSwimmer[ii].get_m_frame());//might make this very slow
+				cap.set(CAP_PROP_POS_FRAMES, resultsTrackingSingleSwimmer[ii].get_m_frame()); //might make this very slow
 			}
 			cap >> frame;
 
@@ -353,6 +436,8 @@ void SSAGUI::find_best_aspect(int& hight, int& width)
 
 	//Set the aspect raitio to somthing that is not quite the max hight and width
 	// yet to be attempted 
+
+	//TODO try to use variance and width/height averages and see how that looks
 
 }
 
