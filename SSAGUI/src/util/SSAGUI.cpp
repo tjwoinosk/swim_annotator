@@ -126,7 +126,7 @@ void SSAGUI::drawOnFrame()
 
 	if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == true) {
 		//A swimmer is selected and we want to track the swimmer
-		std::cout << std::endl << "in main - tracking" << std::endl;
+		std::cout << std::endl << "in main - tracking frame num " << getVideoStream().get(CAP_PROP_POS_FRAMES) << std::endl;
 		std::vector<TrackingBox> trackingForThisFrame = frameAnalysisObj.analyzeVideo(frame);
 		resultsTrackingSingleSwimmer.push_back(trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]);
 		float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
