@@ -69,21 +69,6 @@ void SSAGUI::playVideoTest(bool withCancellation, int frameNum_selectSwimmer, in
 
 			drawOnFrame();
 
-			/*
-			if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_selectSwimmer) {
-				secondCall(cv::EVENT_LBUTTONDOWN, mouseClick_Test.x, mouseClick_Test.y + BUTTON_HEIGHT); //x,y = location of swimmer on screen, note y = y of swimmer + buttonHeight
-			}
-			else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_startTracking) {
-				secondCall(cv::EVENT_LBUTTONDOWN, startButton.x + 10, startButton.y + 10);
-			}
-			else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_stopTracking && isPlaying != false) {
-				secondCall(cv::EVENT_LBUTTONDOWN, stopButton.x + 10, stopButton.y + 10);
-			}
-			else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_stopTracking && isPlaying == false) {
-				waitKey(50);
-				secondCall(cv::EVENT_LBUTTONDOWN, startButton.x + 10, startButton.y + 10);
-			}
-			*/
 			if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_selectSwimmer) {
 				secondCall(cv::EVENT_LBUTTONDOWN, mouseClick_Test.x, mouseClick_Test.y + BUTTON_HEIGHT); //x,y = location of swimmer on screen, note y = y of swimmer + buttonHeight
 			}
