@@ -56,7 +56,7 @@ void SSAGUI::playVideo() { //TODO find and remove all delays
 	}
 }
 
-void SSAGUI::playVideoTest(int frameNum_selectSwimmer, int frameNum_startTracking, int frameNum_stopTracking, cv::Point_<float> mouseClick_Test) //TODO do we want to check if testVid is true/false?
+void SSAGUI::playVideoTest(bool withCancellation, int frameNum_selectSwimmer, int frameNum_startTracking, int frameNum_stopTracking, cv::Point_<float> mouseClick_Test) //TODO do we want to check if testVid is true/false?
 {
 	//TODO do we want to ensure testing is set so it doesn't interfere with the playVideo() function? since they use the same variables when using the mouse callback function
 	if (isVideoStreamValid()) {
@@ -69,9 +69,7 @@ void SSAGUI::playVideoTest(int frameNum_selectSwimmer, int frameNum_startTrackin
 
 			drawOnFrame();
 
-			//setMouseCallback(appName, callBackFunc, this);
-
-			//Test
+			/*
 			if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_selectSwimmer) {
 				secondCall(cv::EVENT_LBUTTONDOWN, mouseClick_Test.x, mouseClick_Test.y + BUTTON_HEIGHT); //x,y = location of swimmer on screen, note y = y of swimmer + buttonHeight
 			}
@@ -85,8 +83,28 @@ void SSAGUI::playVideoTest(int frameNum_selectSwimmer, int frameNum_startTrackin
 				waitKey(50);
 				secondCall(cv::EVENT_LBUTTONDOWN, startButton.x + 10, startButton.y + 10);
 			}
+			*/
+			if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_selectSwimmer) {
+				secondCall(cv::EVENT_LBUTTONDOWN, mouseClick_Test.x, mouseClick_Test.y + BUTTON_HEIGHT); //x,y = location of swimmer on screen, note y = y of swimmer + buttonHeight
+			}
 
-			//end test
+			if (withCancellation) {
+				if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_startTracking) {
+					secondCall(cv::EVENT_LBUTTONDOWN, cancelButton.x + 10, cancelButton.y + 10);
+				}
+			}
+			else {
+				if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_startTracking) {
+					secondCall(cv::EVENT_LBUTTONDOWN, startButton.x + 10, startButton.y + 10);
+				}
+				else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_stopTracking && isPlaying != false) {
+					secondCall(cv::EVENT_LBUTTONDOWN, stopButton.x + 10, stopButton.y + 10);
+				}
+				else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_stopTracking && isPlaying == false) {
+					waitKey(50);
+					secondCall(cv::EVENT_LBUTTONDOWN, startButton.x + 10, startButton.y + 10);
+				}
+			}
 
 			char c = waitKey(VIDEO_DELAY);
 
@@ -257,6 +275,7 @@ void SSAGUI::secondCall(int event, int x, int y)
 	}
 }
 
+//TODO what file format to accept and save in?
 void SSAGUI::make_video(string video_name, string sub_video_name)
 {
 	string str, outputFile;
