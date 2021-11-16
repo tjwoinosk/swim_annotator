@@ -3,9 +3,11 @@
 
 frameAnalysis::frameAnalysis()
 {
+	detectSwimmersInVideo.configureDetector(); //TODO put here?
 	analyzeSwimmer = false;
 	idSelectedSwimmer = -1;
 	indexSelectedSwimmer = 0;
+	statusSelected = 3;
 }
 
 //TODO the below function needs to be tested - also it could interfere with analyzeVideo(Mat frame) due to overlap in use of private variables
@@ -65,11 +67,10 @@ Saves results for all swimmers (temporary, will be updated each time this functi
 Saves result for single swimmer with selected ID (catalogued) if saveResults = true.
 Returns result for single swimmer with selected ID regardless of if it is also saved or not.
 */
-TrackingBox frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze, bool saveResults)
+TrackingBox frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 {
 	std::vector<TrackingBox> resultsDetector;
 
-	detectSwimmersInVideo.configureDetector();
 	resultsDetector = detectSwimmersInVideo.detectSwimmers(frameToAnalyze);
 	//TODO do we need to reset m_frame in vector from detector?
 	
@@ -78,9 +79,8 @@ TrackingBox frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze, bool saveResults
 
 	std::cout << " FRAME ANALYSIS - analyze - Current  size of vector = " << currentResults.size() << std::endl;
 
-
 	if (getindexSelectedSwimmer() != -1) {
-		if (saveResults) 
+		if (getStatus() == 1) 
 			resultsSingleSwimmer.push_back(currentResults[indexSelectedSwimmer]);
 		return currentResults[indexSelectedSwimmer];
 	}
@@ -333,11 +333,20 @@ int frameAnalysis::getindexSelectedSwimmer()
 	}
 	return -1;
 }
-
+/*
 int frameAnalysis::findindexSelectedSwimmer(int idSwimmer, std::vector<TrackingBox> allSwimmers)
 {
 	for (int i = 0; i < allSwimmers.size(); i++) {
 		if (allSwimmers[i].get_m_boxID() == idSwimmer)
+			return i;
+	}
+	return -1; //TODO should we return -1 or 0?
+}
+*/
+int frameAnalysis::findindexSelectedSwimmer(int idSwimmer)
+{
+	for (int i = 0; i < currentResults.size(); i++) {
+		if (currentResults[i].get_m_boxID() == idSwimmer)
 			return i;
 	}
 	return -1; //TODO should we return -1 or 0?
@@ -347,6 +356,68 @@ std::vector<TrackingBox> frameAnalysis::getCurrentResults()
 {
 	return currentResults;
 }
+
+int frameAnalysis::getStatus()
+{
+	//1=Tracking, 2=Not tracking but selected swimmer, 3=Not tracking
+	return statusSelected;
+}
+
+void frameAnalysis::setStatus(bool tracking, int selectedSwimmer)
+{
+	if (tracking && selectedSwimmer>-1) {
+		//Case A: We want to track a swimmer
+		if (!setIDSelectedSwimmer(selectedSwimmer)) {
+			std::cout << " ERROR: Failed to set ID of swimmer" << std::endl;
+			return;
+		}
+		if (!setindexSelectedSwimmer(findindexSelectedSwimmer(selectedSwimmer))) {
+			std::cout << std::endl << " ERROR: Failed to set index of swimmer" << std::endl; 
+			return;
+		}
+		setAnalyzeSwimmer(true);
+		statusSelected = 1;
+		return;
+	}
+	if (!tracking && selectedSwimmer > -1) {
+		//Case B: We do not want to track a swimmer, but a swimmer is selected
+		if (!setIDSelectedSwimmer(selectedSwimmer)) {
+			std::cout << " ERROR: Could not set ID" << std::endl;
+			return;
+		}
+		setAnalyzeSwimmer(false);
+		statusSelected = 2;
+		return;
+	}
+	if (!tracking && selectedSwimmer <= -1) {
+		if (!setIDSelectedSwimmer(-1)) {
+			std::cout << " ERROR: Could not set ID" << std::endl;
+			return;
+		}
+		setAnalyzeSwimmer(false);
+		statusSelected = 3;
+		return;
+	}
+	std::cout << " ERROR: Status not set due to error invalid status chosen" << std::endl;
+	return;
+}
+
+bool frameAnalysis::isTracking()
+{
+	//1=Tracking, 2=Not tracking but selected swimmer, 3=Not tracking
+	if (getStatus() == 1)
+		return true;
+	return false;
+}
+
+bool frameAnalysis::isFollowing()
+{
+	//1=Tracking, 2=Not tracking but selected swimmer, 3=Not tracking
+	if (getStatus() != 3)
+		return true;
+	return false;
+}
+
 
 void frameAnalysis::writeToFile()
 {
@@ -369,6 +440,10 @@ void frameAnalysis::writeToFile()
 	{
 		std::cout << "Could not open " << resFileAbsPath << std::endl << e.what() << std::endl;
 	}
+
+	//TODO is this how we should deal:
+	resultsSingleSwimmer.clear();
+	return;
 }
 
 void frameAnalysis::resizeBoxes(float scaleX, float scaleY, std::vector<TrackingBox>& dataToResize)

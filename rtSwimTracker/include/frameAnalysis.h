@@ -24,6 +24,7 @@ private:
 	bool analyzeSwimmer;
 	int idSelectedSwimmer;
 	int indexSelectedSwimmer; 
+	int statusSelected; //1=Tracking, 2=Not tracking but selected swimmer, 3=Not tracking
 
 	swimmerDetector detectSwimmersInVideo;
 	sortTrackerPiplelined trackSORTprocessorInVideo;
@@ -43,7 +44,7 @@ public:
 	frameAnalysis();
 
 	//void analyzeVideo(std::string videoToAnalyzeName);
-	TrackingBox analyzeVideo(cv::Mat frameToAnalyze, bool saveResults);
+	TrackingBox analyzeVideo(cv::Mat frameToAnalyze);
 
 	void setAnalyzeSwimmer(bool valSetTo);
 	bool setIDSelectedSwimmer(int valSetTo);
@@ -51,8 +52,13 @@ public:
 	int getIDSelectedSwimmer();
 	bool setindexSelectedSwimmer(int valSetTo);
 	int getindexSelectedSwimmer();
-	int findindexSelectedSwimmer(int idSwimmer, std::vector<TrackingBox> allSwimmers);
+	//int findindexSelectedSwimmer(int idSwimmer, std::vector<TrackingBox> allSwimmers);
+	int findindexSelectedSwimmer(int idSwimmer);
 	std::vector<TrackingBox> getCurrentResults();
+	int getStatus();
+	void setStatus(bool tracking, int selectedSwimmer);
+	bool isTracking();
+	bool isFollowing();
 
 	void writeToFile();
 
