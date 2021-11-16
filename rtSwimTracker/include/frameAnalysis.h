@@ -23,10 +23,13 @@ private:
 	// global variables 
 	bool analyzeSwimmer;
 	int idSelectedSwimmer;
-	int indexSelectedSwimmer;
+	int indexSelectedSwimmer; 
 
 	swimmerDetector detectSwimmersInVideo;
 	sortTrackerPiplelined trackSORTprocessorInVideo;
+
+	std::vector<TrackingBox> resultsSingleSwimmer; //Holds results of single swimmer from all tracked frames
+	std::vector<TrackingBox> currentResults; //Holds tracking of all swimmers for the most recent frame
 
 public:
 
@@ -39,8 +42,8 @@ public:
 
 	frameAnalysis();
 
-	void analyzeVideo(std::string videoToAnalyzeName);
-	std::vector<TrackingBox> analyzeVideo(cv::Mat frameToAnalyze);
+	//void analyzeVideo(std::string videoToAnalyzeName);
+	TrackingBox analyzeVideo(cv::Mat frameToAnalyze, bool saveResults);
 
 	void setAnalyzeSwimmer(bool valSetTo);
 	bool setIDSelectedSwimmer(int valSetTo);
@@ -49,6 +52,9 @@ public:
 	bool setindexSelectedSwimmer(int valSetTo);
 	int getindexSelectedSwimmer();
 	int findindexSelectedSwimmer(int idSwimmer, std::vector<TrackingBox> allSwimmers);
+	std::vector<TrackingBox> getCurrentResults();
+
+	void writeToFile();
 
 	void resizeBoxes(float scaleX, float scaleY, std::vector<TrackingBox>& dataToResize); 
 	float findFrameScale(int newFrameSize, int currentFrameSize);

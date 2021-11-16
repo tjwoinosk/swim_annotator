@@ -127,26 +127,30 @@ void SSAGUI::drawOnFrame()
 	canvas(stopButton) = buttonColor; //Colour
 	canvas(cancelButton) = buttonColor; //Colour
 
+	std::cout << std::endl << " IN DRAW FRAME: drew rectangles " << std::endl;
+
 	if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == true) {
 		//A swimmer is selected and we want to track the swimmer
 		std::cout << std::endl << "in main - tracking frame num " << getVideoStream().get(CAP_PROP_POS_FRAMES) << std::endl;
-		std::vector<TrackingBox> trackingForThisFrame = frameAnalysisObj.analyzeVideo(frame);
-		resultsTrackingSingleSwimmer.push_back(trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]);
+		TrackingBox trackingForThisFrame = frameAnalysisObj.analyzeVideo(frame, true);
+		//resultsTrackingSingleSwimmer.push_back(trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]);
 		float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
 		float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-		TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]);
+		TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, trackingForThisFrame);
 		rectangle(frameResized, newBox, Scalar(100, 230, 0), 4);
 	}
 	else if (frameAnalysisObj.getIDSelectedSwimmer() > -1 && frameAnalysisObj.getAnalyzeSwimmer() == false) {
 		//A swimmer is selected but we are not yet tracking the swimmer
 		std::cout << std::endl << "in main - selected but not tracking" << std::endl;
-		postProcessRealTimeTracking processObj;
-		std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
+		//postProcessRealTimeTracking processObj;
+		TrackingBox toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame, false);
 		float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
 		float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-		TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
+		TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom);
 		rectangle(frameResized, newBox, Scalar(0, 190, 255), 4);
 	}
+	std::cout << std::endl << " IN DRAW FRAME - finishing " << std::endl;
+
 
 	frameResized.copyTo(canvas(Rect(0, startButton.height, frameResized.cols, frameResized.rows)));
 
@@ -182,11 +186,11 @@ void SSAGUI::secondCall(int event, int x, int y)
 				std::cout << std::endl << " start button - tracking" << std::endl;
 				resultsTrackingSingleSwimmer.clear();
 				frameAnalysisObj.setAnalyzeSwimmer(true);
-				std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame); 
-				resultsTrackingSingleSwimmer.push_back(toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
+				TrackingBox toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame, true); 
+				//resultsTrackingSingleSwimmer.push_back(toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
 				float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
 				float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-				TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
+				TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom);
 				rectangle(frameResized, newBox, Scalar(0, 190, 255), 4);
 			}
 		}
@@ -201,25 +205,7 @@ void SSAGUI::secondCall(int event, int x, int y)
 				frameAnalysisObj.setAnalyzeSwimmer(false);
 				frameAnalysisObj.setIDSelectedSwimmer(-1);
 				//TODO write to file the output - overwrite or append?
-				fileFinder find;
-				std::string resFileName = "detectionDataNEW.txt";
-				std::string resFileAbsPath = "";
-				std::ofstream resultsFile;
-
-				try
-				{
-					resFileAbsPath = find.returnDataLocation() + resFileName;
-					resultsFile.open(resFileAbsPath);
-					
-					for (int i = 0; i < resultsTrackingSingleSwimmer.size(); i++) {
-						resultsTrackingSingleSwimmer[i].outputToFile(resultsFile);
-					}
-					resultsFile.close();
-				}
-				catch (const std::exception& e)
-				{
-					std::cout << "Could not open " << resFileAbsPath << std::endl << e.what() << std::endl;
-				}
+				frameAnalysisObj.writeToFile();
 
 			}
 		}
@@ -234,18 +220,29 @@ void SSAGUI::secondCall(int event, int x, int y)
 		else {
 			std::cout << std::endl << " on screen clicked at x = " << x << " , y = " << y << std::endl;
 			postProcessRealTimeTracking processObj;
-			std::vector<TrackingBox> toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
+			frameAnalysisObj.analyzeVideo(frame, false);
+			std::cout << std::endl << " came back from analyze video "<< std::endl;
 			float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
 			float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-			frameAnalysisObj.resizeBoxes(scaleX, scaleY, toGetTrajectoryFrom);
+			std::vector<TrackingBox> resultsCurrent = frameAnalysisObj.getCurrentResults();
+			std::cout << std::endl << " got current results " << std::endl;
+			frameAnalysisObj.resizeBoxes(scaleX, scaleY, resultsCurrent);
+			std::cout << std::endl << " resized boxes " << std::endl;
 
 			int y_inFrame = y - BUTTON_HEIGHT; //Account for offset from buttons to get position on the video image
-			int idFound = processObj.trajectoryMatcher(cv::Point_<float>(x, y_inFrame), toGetTrajectoryFrom); //TODO error check
+			int idFound = processObj.trajectoryMatcher(cv::Point_<float>(x, y_inFrame), resultsCurrent); //TODO error check
+			std::cout << std::endl << " found trajectory matcher with ID =  " << idFound << std::endl;
 			if (!frameAnalysisObj.setIDSelectedSwimmer(idFound)) { std::cout << std::endl<< "Failed to set ID of swimmer" << std::endl; }
-			int indexSwimmer = frameAnalysisObj.findindexSelectedSwimmer(frameAnalysisObj.getIDSelectedSwimmer(), toGetTrajectoryFrom);
+			int indexSwimmer = frameAnalysisObj.findindexSelectedSwimmer(frameAnalysisObj.getIDSelectedSwimmer(), resultsCurrent);
 			if (!frameAnalysisObj.setindexSelectedSwimmer(indexSwimmer)) { std::cout << std::endl << "Failed to set index of swimmer" << std::endl; }
-			
-			rectangle(frameResized, toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
+			std::cout << std::endl << " about to draw boxes " << std::endl;
+			std::cout << std::endl << " set ID to  =  " << frameAnalysisObj.getIDSelectedSwimmer() << std::endl;
+			std::cout << std::endl << " set index to  =  " << frameAnalysisObj.getindexSelectedSwimmer() << std::endl;
+			//TODO the problem is by here the current results in the frame analysis object are cleared out for some reason
+
+			rectangle(frameResized, resultsCurrent[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
+			std::cout << std::endl << " finished drawn boxes " << std::endl;
+
 		}
 
 		imshow(appName, canvas);

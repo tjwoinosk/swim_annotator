@@ -9,6 +9,7 @@ frameAnalysis::frameAnalysis()
 }
 
 //TODO the below function needs to be tested - also it could interfere with analyzeVideo(Mat frame) due to overlap in use of private variables
+/*
 void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 {
 	cv::VideoCapture videoToAnalyze;
@@ -56,21 +57,42 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 	resultsFile.close();
 	return;
 }
+*/
 
-std::vector<TrackingBox> frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
+/*
+Tracks swimmers in a certain frame. 
+Saves results for all swimmers (temporary, will be updated each time this function is called).
+Saves result for single swimmer with selected ID (catalogued) if saveResults = true.
+Returns result for single swimmer with selected ID regardless of if it is also saved or not.
+*/
+TrackingBox frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze, bool saveResults)
 {
 	std::vector<TrackingBox> resultsDetector;
-	std::vector<TrackingBox> resultsSORT;
 
-	//1. use detector on the frame
 	detectSwimmersInVideo.configureDetector();
 	resultsDetector = detectSwimmersInVideo.detectSwimmers(frameToAnalyze);
 	//TODO do we need to reset m_frame in vector from detector?
 	
-	//2. use sort algorithm on the output of the detector
-	resultsSORT = trackSORTprocessorInVideo.singleFrameSORT(resultsDetector);
+	currentResults.clear();
+	currentResults = trackSORTprocessorInVideo.singleFrameSORT(resultsDetector);
 
-	return resultsSORT;
+	std::cout << " FRAME ANALYSIS - analyze - Current  size of vector = " << currentResults.size() << std::endl;
+
+
+	if (getindexSelectedSwimmer() != -1) {
+		if (saveResults) 
+			resultsSingleSwimmer.push_back(currentResults[indexSelectedSwimmer]);
+		return currentResults[indexSelectedSwimmer];
+	}
+	else {
+		std::cout << " ERROR: could not track results with ID = " << idSelectedSwimmer<< " and index = " << indexSelectedSwimmer << std::endl;
+		std::cout << " SIZE OF CURRENT RESULTS = " << currentResults.size();
+		for (int i = 0; i < currentResults.size(); i++) {
+			std::cout << " ++ " << currentResults[i] << std::endl;
+		}
+		//TODO its cuz we havent selected and ID yet since we aren't tracking
+	}
+	return TrackingBox();
 }
 
 std::string frameAnalysis::sortOnFrame(SpeedReporter* report)
@@ -267,6 +289,8 @@ void frameAnalysis::setAnalyzeSwimmer(bool valSetTo)
 bool frameAnalysis::setIDSelectedSwimmer(int valSetTo)
 {
 	if (valSetTo < -1) { return false; }
+	//resultsSingleSwimmer.clear(); //Tracking new swimmer so delete old data
+	//currentResults.clear();
 	idSelectedSwimmer = valSetTo;
 	return true;
 }
@@ -290,7 +314,24 @@ bool frameAnalysis::setindexSelectedSwimmer(int valSetTo)
 
 int frameAnalysis::getindexSelectedSwimmer()
 {
-	return indexSelectedSwimmer;
+	std::cout << " FRAME ANALYSIS Current results index = " << indexSelectedSwimmer << std::endl;
+	std::cout << " FRAME ANALYSIS Current  size of vector = " << currentResults.size() << std::endl;
+
+	for (int i = 0; i < currentResults.size(); i++) {
+		std::cout << "FRAME ANALYSIS ------ " << currentResults[i] << std::endl;
+	}
+
+	if(currentResults[indexSelectedSwimmer].get_m_boxID() == idSelectedSwimmer)
+		return indexSelectedSwimmer;
+	else {
+		for (int i = 0; i < currentResults.size(); i++) {
+			if (currentResults[i].get_m_boxID() == idSelectedSwimmer) {
+				indexSelectedSwimmer = i;
+				return indexSelectedSwimmer;
+			}
+		}
+	}
+	return -1;
 }
 
 int frameAnalysis::findindexSelectedSwimmer(int idSwimmer, std::vector<TrackingBox> allSwimmers)
@@ -300,6 +341,34 @@ int frameAnalysis::findindexSelectedSwimmer(int idSwimmer, std::vector<TrackingB
 			return i;
 	}
 	return -1; //TODO should we return -1 or 0?
+}
+
+std::vector<TrackingBox> frameAnalysis::getCurrentResults()
+{
+	return currentResults;
+}
+
+void frameAnalysis::writeToFile()
+{
+	fileFinder find;
+	std::string resFileName = "detectionDataNEW.txt";
+	std::string resFileAbsPath = "";
+	std::ofstream resultsFile;
+
+	try
+	{
+		resFileAbsPath = find.returnDataLocation() + resFileName;
+		resultsFile.open(resFileAbsPath);
+
+		for (int i = 0; i < resultsSingleSwimmer.size(); i++) {
+			resultsSingleSwimmer[i].outputToFile(resultsFile);
+		}
+		resultsFile.close();
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << "Could not open " << resFileAbsPath << std::endl << e.what() << std::endl;
+	}
 }
 
 void frameAnalysis::resizeBoxes(float scaleX, float scaleY, std::vector<TrackingBox>& dataToResize)
@@ -317,7 +386,6 @@ void frameAnalysis::resizeBoxes(float scaleX, float scaleY, std::vector<Tracking
 	}
 	return;
 }
-
 
 float frameAnalysis::findFrameScale(int newFrameSize, int currentFrameSize)
 {
