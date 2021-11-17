@@ -3,7 +3,7 @@
 
 frameAnalysis::frameAnalysis()
 {
-	detectSwimmersInVideo.configureDetector(); //TODO put here?
+	detectSwimmersInVideo.configureDetector(); 
 	analyzeSwimmer = false;
 	idSelectedSwimmer = -1;
 	indexSelectedSwimmer = 0;
@@ -77,20 +77,15 @@ TrackingBox frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 	currentResults.clear();
 	currentResults = trackSORTprocessorInVideo.singleFrameSORT(resultsDetector);
 
-	std::cout << " FRAME ANALYSIS - analyze - Current  size of vector = " << currentResults.size() << std::endl;
-
-	if (getindexSelectedSwimmer() != -1) {
+	if (getindexSelectedSwimmer() != -1 && isFollowing()) {
 		if (getStatus() == 1) 
 			resultsSingleSwimmer.push_back(currentResults[indexSelectedSwimmer]);
 		return currentResults[indexSelectedSwimmer];
 	}
 	else {
-		std::cout << " ERROR: could not track results with ID = " << idSelectedSwimmer<< " and index = " << indexSelectedSwimmer << std::endl;
-		std::cout << " SIZE OF CURRENT RESULTS = " << currentResults.size();
-		for (int i = 0; i < currentResults.size(); i++) {
-			std::cout << " ++ " << currentResults[i] << std::endl;
+		if (isFollowing()) {
+			std::cout << " ERROR: could not track results with ID = " << idSelectedSwimmer << " and index = " << indexSelectedSwimmer << std::endl;
 		}
-		//TODO its cuz we havent selected and ID yet since we aren't tracking
 	}
 	return TrackingBox();
 }
@@ -333,16 +328,7 @@ int frameAnalysis::getindexSelectedSwimmer()
 	}
 	return -1;
 }
-/*
-int frameAnalysis::findindexSelectedSwimmer(int idSwimmer, std::vector<TrackingBox> allSwimmers)
-{
-	for (int i = 0; i < allSwimmers.size(); i++) {
-		if (allSwimmers[i].get_m_boxID() == idSwimmer)
-			return i;
-	}
-	return -1; //TODO should we return -1 or 0?
-}
-*/
+
 int frameAnalysis::findindexSelectedSwimmer(int idSwimmer)
 {
 	for (int i = 0; i < currentResults.size(); i++) {

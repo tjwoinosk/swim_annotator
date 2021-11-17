@@ -52,7 +52,6 @@ public:
 	int getIDSelectedSwimmer();
 	bool setindexSelectedSwimmer(int valSetTo);
 	int getindexSelectedSwimmer();
-	//int findindexSelectedSwimmer(int idSwimmer, std::vector<TrackingBox> allSwimmers);
 	int findindexSelectedSwimmer(int idSwimmer);
 	std::vector<TrackingBox> getCurrentResults();
 	int getStatus();

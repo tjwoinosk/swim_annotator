@@ -43,9 +43,6 @@ private:
 	Mat frameResized;
 	Rect startButton, stopButton, cancelButton;
 
-	frameAnalysis frameAnalysisObj; //TODO update to have in main - needed by controller. Also work on controller.
-	
-	//std::vector<TrackingBox> resultsTrackingSingleSwimmer;
 	frameAnalysis* frameAnalysisObj_ptr;
 	
 	const int VIDEO_DELAY = 10;
