@@ -284,8 +284,6 @@ void frameAnalysis::setAnalyzeSwimmer(bool valSetTo)
 bool frameAnalysis::setIDSelectedSwimmer(int valSetTo)
 {
 	if (valSetTo < -1) { return false; }
-	//resultsSingleSwimmer.clear(); //Tracking new swimmer so delete old data
-	//currentResults.clear();
 	idSelectedSwimmer = valSetTo;
 	return true;
 }
@@ -302,20 +300,13 @@ int frameAnalysis::getIDSelectedSwimmer()
 
 bool frameAnalysis::setindexSelectedSwimmer(int valSetTo)
 {
-	if (valSetTo < 0) { return false; } //TODO it should also compare to the size of the vector
+	if (valSetTo < 0 || valSetTo > currentResults.size()) { return false; } 
 	indexSelectedSwimmer = valSetTo;
 	return true;
 }
 
 int frameAnalysis::getindexSelectedSwimmer()
 {
-	std::cout << " FRAME ANALYSIS Current results index = " << indexSelectedSwimmer << std::endl;
-	std::cout << " FRAME ANALYSIS Current  size of vector = " << currentResults.size() << std::endl;
-
-	for (int i = 0; i < currentResults.size(); i++) {
-		std::cout << "FRAME ANALYSIS ------ " << currentResults[i] << std::endl;
-	}
-
 	if(currentResults[indexSelectedSwimmer].get_m_boxID() == idSelectedSwimmer)
 		return indexSelectedSwimmer;
 	else {
@@ -335,7 +326,7 @@ int frameAnalysis::findindexSelectedSwimmer(int idSwimmer)
 		if (currentResults[i].get_m_boxID() == idSwimmer)
 			return i;
 	}
-	return -1; //TODO should we return -1 or 0?
+	return -1; 
 }
 
 std::vector<TrackingBox> frameAnalysis::getCurrentResults()
@@ -363,6 +354,7 @@ void frameAnalysis::setStatus(bool tracking, int selectedSwimmer)
 		}
 		setAnalyzeSwimmer(true);
 		statusSelected = 1;
+		//TODO should we do resultsSingleSwimmer.clear(); here or in writeToFile()?
 		return;
 	}
 	if (!tracking && selectedSwimmer > -1) {
@@ -432,7 +424,6 @@ void frameAnalysis::writeToFile()
 		std::cout << "Could not open " << resFileAbsPath << std::endl << e.what() << std::endl;
 	}
 
-	//TODO is this how we should deal:
 	resultsSingleSwimmer.clear();
 	return;
 }
@@ -469,4 +460,3 @@ TrackingBox frameAnalysis::resizeBox(float scaleX, float scaleY, TrackingBox box
 	resizedBox.height = scaleY * boxToResize.height;
 	return resizedBox;
 }
-
