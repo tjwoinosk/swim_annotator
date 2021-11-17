@@ -19,7 +19,14 @@ BOOST_AUTO_TEST_CASE(testLaneTwoTracking)
     std::string gtName;
     std::string line_gt, line_output;
     SSAGUI ssaVideo("14.mp4");
-    
+    frameAnalysis frameAnalysisObj;
+
+    frameAnalysisObj.setAnalyzeSwimmer(false);
+    frameAnalysisObj.setIDSelectedSwimmer(-1);
+    frameAnalysisObj.setindexSelectedSwimmer(0);
+
+    ssaVideo.setFrameAnalysis(frameAnalysisObj);
+
     outputName = find.absolutePath(outputName);
     gtName = outputName;
     gtName.replace(gtName.end() - 4, gtName.end(), "T1.txt");
@@ -58,6 +65,13 @@ BOOST_AUTO_TEST_CASE(testLaneEightTracking)
     std::string gtName;
     std::string line_gt, line_output;
     SSAGUI ssaVideo("14.mp4");
+    frameAnalysis frameAnalysisObj;
+
+    frameAnalysisObj.setAnalyzeSwimmer(false);
+    frameAnalysisObj.setIDSelectedSwimmer(-1);
+    frameAnalysisObj.setindexSelectedSwimmer(0);
+
+    ssaVideo.setFrameAnalysis(frameAnalysisObj);
 
     outputName = find.absolutePath(outputName);
     gtName = outputName;
@@ -100,6 +114,18 @@ BOOST_AUTO_TEST_CASE(testLaneEightTrackingCancellation)
     std::string line_gt, line_output;
     SSAGUI ssaVideo("14.mp4");
     SSAGUI ssaVideoTwo("14.mp4");
+    frameAnalysis frameAnalysisObj;
+    frameAnalysis frameAnalysisObjTwo;
+
+    frameAnalysisObj.setAnalyzeSwimmer(false);
+    frameAnalysisObj.setIDSelectedSwimmer(-1);
+    frameAnalysisObj.setindexSelectedSwimmer(0);
+    frameAnalysisObjTwo.setAnalyzeSwimmer(false);
+    frameAnalysisObjTwo.setIDSelectedSwimmer(-1);
+    frameAnalysisObjTwo.setindexSelectedSwimmer(0);
+
+    ssaVideo.setFrameAnalysis(frameAnalysisObj);
+    ssaVideoTwo.setFrameAnalysis(frameAnalysisObjTwo);
 
     outputName = find.absolutePath(outputName);
     gtName = outputName;

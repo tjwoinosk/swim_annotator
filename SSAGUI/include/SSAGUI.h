@@ -29,9 +29,11 @@ public:
 
 	//TODO test - copied from sub_video.cpp
 	//TODO add any references needed
-	void make_video(string video_name, string sub_video_name);
+	//void make_video(string video_name, string sub_video_name);
 
 	void playVideoTest(bool withCancellation, int frameNum_selectSwimmer, int frameNum_startTracking, int frameNum_stopTracking, cv::Point_<float> mouseClick_Test); //TODO this is to test playVideo
+
+	void setFrameAnalysis(frameAnalysis& frameObj);
 
 private:
 	// private variables for video streaming
@@ -47,7 +49,8 @@ private:
 
 	frameAnalysis frameAnalysisObj; //TODO update to have in main - needed by controller. Also work on controller.
 	
-	std::vector<TrackingBox> resultsTrackingSingleSwimmer;
+	//std::vector<TrackingBox> resultsTrackingSingleSwimmer;
+	frameAnalysis* frameAnalysisObj_ptr;
 	
 	const int VIDEO_DELAY = 10;
 	const float VIDSIZE_WIDTH = 680;
@@ -66,7 +69,7 @@ private:
 
 	//TODO test - copied from sub_video.cpp
 	//TODO add any references needed
-	void find_best_aspect(int& hight, int& width);
+	//void find_best_aspect(int& hight, int& width);
 };
 
 #endif

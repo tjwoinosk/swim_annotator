@@ -8,6 +8,8 @@ SSAGUI::SSAGUI(string videoFile) {
 	frameAnalysisObj.setAnalyzeSwimmer(false);
 	frameAnalysisObj.setIDSelectedSwimmer(-1);
 	frameAnalysisObj.setindexSelectedSwimmer(0); //TODO should this be zero?
+
+	frameAnalysisObj_ptr = NULL;
 }
 
 SSAGUI::~SSAGUI() {
@@ -104,6 +106,12 @@ void SSAGUI::playVideoTest(bool withCancellation, int frameNum_selectSwimmer, in
 	}
 }
 
+void SSAGUI::setFrameAnalysis(frameAnalysis& frameObj)
+{
+	frameAnalysisObj_ptr = &frameObj; 
+	//TODO check for memory leaks
+}
+
 void SSAGUI::drawOnFrame()
 {
 	//TODO pick which method of resizing is appropriate, and what size
@@ -129,24 +137,34 @@ void SSAGUI::drawOnFrame()
 
 	std::cout << std::endl << " IN DRAW FRAME: drew rectangles " << std::endl;
 
-	if (frameAnalysisObj.isFollowing() && frameAnalysisObj.isTracking()) {
+	//if (frameAnalysisObj.isFollowing() && frameAnalysisObj.isTracking()) {
+	if (frameAnalysisObj_ptr->isFollowing() && frameAnalysisObj_ptr->isTracking()) {
 		//A swimmer is selected and we want to track the swimmer
 		std::cout << std::endl << "in main - tracking frame num " << getVideoStream().get(CAP_PROP_POS_FRAMES) << std::endl;
-		TrackingBox trackingForThisFrame = frameAnalysisObj.analyzeVideo(frame);
+		//TrackingBox trackingForThisFrame = frameAnalysisObj.analyzeVideo(frame);
+		TrackingBox trackingForThisFrame = frameAnalysisObj_ptr->analyzeVideo(frame);
 		//resultsTrackingSingleSwimmer.push_back(trackingForThisFrame[frameAnalysisObj.getindexSelectedSwimmer()]);
-		float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
-		float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-		TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, trackingForThisFrame);
+		//float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
+		//float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
+		//TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, trackingForThisFrame);
+		float scaleX = frameAnalysisObj_ptr->findFrameScale(frameResized.cols, frame.cols);
+		float scaleY = frameAnalysisObj_ptr->findFrameScale(frameResized.rows, frame.rows);
+		TrackingBox newBox = frameAnalysisObj_ptr->resizeBox(scaleX, scaleY, trackingForThisFrame);
 		rectangle(frameResized, newBox, Scalar(100, 230, 0), 4);
 	}
-	else if (frameAnalysisObj.isFollowing() && !frameAnalysisObj.isTracking()) {
+	//else if (frameAnalysisObj.isFollowing() && !frameAnalysisObj.isTracking()) {
+	else if (frameAnalysisObj_ptr->isFollowing() && !frameAnalysisObj_ptr->isTracking()) {
 		//A swimmer is selected but we are not yet tracking the swimmer
 		std::cout << std::endl << "in main - selected but not tracking" << std::endl;
 		//postProcessRealTimeTracking processObj;
-		TrackingBox toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
-		float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
-		float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-		TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom);
+		//TrackingBox toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame);
+		//float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
+		//float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
+		//TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom);
+		TrackingBox toGetTrajectoryFrom = frameAnalysisObj_ptr->analyzeVideo(frame);
+		float scaleX = frameAnalysisObj_ptr->findFrameScale(frameResized.cols, frame.cols);
+		float scaleY = frameAnalysisObj_ptr->findFrameScale(frameResized.rows, frame.rows);
+		TrackingBox newBox = frameAnalysisObj_ptr->resizeBox(scaleX, scaleY, toGetTrajectoryFrom);
 		rectangle(frameResized, newBox, Scalar(0, 190, 255), 4);
 	}
 	std::cout << std::endl << " IN DRAW FRAME - finishing " << std::endl;
@@ -182,16 +200,22 @@ void SSAGUI::secondCall(int event, int x, int y)
 			rectangle(canvas, startButton, Scalar(0, 0, 255), 2);
 			isPlaying = true;
 		
-			if (frameAnalysisObj.isFollowing() && !frameAnalysisObj.isTracking()) {  //TODO deal with index error checking - in case ID went to another index
+			//if (frameAnalysisObj.isFollowing() && !frameAnalysisObj.isTracking()) {  //TODO deal with index error checking - in case ID went to another index
+			if (frameAnalysisObj_ptr->isFollowing() && !frameAnalysisObj_ptr->isTracking()) {  //TODO deal with index error checking - in case ID went to another index
 				std::cout << std::endl << " start button - tracking" << std::endl;
-				resultsTrackingSingleSwimmer.clear();
+				//resultsTrackingSingleSwimmer.clear();
 				//frameAnalysisObj.setAnalyzeSwimmer(true);
-				frameAnalysisObj.setStatus(true, frameAnalysisObj.getIDSelectedSwimmer());
-				TrackingBox toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame); 
+				//frameAnalysisObj.setStatus(true, frameAnalysisObj.getIDSelectedSwimmer());
+				frameAnalysisObj_ptr->setStatus(true, frameAnalysisObj_ptr->getIDSelectedSwimmer());
+				//TrackingBox toGetTrajectoryFrom = frameAnalysisObj.analyzeVideo(frame); 
+				TrackingBox toGetTrajectoryFrom = frameAnalysisObj_ptr->analyzeVideo(frame);
 				//resultsTrackingSingleSwimmer.push_back(toGetTrajectoryFrom[frameAnalysisObj.getindexSelectedSwimmer()]);
-				float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
-				float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-				TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom);
+				//float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
+				//float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
+				//TrackingBox newBox = frameAnalysisObj.resizeBox(scaleX, scaleY, toGetTrajectoryFrom);
+				float scaleX = frameAnalysisObj_ptr->findFrameScale(frameResized.cols, frame.cols);
+				float scaleY = frameAnalysisObj_ptr->findFrameScale(frameResized.rows, frame.rows);
+				TrackingBox newBox = frameAnalysisObj_ptr->resizeBox(scaleX, scaleY, toGetTrajectoryFrom);
 				rectangle(frameResized, newBox, Scalar(0, 190, 255), 4);
 			}
 		}
@@ -201,33 +225,43 @@ void SSAGUI::secondCall(int event, int x, int y)
 			rectangle(canvas, stopButton, Scalar(0, 0, 255), 2);
 			isPlaying = false;
 
-			if (frameAnalysisObj.isFollowing() && frameAnalysisObj.isTracking()) {
+			//if (frameAnalysisObj.isFollowing() && frameAnalysisObj.isTracking()) {
+			if (frameAnalysisObj_ptr->isFollowing() && frameAnalysisObj_ptr->isTracking()) {
 				std::cout << std::endl << " stop button - writing data" << std::endl;
-				frameAnalysisObj.setStatus(false, -1);
+				//frameAnalysisObj.setStatus(false, -1);
+				frameAnalysisObj_ptr->setStatus(false, -1);
 				//frameAnalysisObj.setAnalyzeSwimmer(false);
 				//frameAnalysisObj.setIDSelectedSwimmer(-1);
 				//TODO write to file the output - overwrite or append?
-				frameAnalysisObj.writeToFile();
+				//frameAnalysisObj.writeToFile();
+				frameAnalysisObj_ptr->writeToFile();
 			}
 		}
 		else if (cancelButton.contains(Point(x, y))) {
 			std::cout << std::endl << " cancel button clicked" << std::endl;
 			rectangle(canvas, cancelButton, Scalar(0, 0, 255), 2);
 			//If you selected a swimmer, but didnt start tracking, then you can cancel your selection
-			if (frameAnalysisObj.isFollowing() && !frameAnalysisObj.isTracking()) {
+			//if (frameAnalysisObj.isFollowing() && !frameAnalysisObj.isTracking()) {
+			if (frameAnalysisObj_ptr->isFollowing() && !frameAnalysisObj_ptr->isTracking()) {
 				//frameAnalysisObj.setIDSelectedSwimmer(-1);
 				std::cout << std::endl << " setting CANCEL" << std::endl;
-				frameAnalysisObj.setStatus(false, -1);
+				//frameAnalysisObj.setStatus(false, -1);
+				frameAnalysisObj_ptr->setStatus(false, -1);
 			}
 		}
 		else {
 			std::cout << std::endl << " on screen clicked at x = " << x << " , y = " << y << std::endl;
 			postProcessRealTimeTracking processObj;
-			frameAnalysisObj.analyzeVideo(frame);
-			float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
-			float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
-			std::vector<TrackingBox> resultsCurrent = frameAnalysisObj.getCurrentResults();
-			frameAnalysisObj.resizeBoxes(scaleX, scaleY, resultsCurrent);
+			//frameAnalysisObj.analyzeVideo(frame);
+			//float scaleX = frameAnalysisObj.findFrameScale(frameResized.cols, frame.cols);
+			//float scaleY = frameAnalysisObj.findFrameScale(frameResized.rows, frame.rows);
+			//std::vector<TrackingBox> resultsCurrent = frameAnalysisObj.getCurrentResults();
+			//frameAnalysisObj.resizeBoxes(scaleX, scaleY, resultsCurrent);
+			frameAnalysisObj_ptr->analyzeVideo(frame);
+			float scaleX = frameAnalysisObj_ptr->findFrameScale(frameResized.cols, frame.cols);
+			float scaleY = frameAnalysisObj_ptr->findFrameScale(frameResized.rows, frame.rows);
+			std::vector<TrackingBox> resultsCurrent = frameAnalysisObj_ptr->getCurrentResults();
+			frameAnalysisObj_ptr->resizeBoxes(scaleX, scaleY, resultsCurrent);
 
 			int y_inFrame = y - BUTTON_HEIGHT; //Account for offset from buttons to get position on the video image
 			int idFound = processObj.trajectoryMatcher(cv::Point_<float>(x, y_inFrame), resultsCurrent); //TODO error check
@@ -235,9 +269,12 @@ void SSAGUI::secondCall(int event, int x, int y)
 			//if (!frameAnalysisObj.setIDSelectedSwimmer(idFound)) { std::cout << std::endl<< "Failed to set ID of swimmer" << std::endl; }
 			//int indexSwimmer = frameAnalysisObj.findindexSelectedSwimmer(frameAnalysisObj.getIDSelectedSwimmer(), resultsCurrent);
 			//if (!frameAnalysisObj.setindexSelectedSwimmer(indexSwimmer)) { std::cout << std::endl << "Failed to set index of swimmer" << std::endl; }
-			frameAnalysisObj.setStatus(false, idFound);
+			//frameAnalysisObj.setStatus(false, idFound);
+			frameAnalysisObj_ptr->setStatus(false, idFound);
 
-			rectangle(frameResized, resultsCurrent[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
+			//rectangle(frameResized, resultsCurrent[frameAnalysisObj.getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
+			rectangle(frameResized, resultsCurrent[frameAnalysisObj_ptr->getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
+
 		}
 
 		imshow(appName, canvas);
@@ -253,6 +290,7 @@ void SSAGUI::secondCall(int event, int x, int y)
 }
 
 //TODO what file format to accept and save in?
+/*
 void SSAGUI::make_video(string video_name, string sub_video_name)
 {
 	string str, outputFile;
@@ -406,4 +444,4 @@ void SSAGUI::find_best_aspect(int& hight, int& width)
 	//TODO try to use variance and width/height averages and see how that looks
 
 }
-
+*/

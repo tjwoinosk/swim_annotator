@@ -11,6 +11,13 @@ int main()
 {
 	
 	SSAGUI ssaVideo("14.mp4");
+	frameAnalysis frameAnalysisObj;
+
+	frameAnalysisObj.setAnalyzeSwimmer(false);
+	frameAnalysisObj.setIDSelectedSwimmer(-1);
+	frameAnalysisObj.setindexSelectedSwimmer(0);
+
+	ssaVideo.setFrameAnalysis(frameAnalysisObj);
 	ssaVideo.playVideo();
 	
 	/*
