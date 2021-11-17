@@ -117,13 +117,6 @@ BOOST_AUTO_TEST_CASE(testLaneEightTrackingCancellation)
     frameAnalysis frameAnalysisObj;
     frameAnalysis frameAnalysisObjTwo;
 
-    frameAnalysisObj.setAnalyzeSwimmer(false);
-    frameAnalysisObj.setIDSelectedSwimmer(-1);
-    frameAnalysisObj.setindexSelectedSwimmer(0);
-    frameAnalysisObjTwo.setAnalyzeSwimmer(false);
-    frameAnalysisObjTwo.setIDSelectedSwimmer(-1);
-    frameAnalysisObjTwo.setindexSelectedSwimmer(0);
-
     ssaVideo.setFrameAnalysis(frameAnalysisObj);
     ssaVideoTwo.setFrameAnalysis(frameAnalysisObjTwo);
 

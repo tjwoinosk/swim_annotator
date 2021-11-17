@@ -418,6 +418,11 @@ bool frameAnalysis::isFollowing()
 	return false;
 }
 
+std::vector<TrackingBox> frameAnalysis::getSingleSwimmerResults()
+{
+	return resultsSingleSwimmer;
+}
+
 
 void frameAnalysis::writeToFile()
 {

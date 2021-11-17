@@ -22,14 +22,10 @@ static const Vec3b buttonColor = Vec3b(200, 200, 200);
 class SSAGUI
 {
 public:
-	SSAGUI(string videoFile); //TODO ssaGUI
+	SSAGUI(string videoFile); 
 	~SSAGUI();
 
 	void playVideo();
-
-	//TODO test - copied from sub_video.cpp
-	//TODO add any references needed
-	//void make_video(string video_name, string sub_video_name);
 
 	void playVideoTest(bool withCancellation, int frameNum_selectSwimmer, int frameNum_startTracking, int frameNum_stopTracking, cv::Point_<float> mouseClick_Test); //TODO this is to test playVideo
 
@@ -66,10 +62,6 @@ private:
 	void secondCall(int event, int x, int y);
 
 	void drawOnFrame();
-
-	//TODO test - copied from sub_video.cpp
-	//TODO add any references needed
-	//void find_best_aspect(int& hight, int& width);
 };
 
 #endif

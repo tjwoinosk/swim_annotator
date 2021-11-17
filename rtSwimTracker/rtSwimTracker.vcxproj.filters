@@ -64,6 +64,9 @@
     <ClCompile Include="src\postProcessRealTimeTracking.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\subVideoCreator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\addAnotherFile.h">
@@ -103,6 +106,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\postProcessRealTimeTracking.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\subVideoCreator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

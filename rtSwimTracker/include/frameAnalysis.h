@@ -59,6 +59,7 @@ public:
 	void setStatus(bool tracking, int selectedSwimmer);
 	bool isTracking();
 	bool isFollowing();
+	std::vector<TrackingBox> getSingleSwimmerResults();
 
 	void writeToFile();
 
