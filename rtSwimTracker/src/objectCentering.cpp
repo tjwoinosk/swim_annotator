@@ -2,6 +2,8 @@
 
 objectCentering::objectCentering()
 {
+	deltaX = 10;
+	deltaY = 10;
 }
 
 objectCentering::~objectCentering()
@@ -42,6 +44,47 @@ cv::Point_<float> objectCentering::findPointDifference(cv::Point_<float> pointCe
 	return cv::Point_<float>(x_diff, y_diff);
 }
 
+bool objectCentering::setDelta(float percent_X, float percent_Y, cv::Mat frame)
+{
+	if(percent_X > 1 || percent_X < 0)
+		return false;
+	if (percent_Y > 1 || percent_Y < 0)
+		return false;
+
+	float frameHeight = static_cast<float>(frame.rows);
+	float frameWidth = static_cast<float>(frame.cols);
+
+	deltaX = frameWidth * percent_X;
+	deltaY = frameHeight * percent_Y;
+
+	return true;
+}
+
+bool objectCentering::setDelta(float percent_X, float percent_Y, cv::Point_<float> frameCorner)
+{
+	if (percent_X > 1 || percent_X < 0)
+		return false;
+	if (percent_Y > 1 || percent_Y < 0)
+		return false;
+	if(frameCorner.x < 0 || frameCorner.y < 0)
+		return false;
+
+	deltaX = frameCorner.x * percent_X;
+	deltaY = frameCorner.y * percent_Y;
+
+	return true;
+}
+
+float objectCentering::getDeltaX()
+{
+	return deltaX;
+}
+
+float objectCentering::getDeltaY()
+{
+	return deltaY;
+}
+
 tiltPanCommand objectCentering::findCommand(cv::Point_<float> diffOfPoints)
 {
 	/*
@@ -61,18 +104,22 @@ If we consider centre, then
 	returnCommands.moveLeft = false;
 	returnCommands.moveRight = false;
 
-	if (diffOfPoints.x > 0) {
-		returnCommands.moveLeft = true;
-	}
-	else if (diffOfPoints.x < 0) {
-		returnCommands.moveRight = true;
+	if (abs(diffOfPoints.x) > deltaX) {
+		if (diffOfPoints.x > 0) {
+			returnCommands.moveLeft = true;
+		}
+		else if (diffOfPoints.x < 0) {
+			returnCommands.moveRight = true;
+		}
 	}
 
-	if (diffOfPoints.y < 0) {
-		returnCommands.moveUp = true;
-	}
-	else if (diffOfPoints.y > 0) {
-		returnCommands.moveDown = true;
+	if (abs(diffOfPoints.y) > deltaY) {
+		if (diffOfPoints.y < 0) {
+			returnCommands.moveUp = true;
+		}
+		else if (diffOfPoints.y > 0) {
+			returnCommands.moveDown = true;
+		}
 	}
 
 	return returnCommands;

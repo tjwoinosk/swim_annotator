@@ -2,6 +2,7 @@
 #define OBJECTCENTERING_H
 
 #include "TrackingBox.h"
+#include <math.h>
 //TODO takes the one tracking box on the swimmer we are analyzing and return the datatype
 //that will define where the camera needs to move
 //camera moves by the following switches: switch to go up, left, right, down, not go left or down, not go right or left
@@ -33,7 +34,15 @@ public:
 	cv::Point_<float> findCentreOfFrame(cv::Mat frame);
 	cv::Point_<float> findPointDifference(cv::Point_<float> pointCentre, TrackingBox pointSwimmer);
 
+	bool setDelta(float percent_X, float percent_Y, cv::Mat frame); //TODO should it be pass in frame or centre?
+	bool setDelta(float percent_X, float percent_Y, cv::Point_<float> frameCorner);
+	float getDeltaX();
+	float getDeltaY();
+
 private:
+	float deltaX;
+	float deltaY;
+
 	tiltPanCommand findCommand(cv::Point_<float> diffOfPoints);
 };
 
