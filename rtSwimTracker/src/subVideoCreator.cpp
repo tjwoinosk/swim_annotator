@@ -31,6 +31,7 @@ void subVideoCreator::make_video()
 	
 	if (resultsTrackingSingleSwimmer.size() == 0) {
 		std::cout << " ERROR: Unable to create video. No data on any swimmers." << std::endl;
+		closeVideo();
 		return;
 	}
 
