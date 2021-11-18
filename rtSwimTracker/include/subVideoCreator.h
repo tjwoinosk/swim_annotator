@@ -21,7 +21,7 @@ public:
 
 	void startVideo();
 	void closeVideo();
-	VideoCapture getVideoStream();
+	VideoCapture& getVideoStream();
 	int isVideoStreamValid();
 
 private:

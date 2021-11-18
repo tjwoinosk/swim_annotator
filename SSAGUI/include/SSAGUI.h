@@ -51,7 +51,7 @@ private:
 	const int BUTTON_HEIGHT = 50;
 	
 
-	VideoCapture getVideoStream();
+	VideoCapture& getVideoStream();
 	int isVideoStreamValid();
 	void closeVideo();
 

@@ -12,8 +12,8 @@ SSAGUI::~SSAGUI() {
 
 }
 
-VideoCapture SSAGUI::getVideoStream() {
-	return videoStream; //TODO return by refrence? also update in subvideo
+VideoCapture& SSAGUI::getVideoStream() {
+	return videoStream;
 }
 
 int SSAGUI::isVideoStreamValid() {

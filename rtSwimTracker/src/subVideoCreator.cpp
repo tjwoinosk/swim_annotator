@@ -196,7 +196,7 @@ void subVideoCreator::closeVideo()
 	getVideoStream().release();
 }
 
-VideoCapture subVideoCreator::getVideoStream()
+VideoCapture& subVideoCreator::getVideoStream()
 {
 	return videoStream;
 }
