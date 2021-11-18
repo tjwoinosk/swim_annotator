@@ -206,20 +206,21 @@ void SSAGUI::secondCall(int event, int x, int y)
 			}
 		}
 		else {
-			std::cout << std::endl << " on screen clicked at x = " << x << " , y = " << y << std::endl;
-			postProcessRealTimeTracking processObj;
-			frameAnalysisObj_ptr->analyzeVideo(frame);
-			float scaleX = frameAnalysisObj_ptr->findFrameScale(frameResized.cols, frame.cols);
-			float scaleY = frameAnalysisObj_ptr->findFrameScale(frameResized.rows, frame.rows);
-			std::vector<TrackingBox> resultsCurrent = frameAnalysisObj_ptr->getCurrentResults();
-			frameAnalysisObj_ptr->resizeBoxes(scaleX, scaleY, resultsCurrent);
+			if (!frameAnalysisObj_ptr->isFollowing()) {
+				std::cout << std::endl << " on screen clicked at x = " << x << " , y = " << y << std::endl;
+				postProcessRealTimeTracking processObj;
+				frameAnalysisObj_ptr->analyzeVideo(frame);
+				float scaleX = frameAnalysisObj_ptr->findFrameScale(frameResized.cols, frame.cols);
+				float scaleY = frameAnalysisObj_ptr->findFrameScale(frameResized.rows, frame.rows);
+				std::vector<TrackingBox> resultsCurrent = frameAnalysisObj_ptr->getCurrentResults();
+				frameAnalysisObj_ptr->resizeBoxes(scaleX, scaleY, resultsCurrent);
 
-			int y_inFrame = y - BUTTON_HEIGHT; //Account for offset from buttons to get position on the video image
-			int idFound = processObj.trajectoryMatcher(cv::Point_<float>(x, y_inFrame), resultsCurrent); //TODO error check
-			frameAnalysisObj_ptr->setStatus(false, idFound);
+				int y_inFrame = y - BUTTON_HEIGHT; //Account for offset from buttons to get position on the video image
+				int idFound = processObj.trajectoryMatcher(cv::Point_<float>(x, y_inFrame), resultsCurrent); //TODO error check
+				frameAnalysisObj_ptr->setStatus(false, idFound);
 
-			rectangle(frameResized, resultsCurrent[frameAnalysisObj_ptr->getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
-
+				rectangle(frameResized, resultsCurrent[frameAnalysisObj_ptr->getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
+			}
 		}
 
 		imshow(appName, canvas);

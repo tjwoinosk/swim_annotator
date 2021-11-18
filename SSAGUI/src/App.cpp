@@ -18,6 +18,6 @@ int main()
 	ssaVideo.setFrameAnalysis(frameAnalysisObj);
 	ssaVideo.playVideo();
 
-	subVidObj.setFrameAnalysis(frameAnalysisObj);
-	subVidObj.make_video();
+	//subVidObj.setFrameAnalysis(frameAnalysisObj);
+	//subVidObj.make_video();
 }
