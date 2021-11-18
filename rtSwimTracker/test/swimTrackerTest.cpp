@@ -16,6 +16,8 @@
 
 #include "postProcessRealTimeTracking.h"
 
+#include "objectCentering.h"
+
 #include <fstream>
 #include <iterator>
 
@@ -239,6 +241,87 @@ BOOST_AUTO_TEST_CASE(testDetectionBoxOutStreamFunctionsNew)
 	BOOST_CHECK_GE(testBox.GetIOU(groundBox), 0.999);
 }
 BOOST_AUTO_TEST_SUITE_END() //End Box Tests
+
+//Object Centering validation test suite
+//TODO how to test finding centre
+BOOST_AUTO_TEST_SUITE(ObjectCenteringTestSuite)
+BOOST_AUTO_TEST_CASE(FindDifferenceTEST)
+{
+	objectCentering objCnt;
+
+	//Test the difference in x:
+	cv::Point_<float> frameCentre_Test = cv::Point_<float>(100, 100);
+	TrackingBox pointSwimmer_Test1 = TrackingBox(1, 1, cv::Rect_<float>(40, 90, 20, 20));
+	cv::Point_<float> diff_Test1 = objCnt.findPointDifference(frameCentre_Test, pointSwimmer_Test1);
+	cv::Point_<float> resultExpected_Test1 = cv::Point_<float>(50, 0);
+
+	TrackingBox pointSwimmer_Test2 = TrackingBox(1, 1, cv::Rect_<float>(150, 90, 20, 20));
+	cv::Point_<float> diff_Test2 = objCnt.findPointDifference(frameCentre_Test, pointSwimmer_Test2);
+	cv::Point_<float> resultExpected_Test2 = cv::Point_<float>(-60, 0);
+
+	//Test the difference in y:
+	TrackingBox pointSwimmer_Test3 = TrackingBox(1, 1, cv::Rect_<float>(90, 160, 20, 20));
+	cv::Point_<float> diff_Test3 = objCnt.findPointDifference(frameCentre_Test, pointSwimmer_Test3);
+	cv::Point_<float> resultExpected_Test3 = cv::Point_<float>(0, -70);
+	
+	TrackingBox pointSwimmer_Test4 = TrackingBox(1, 1, cv::Rect_<float>(90, 60, 20, 20));
+	cv::Point_<float> diff_Test4 = objCnt.findPointDifference(frameCentre_Test, pointSwimmer_Test4);
+	cv::Point_<float> resultExpected_Test4 = cv::Point_<float>(0, 30);
+
+	BOOST_CHECK_EQUAL(resultExpected_Test1, diff_Test1);
+	BOOST_CHECK_EQUAL(resultExpected_Test2, diff_Test2);
+	BOOST_CHECK_EQUAL(resultExpected_Test3, diff_Test3);
+	BOOST_CHECK_EQUAL(resultExpected_Test4, diff_Test4);
+}
+BOOST_AUTO_TEST_CASE(moveLeftandRightTEST)
+{
+	objectCentering objCnt;
+
+	cv::Point_<float> frameCentre_Test = cv::Point_<float>(100, 100);
+	
+	//Test move left
+	TrackingBox pointSwimmer_Test1 = TrackingBox(1, 1, cv::Rect_<float>(40, 90, 20, 20));
+	tiltPanCommand result_Test1 = objCnt.findCommand(pointSwimmer_Test1, frameCentre_Test);
+	tiltPanCommand resultExpected_Test1;
+	resultExpected_Test1.moveDown = false;
+	resultExpected_Test1.moveLeft = true;
+	resultExpected_Test1.moveRight = false;
+	resultExpected_Test1.moveUp = false;
+
+	//Test move right
+	TrackingBox pointSwimmer_Test2 = TrackingBox(1, 1, cv::Rect_<float>(150, 90, 20, 20));
+	tiltPanCommand result_Test2 = objCnt.findCommand(pointSwimmer_Test2, frameCentre_Test);
+	tiltPanCommand resultExpected_Test2;
+	resultExpected_Test2.moveDown = false;
+	resultExpected_Test2.moveLeft = false;
+	resultExpected_Test2.moveRight = true;
+	resultExpected_Test2.moveUp = false;
+
+	//Test move neither left nor right
+	TrackingBox pointSwimmer_Test3 = TrackingBox(1, 1, cv::Rect_<float>(90, 90, 20, 20));
+	tiltPanCommand result_Test3 = objCnt.findCommand(pointSwimmer_Test3, frameCentre_Test);
+	tiltPanCommand resultExpected_Test3;
+	resultExpected_Test3.moveDown = false;
+	resultExpected_Test3.moveLeft = false;
+	resultExpected_Test3.moveRight = false;
+	resultExpected_Test3.moveUp = false;
+
+	BOOST_CHECK_EQUAL(result_Test1.moveDown, resultExpected_Test1.moveDown);
+	BOOST_CHECK_EQUAL(result_Test1.moveUp, resultExpected_Test1.moveUp);
+	BOOST_CHECK_EQUAL(result_Test1.moveLeft, resultExpected_Test1.moveLeft);
+	BOOST_CHECK_EQUAL(result_Test1.moveRight, resultExpected_Test1.moveRight);
+
+	BOOST_CHECK_EQUAL(result_Test2.moveDown, resultExpected_Test2.moveDown);
+	BOOST_CHECK_EQUAL(result_Test2.moveUp, resultExpected_Test2.moveUp);
+	BOOST_CHECK_EQUAL(result_Test2.moveLeft, resultExpected_Test2.moveLeft);
+	BOOST_CHECK_EQUAL(result_Test2.moveRight, resultExpected_Test2.moveRight);
+
+	BOOST_CHECK_EQUAL(result_Test3.moveDown, resultExpected_Test3.moveDown);
+	BOOST_CHECK_EQUAL(result_Test3.moveUp, resultExpected_Test3.moveUp);
+	BOOST_CHECK_EQUAL(result_Test3.moveLeft, resultExpected_Test3.moveLeft);
+	BOOST_CHECK_EQUAL(result_Test3.moveRight, resultExpected_Test3.moveRight);
+}
+BOOST_AUTO_TEST_SUITE_END() //End Object Centering validation tests suite
 
 
 //Detection validation test suite
