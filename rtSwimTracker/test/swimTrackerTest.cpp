@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE(moveUpandDownTEST)
 
 	cv::Point_<float> frameCentre_Test = cv::Point_<float>(100, 100);
 
-	//Test move left
+	//Test move up
 	TrackingBox pointSwimmer_Test1 = TrackingBox(1, 1, cv::Rect_<float>(90, 160, 20, 20));
 	tiltPanCommand result_Test1 = objCnt.findCommand(pointSwimmer_Test1, frameCentre_Test);
 	tiltPanCommand resultExpected_Test1;
@@ -350,7 +350,7 @@ BOOST_AUTO_TEST_CASE(moveUpandDownTEST)
 	resultExpected_Test1.moveRight = false;
 	resultExpected_Test1.moveUp = true;
 
-	//Test move right
+	//Test move down
 	TrackingBox pointSwimmer_Test2 = TrackingBox(1, 1, cv::Rect_<float>(90, 60, 20, 20));
 	tiltPanCommand result_Test2 = objCnt.findCommand(pointSwimmer_Test2, frameCentre_Test);
 	tiltPanCommand resultExpected_Test2;
@@ -359,7 +359,7 @@ BOOST_AUTO_TEST_CASE(moveUpandDownTEST)
 	resultExpected_Test2.moveRight = false;
 	resultExpected_Test2.moveUp = false;
 
-	//Test move neither left nor right
+	//Test move neither up nor down
 	TrackingBox pointSwimmer_Test3 = TrackingBox(1, 1, cv::Rect_<float>(90, 90, 20, 20));
 	tiltPanCommand result_Test3 = objCnt.findCommand(pointSwimmer_Test3, frameCentre_Test);
 	tiltPanCommand resultExpected_Test3;
@@ -376,6 +376,153 @@ BOOST_AUTO_TEST_CASE(moveUpandDownTEST)
 	resultExpected_Test4.moveLeft = false;
 	resultExpected_Test4.moveRight = false;
 	resultExpected_Test4.moveUp = false;
+
+	BOOST_CHECK_EQUAL(result_Test1.moveDown, resultExpected_Test1.moveDown);
+	BOOST_CHECK_EQUAL(result_Test1.moveUp, resultExpected_Test1.moveUp);
+	BOOST_CHECK_EQUAL(result_Test1.moveLeft, resultExpected_Test1.moveLeft);
+	BOOST_CHECK_EQUAL(result_Test1.moveRight, resultExpected_Test1.moveRight);
+
+	BOOST_CHECK_EQUAL(result_Test2.moveDown, resultExpected_Test2.moveDown);
+	BOOST_CHECK_EQUAL(result_Test2.moveUp, resultExpected_Test2.moveUp);
+	BOOST_CHECK_EQUAL(result_Test2.moveLeft, resultExpected_Test2.moveLeft);
+	BOOST_CHECK_EQUAL(result_Test2.moveRight, resultExpected_Test2.moveRight);
+
+	BOOST_CHECK_EQUAL(result_Test3.moveDown, resultExpected_Test3.moveDown);
+	BOOST_CHECK_EQUAL(result_Test3.moveUp, resultExpected_Test3.moveUp);
+	BOOST_CHECK_EQUAL(result_Test3.moveLeft, resultExpected_Test3.moveLeft);
+	BOOST_CHECK_EQUAL(result_Test3.moveRight, resultExpected_Test3.moveRight);
+
+	BOOST_CHECK_EQUAL(result_Test4.moveDown, resultExpected_Test4.moveDown);
+	BOOST_CHECK_EQUAL(result_Test4.moveUp, resultExpected_Test4.moveUp);
+	BOOST_CHECK_EQUAL(result_Test4.moveLeft, resultExpected_Test4.moveLeft);
+	BOOST_CHECK_EQUAL(result_Test4.moveRight, resultExpected_Test4.moveRight);
+}
+BOOST_AUTO_TEST_CASE(setDeltaTEST) {
+	objectCentering objCnt;
+
+	cv::Point_<float> frameCorner_Test = cv::Point_<float>(40, 40);
+	objCnt.setDelta(0.1, 0.2, frameCorner_Test); // difference below 40 should not result in change
+
+	cv::Point_<float> resultExpectation = cv::Point_<float>(4, 8);
+
+	int xDelta = objCnt.getDeltaX();
+	int yDelta = objCnt.getDeltaY();
+
+	BOOST_CHECK_EQUAL(xDelta, resultExpectation.x);
+	BOOST_CHECK_EQUAL(yDelta, resultExpectation.y);
+}
+BOOST_AUTO_TEST_CASE(mooveDeltaUpandDownTEST)
+{
+	objectCentering objCnt;
+
+	cv::Point_<float> frameCentre_Test = cv::Point_<float>(100, 100);
+	cv::Point_<float> frameCorner_Test = cv::Point_<float>(frameCentre_Test.x*2, frameCentre_Test.y*2);
+
+	//Set Delta
+	objCnt.setDelta(0.2, 0.2, frameCorner_Test); // difference below 40 should not result in change
+
+	//Test move up
+	TrackingBox pointSwimmer_Test1 = TrackingBox(1, 1, cv::Rect_<float>(90, 160, 20, 20));
+	tiltPanCommand result_Test1 = objCnt.findCommand(pointSwimmer_Test1, frameCentre_Test);
+	tiltPanCommand resultExpected_Test1;
+	resultExpected_Test1.moveDown = false;
+	resultExpected_Test1.moveLeft = false;
+	resultExpected_Test1.moveRight = false;
+	resultExpected_Test1.moveUp = true;
+
+	//Test move down
+	TrackingBox pointSwimmer_Test2 = TrackingBox(1, 1, cv::Rect_<float>(90, 20, 20, 20));
+	tiltPanCommand result_Test2 = objCnt.findCommand(pointSwimmer_Test2, frameCentre_Test);
+	tiltPanCommand resultExpected_Test2;
+	resultExpected_Test2.moveDown = true;
+	resultExpected_Test2.moveLeft = false;
+	resultExpected_Test2.moveRight = false;
+	resultExpected_Test2.moveUp = false;
+
+	//Test move neither up nor down
+	TrackingBox pointSwimmer_Test3 = TrackingBox(1, 1, cv::Rect_<float>(90, 60, 20, 20));
+	tiltPanCommand result_Test3 = objCnt.findCommand(pointSwimmer_Test3, frameCentre_Test);
+	tiltPanCommand resultExpected_Test3;
+	resultExpected_Test3.moveDown = false;
+	resultExpected_Test3.moveLeft = false;
+	resultExpected_Test3.moveRight = false;
+	resultExpected_Test3.moveUp = false;
+
+	TrackingBox pointSwimmer_Test4 = TrackingBox(1, 1, cv::Rect_<float>(90, 120, 20, 20));
+	tiltPanCommand result_Test4 = objCnt.findCommand(pointSwimmer_Test4, frameCentre_Test);
+	tiltPanCommand resultExpected_Test4;
+	resultExpected_Test4.moveDown = false;
+	resultExpected_Test4.moveLeft = false;
+	resultExpected_Test4.moveRight = false;
+	resultExpected_Test4.moveUp = false;
+
+
+	BOOST_CHECK_EQUAL(result_Test1.moveDown, resultExpected_Test1.moveDown);
+	BOOST_CHECK_EQUAL(result_Test1.moveUp, resultExpected_Test1.moveUp);
+	BOOST_CHECK_EQUAL(result_Test1.moveLeft, resultExpected_Test1.moveLeft);
+	BOOST_CHECK_EQUAL(result_Test1.moveRight, resultExpected_Test1.moveRight);
+
+	BOOST_CHECK_EQUAL(result_Test2.moveDown, resultExpected_Test2.moveDown);
+	BOOST_CHECK_EQUAL(result_Test2.moveUp, resultExpected_Test2.moveUp);
+	BOOST_CHECK_EQUAL(result_Test2.moveLeft, resultExpected_Test2.moveLeft);
+	BOOST_CHECK_EQUAL(result_Test2.moveRight, resultExpected_Test2.moveRight);
+
+	BOOST_CHECK_EQUAL(result_Test3.moveDown, resultExpected_Test3.moveDown);
+	BOOST_CHECK_EQUAL(result_Test3.moveUp, resultExpected_Test3.moveUp);
+	BOOST_CHECK_EQUAL(result_Test3.moveLeft, resultExpected_Test3.moveLeft);
+	BOOST_CHECK_EQUAL(result_Test3.moveRight, resultExpected_Test3.moveRight);
+
+	BOOST_CHECK_EQUAL(result_Test4.moveDown, resultExpected_Test4.moveDown);
+	BOOST_CHECK_EQUAL(result_Test4.moveUp, resultExpected_Test4.moveUp);
+	BOOST_CHECK_EQUAL(result_Test4.moveLeft, resultExpected_Test4.moveLeft);
+	BOOST_CHECK_EQUAL(result_Test4.moveRight, resultExpected_Test4.moveRight);
+}
+BOOST_AUTO_TEST_CASE(mooveDeltaLeftandRightTEST)
+{
+	objectCentering objCnt;
+
+	cv::Point_<float> frameCentre_Test = cv::Point_<float>(100, 100);
+	cv::Point_<float> frameCorner_Test = cv::Point_<float>(frameCentre_Test.x * 2, frameCentre_Test.y * 2);
+
+	//Set Delta
+	objCnt.setDelta(0.2, 0.2, frameCorner_Test); // difference below 40 should not result in change
+
+	
+	//Test move left
+	TrackingBox pointSwimmer_Test1 = TrackingBox(1, 1, cv::Rect_<float>(40, 90, 20, 20));
+	tiltPanCommand result_Test1 = objCnt.findCommand(pointSwimmer_Test1, frameCentre_Test);
+	tiltPanCommand resultExpected_Test1;
+	resultExpected_Test1.moveDown = false;
+	resultExpected_Test1.moveLeft = true;
+	resultExpected_Test1.moveRight = false;
+	resultExpected_Test1.moveUp = false;
+
+	//Test move right
+	TrackingBox pointSwimmer_Test2 = TrackingBox(1, 1, cv::Rect_<float>(150, 90, 20, 20));
+	tiltPanCommand result_Test2 = objCnt.findCommand(pointSwimmer_Test2, frameCentre_Test);
+	tiltPanCommand resultExpected_Test2;
+	resultExpected_Test2.moveDown = false;
+	resultExpected_Test2.moveLeft = false;
+	resultExpected_Test2.moveRight = true;
+	resultExpected_Test2.moveUp = false;
+
+	//Test move neither up nor down
+	TrackingBox pointSwimmer_Test3 = TrackingBox(1, 1, cv::Rect_<float>(80, 90, 20, 20));
+	tiltPanCommand result_Test3 = objCnt.findCommand(pointSwimmer_Test3, frameCentre_Test);
+	tiltPanCommand resultExpected_Test3;
+	resultExpected_Test3.moveDown = false;
+	resultExpected_Test3.moveLeft = false;
+	resultExpected_Test3.moveRight = false;
+	resultExpected_Test3.moveUp = false;
+
+	TrackingBox pointSwimmer_Test4 = TrackingBox(1, 1, cv::Rect_<float>(105, 90, 20, 20));
+	tiltPanCommand result_Test4 = objCnt.findCommand(pointSwimmer_Test4, frameCentre_Test);
+	tiltPanCommand resultExpected_Test4;
+	resultExpected_Test4.moveDown = false;
+	resultExpected_Test4.moveLeft = false;
+	resultExpected_Test4.moveRight = false;
+	resultExpected_Test4.moveUp = false;
+
 
 	BOOST_CHECK_EQUAL(result_Test1.moveDown, resultExpected_Test1.moveDown);
 	BOOST_CHECK_EQUAL(result_Test1.moveUp, resultExpected_Test1.moveUp);
