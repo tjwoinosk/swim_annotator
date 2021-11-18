@@ -424,7 +424,7 @@ void frameAnalysis::writeToFile()
 		std::cout << "Could not open " << resFileAbsPath << std::endl << e.what() << std::endl;
 	}
 
-	resultsSingleSwimmer.clear();
+	//resultsSingleSwimmer.clear(); //TODO this is problematic as it clears the results so you can't use it after stoping (ex. for subVideoCreator)
 	return;
 }
 

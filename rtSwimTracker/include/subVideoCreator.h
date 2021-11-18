@@ -16,7 +16,7 @@ class subVideoCreator
 public:
 
 	subVideoCreator(string videoFile);
-	void make_video(string video_name, string sub_video_name);
+	void make_video();
 	void setFrameAnalysis(frameAnalysis& frameObj);
 
 	void startVideo();

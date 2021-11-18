@@ -9,10 +9,9 @@ subVideoCreator::subVideoCreator(string videoFile)
 	//videoStream.open(videoFile);
 }
 
-void subVideoCreator::make_video(string video_name, string sub_video_name)
+void subVideoCreator::make_video()
 {
 	string str, outputFile;
-	//VideoCapture cap;
 	VideoWriter video;
 	Mat frame, crop_frame;
 	const int final_aspect = 150;
@@ -28,8 +27,13 @@ void subVideoCreator::make_video(string video_name, string sub_video_name)
 		return;
 	}
 
-	//TODO added this to deal with sorted_data_is_valid
 	std::vector<TrackingBox> resultsTrackingSingleSwimmer = frameAnalysisObj_ptr->getSingleSwimmerResults();
+	
+	if (resultsTrackingSingleSwimmer.size() == 0) {
+		std::cout << " ERROR: Unable to create video. No data on any swimmers." << std::endl;
+		return;
+	}
+
 	bool data_is_valid = true;
 
 	for (int i = 0; i < resultsTrackingSingleSwimmer.size(); i++) {
@@ -41,15 +45,13 @@ void subVideoCreator::make_video(string video_name, string sub_video_name)
 
 	if (data_is_valid) {
 		// Open the video file
-		std::cout << "Opening... " << video_name << endl;
-		//cap.open(video_name); //TODO now we don't need to reopen do we? we are doing this after finishing though...
-		//if (!cap.isOpened()) {
+		std::cout << "Opening... " << videoFileName << endl;
 		if (!isVideoStreamValid()) {
-			std::cout << "Issues opening " << video_name << endl;
+			std::cout << "Issues opening " << videoFileName << endl;
 		}
 
-		str = sub_video_name;
-		//str.replace(str.end() - 4, str.end(), "_sub_video.avi"); //TODO avi or mp4?
+		str = videoFileName;
+		str.replace(str.end() - 4, str.end(), "_sub_video.mp4"); //TODO avi or mp4?
 		outputFile = str;
 
 		//Decided best hight and width to take from the origanl video
@@ -62,7 +64,6 @@ void subVideoCreator::make_video(string video_name, string sub_video_name)
 		//TDO the above is from  https://stackoverflow.com/questions/61807359/write-frame-into-mp4-format-using-opencv2-and-c
 
 		//get starting values
-		//cap >> frame;
 		getVideoStream() >> frame;
 		Mat frame_buf(frame.rows + hight * 2, frame.cols + width * 2, frame.depth());
 
@@ -71,12 +72,9 @@ void subVideoCreator::make_video(string video_name, string sub_video_name)
 		for (ii = 0; ii < resultsTrackingSingleSwimmer.size(); ii++) {
 
 			// get frame from the video
-			//if (resultsTrackingSingleSwimmer[ii].get_m_frame() != cap.get(CAP_PROP_POS_FRAMES)) {
 			if (resultsTrackingSingleSwimmer[ii].get_m_frame() != getVideoStream().get(CAP_PROP_POS_FRAMES)) {
-				//cap.set(CAP_PROP_POS_FRAMES, resultsTrackingSingleSwimmer[ii].get_m_frame()); //might make this very slow
 				getVideoStream().set(CAP_PROP_POS_FRAMES, resultsTrackingSingleSwimmer[ii].get_m_frame()); //might make this very slow
 			}
-			//cap >> frame;
 			getVideoStream() >> frame;
 
 			//needed to work cap object!!!!
@@ -114,14 +112,12 @@ void subVideoCreator::make_video(string video_name, string sub_video_name)
 		}
 
 		//destroyWindow("tester");
-		//cap.release();
 		closeVideo();
 		video.release();
 		std::cout << "finished!" << endl;
-
 	}
 	else {
-		std::cout << "No data on lane " << video_name << "Not making sub-video!" << endl;
+		std::cout << "No data on lane " << videoFileName << "Not making sub-video!" << endl;
 	}
 
 	return;
