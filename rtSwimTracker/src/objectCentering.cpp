@@ -4,6 +4,7 @@ objectCentering::objectCentering()
 {
 	deltaX = 10;
 	deltaY = 10;
+	centrePoint_Frame = cv::Point_<float>(0, 0);
 }
 
 objectCentering::~objectCentering()
@@ -13,6 +14,16 @@ objectCentering::~objectCentering()
 tiltPanCommand objectCentering::findCommand(TrackingBox swimmerFollowed, cv::Point_<float> pointCentre)
 {
 	cv::Point_<float> diffFromCentre = findPointDifference(pointCentre, swimmerFollowed);
+	return findCommand(diffFromCentre);
+}
+
+tiltPanCommand objectCentering::findCommand(TrackingBox swimmerFollowed)
+{
+	if (centrePoint_Frame.x == 0 && centrePoint_Frame.y == 0) {
+		std::cout << " ERROR: Centre point of frame not set." << std::endl;
+		return tiltPanCommand();
+	}
+	cv::Point_<float> diffFromCentre = findPointDifference(centrePoint_Frame, swimmerFollowed);
 	return findCommand(diffFromCentre);
 }
 
@@ -85,6 +96,42 @@ float objectCentering::getDeltaY()
 	return deltaY;
 }
 
+void objectCentering::setCentrePointFrame(cv::Mat frame)
+{
+	centrePoint_Frame = findCentreOfFrame(frame);
+}
+
+void objectCentering::outputToFile(std::ostream& out, tiltPanCommand box)
+{
+	std::string goRight;
+	std::string goLeft;
+	std::string goUp;
+	std::string goDown;
+
+	if (box.moveDown)
+		goDown = "Down = YES";
+	else
+		goDown = "Down = NO";
+
+	if (box.moveUp)
+		goUp = "Up = YES";
+	else
+		goUp = "Up = NO";
+
+	if (box.moveLeft)
+		goLeft = "Left = YES";
+	else
+		goLeft = "Left = NO";
+
+	if (box.moveRight)
+		goRight = "Right = YES";
+	else
+		goRight = "Right = NO";
+
+	out << goRight << "," << goLeft << "," << goUp << "," << goDown << std::endl;
+	return;
+}
+
 tiltPanCommand objectCentering::findCommand(cv::Point_<float> diffOfPoints)
 {
 	/*
@@ -114,10 +161,10 @@ If we consider centre, then
 	}
 
 	if (abs(diffOfPoints.y) > deltaY) {
-		if (diffOfPoints.y < 0) {
+		if (diffOfPoints.y > 0) { //In the image, y = 0 is at the top, and increases as you go down
 			returnCommands.moveUp = true;
 		}
-		else if (diffOfPoints.y > 0) {
+		else if (diffOfPoints.y < 0) {
 			returnCommands.moveDown = true;
 		}
 	}
@@ -125,3 +172,33 @@ If we consider centre, then
 	return returnCommands;
 }
 
+std::ostream& operator<<(std::ostream& out, const tiltPanCommand& box)
+{
+	std::string goRight;
+	std::string goLeft;
+	std::string goUp;
+	std::string goDown;
+
+	if (box.moveDown)
+		goDown = "Down = YES";
+	else
+		goDown = "Down = NO";
+
+	if (box.moveUp)
+		goUp = "Up = YES";
+	else
+		goUp = "Up = NO";
+
+	if (box.moveLeft)
+		goLeft = "Left = YES";
+	else
+		goLeft = "Left = NO";
+
+	if (box.moveRight)
+		goRight = "Right = YES";
+	else
+		goRight = "Right = NO";
+
+	out << goRight << "," << goLeft << "," << goUp << "," << goDown  << std::endl;
+	return out;
+}

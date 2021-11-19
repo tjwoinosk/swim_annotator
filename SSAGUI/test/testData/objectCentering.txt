@@ -1,0 +1,16 @@
+Right = YES,Left = NO,Up = NO,Down = YES
+Right = YES,Left = NO,Up = NO,Down = YES
+Right = YES,Left = NO,Up = NO,Down = YES
+Right = YES,Left = NO,Up = NO,Down = YES
+Right = YES,Left = NO,Up = NO,Down = YES
+Right = YES,Left = NO,Up = NO,Down = YES
+Right = YES,Left = NO,Up = NO,Down = YES
+Right = YES,Left = NO,Up = NO,Down = YES
+Right = YES,Left = NO,Up = NO,Down = YES
+Right = YES,Left = NO,Up = NO,Down = YES
+Right = YES,Left = NO,Up = NO,Down = YES
+Right = YES,Left = NO,Up = NO,Down = YES
+Right = YES,Left = NO,Up = NO,Down = YES
+Right = YES,Left = NO,Up = NO,Down = YES
+Right = YES,Left = NO,Up = NO,Down = YES
+Right = YES,Left = NO,Up = NO,Down = YES

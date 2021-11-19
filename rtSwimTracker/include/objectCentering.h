@@ -31,6 +31,7 @@ public:
 
 	tiltPanCommand findCommand(TrackingBox swimmerFollowed, cv::Mat frame); //TODO should it be pass in frame or centre?
 	tiltPanCommand findCommand(TrackingBox swimmerFollowed, cv::Point_<float> pointCentre);
+	tiltPanCommand findCommand(TrackingBox swimmerFollowed);
 	cv::Point_<float> findCentreOfFrame(cv::Mat frame);
 	cv::Point_<float> findPointDifference(cv::Point_<float> pointCentre, TrackingBox pointSwimmer);
 
@@ -38,10 +39,16 @@ public:
 	bool setDelta(float percent_X, float percent_Y, cv::Point_<float> frameCorner);
 	float getDeltaX();
 	float getDeltaY();
+	void setCentrePointFrame(cv::Mat frame);
+
+	friend std::ostream& operator<< (std::ostream& out, const tiltPanCommand& box);
+	void outputToFile(std::ostream& out, tiltPanCommand box); // Similar to overloaded operator<< (can use either)
 
 private:
 	float deltaX;
 	float deltaY;
+
+	cv::Point_<float> centrePoint_Frame;
 
 	tiltPanCommand findCommand(cv::Point_<float> diffOfPoints);
 };

@@ -78,6 +78,7 @@ TrackingBox frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 	currentResults = trackSORTprocessorInVideo.singleFrameSORT(resultsDetector);
 
 	if (getindexSelectedSwimmer() != -1 && isFollowing()) {
+		commandResults.push_back(centeringObj.findCommand(currentResults[indexSelectedSwimmer]));
 		if (getStatus() == 1) 
 			resultsSingleSwimmer.push_back(currentResults[indexSelectedSwimmer]);
 		return currentResults[indexSelectedSwimmer];
@@ -401,13 +402,22 @@ std::vector<TrackingBox> frameAnalysis::getSingleSwimmerResults()
 	return resultsSingleSwimmer;
 }
 
+void frameAnalysis::setVideoData(cv::Mat frame, int deltaX, int deltaY)
+{
+	//TODO call this when hitting the start button. 
+	centeringObj.setCentrePointFrame(frame);
+	centeringObj.setDelta(deltaX, deltaY, cv::Point_<float>(frame.cols, frame.rows));
+}
 
 void frameAnalysis::writeToFile()
 {
 	fileFinder find;
 	std::string resFileName = "detectionDataNEW.txt";
+	std::string resFileName_centering = "objectCentering.txt";
 	std::string resFileAbsPath = "";
+	std::string resFileAbsPath_centering = "";
 	std::ofstream resultsFile;
+	std::ofstream resultsFile_centering;
 
 	try
 	{
@@ -424,6 +434,21 @@ void frameAnalysis::writeToFile()
 		std::cout << "Could not open " << resFileAbsPath << std::endl << e.what() << std::endl;
 	}
 
+
+	try
+	{
+		resFileAbsPath_centering = find.returnDataLocation() + resFileName_centering;
+		resultsFile_centering.open(resFileAbsPath_centering);
+
+		for (int i = 0; i < commandResults.size(); i++) {
+			 centeringObj.outputToFile(resultsFile_centering, commandResults[i]);
+		}
+		resultsFile.close();
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << "Could not open " << resFileAbsPath_centering << std::endl << e.what() << std::endl;
+	}
 	//resultsSingleSwimmer.clear(); //TODO this is problematic as it clears the results so you can't use it after stoping (ex. for subVideoCreator)
 	return;
 }

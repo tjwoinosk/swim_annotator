@@ -15,6 +15,7 @@
 #include "sortTrackerPipelined.h"
 #include "swimmerDetector.h"
 #include "SpeedReporter.h"
+#include "objectCentering.h"
 
 class frameAnalysis
 {
@@ -26,11 +27,14 @@ private:
 	int indexSelectedSwimmer; 
 	int statusSelected; //1=Tracking, 2=Not tracking but selected swimmer, 3=Not tracking
 
+	objectCentering centeringObj;
+
 	swimmerDetector detectSwimmersInVideo;
 	sortTrackerPiplelined trackSORTprocessorInVideo;
 
 	std::vector<TrackingBox> resultsSingleSwimmer; //Holds results of single swimmer from all tracked frames
 	std::vector<TrackingBox> currentResults; //Holds tracking of all swimmers for the most recent frame
+	std::vector<tiltPanCommand> commandResults; //Holds command results for the single swimmer that is being followed (not necessarily tracked)
 
 public:
 
@@ -53,12 +57,15 @@ public:
 	bool setindexSelectedSwimmer(int valSetTo);
 	int getindexSelectedSwimmer();
 	int findindexSelectedSwimmer(int idSwimmer);
+
 	std::vector<TrackingBox> getCurrentResults();
 	int getStatus();
 	void setStatus(bool tracking, int selectedSwimmer);
 	bool isTracking();
 	bool isFollowing();
 	std::vector<TrackingBox> getSingleSwimmerResults();
+
+	void setVideoData(cv::Mat frame, int deltaX, int deltaY);
 
 	void writeToFile();
 

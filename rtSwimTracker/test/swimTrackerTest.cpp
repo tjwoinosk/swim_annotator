@@ -341,23 +341,23 @@ BOOST_AUTO_TEST_CASE(moveUpandDownTEST)
 
 	cv::Point_<float> frameCentre_Test = cv::Point_<float>(100, 100);
 
-	//Test move up
+	//Test move down
 	TrackingBox pointSwimmer_Test1 = TrackingBox(1, 1, cv::Rect_<float>(90, 160, 20, 20));
 	tiltPanCommand result_Test1 = objCnt.findCommand(pointSwimmer_Test1, frameCentre_Test);
 	tiltPanCommand resultExpected_Test1;
-	resultExpected_Test1.moveDown = false;
+	resultExpected_Test1.moveDown = true;
 	resultExpected_Test1.moveLeft = false;
 	resultExpected_Test1.moveRight = false;
-	resultExpected_Test1.moveUp = true;
+	resultExpected_Test1.moveUp = false;
 
-	//Test move down
+	//Test move up
 	TrackingBox pointSwimmer_Test2 = TrackingBox(1, 1, cv::Rect_<float>(90, 60, 20, 20));
 	tiltPanCommand result_Test2 = objCnt.findCommand(pointSwimmer_Test2, frameCentre_Test);
 	tiltPanCommand resultExpected_Test2;
-	resultExpected_Test2.moveDown = true;
+	resultExpected_Test2.moveDown = false;
 	resultExpected_Test2.moveLeft = false;
 	resultExpected_Test2.moveRight = false;
-	resultExpected_Test2.moveUp = false;
+	resultExpected_Test2.moveUp = true;
 
 	//Test move neither up nor down
 	TrackingBox pointSwimmer_Test3 = TrackingBox(1, 1, cv::Rect_<float>(90, 90, 20, 20));
@@ -421,23 +421,23 @@ BOOST_AUTO_TEST_CASE(mooveDeltaUpandDownTEST)
 	//Set Delta
 	objCnt.setDelta(0.2, 0.2, frameCorner_Test); // difference below 40 should not result in change
 
-	//Test move up
+	//Test move down
 	TrackingBox pointSwimmer_Test1 = TrackingBox(1, 1, cv::Rect_<float>(90, 160, 20, 20));
 	tiltPanCommand result_Test1 = objCnt.findCommand(pointSwimmer_Test1, frameCentre_Test);
 	tiltPanCommand resultExpected_Test1;
-	resultExpected_Test1.moveDown = false;
+	resultExpected_Test1.moveDown = true;
 	resultExpected_Test1.moveLeft = false;
 	resultExpected_Test1.moveRight = false;
-	resultExpected_Test1.moveUp = true;
+	resultExpected_Test1.moveUp = false;
 
-	//Test move down
+	//Test move up
 	TrackingBox pointSwimmer_Test2 = TrackingBox(1, 1, cv::Rect_<float>(90, 20, 20, 20));
 	tiltPanCommand result_Test2 = objCnt.findCommand(pointSwimmer_Test2, frameCentre_Test);
 	tiltPanCommand resultExpected_Test2;
-	resultExpected_Test2.moveDown = true;
+	resultExpected_Test2.moveDown = false;
 	resultExpected_Test2.moveLeft = false;
 	resultExpected_Test2.moveRight = false;
-	resultExpected_Test2.moveUp = false;
+	resultExpected_Test2.moveUp = true;
 
 	//Test move neither up nor down
 	TrackingBox pointSwimmer_Test3 = TrackingBox(1, 1, cv::Rect_<float>(90, 60, 20, 20));
@@ -545,7 +545,7 @@ BOOST_AUTO_TEST_CASE(mooveDeltaLeftandRightTEST)
 	BOOST_CHECK_EQUAL(result_Test4.moveRight, resultExpected_Test4.moveRight);
 }
 BOOST_AUTO_TEST_SUITE_END() //End Object Centering validation tests suite
-
+//TODO add test case for setCentrePointFrame(cv::Mat frame); and findCommand(TrackingBox swimmerFollowed);
 
 //Detection validation test suite
 ///*
