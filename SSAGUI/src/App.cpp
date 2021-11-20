@@ -17,7 +17,8 @@ int main()
 	ssaVideo.setFrameAnalysis(frameAnalysisObj);
 	ssaVideo.setToleranceX(0.25);
 	ssaVideo.setToleranceY(0.25);
-	ssaVideo.playVideoTest(false, 130, 134, 140, cv::Point_<float>(300, 275)); //Lane two - 0.25, 0.25 means within; 0.15 = Y means outside Y
+	ssaVideo.playVideo();
+	//ssaVideo.playVideoTest(false, 130, 134, 140, cv::Point_<float>(300, 275)); //Lane two - 0.25, 0.25 means within; 0.15 = Y means outside Y
 	//ssaVideo.playVideoTest(false, 130, 134, 140, cv::Point_<float>(655, 10)); //Lane two - 0.25, 0.25 means within; 0.15 = Y means outside Y
 
 

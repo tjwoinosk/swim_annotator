@@ -27,6 +27,30 @@ tiltPanCommand objectCentering::findCommand(TrackingBox swimmerFollowed)
 	return findCommand(diffFromCentre);
 }
 
+tiltPanCommand objectCentering::findCommand(char c)
+{
+	tiltPanCommand returnCommands;
+	returnCommands.moveDown = false;
+	returnCommands.moveUp = false;
+	returnCommands.moveLeft = false;
+	returnCommands.moveRight = false;
+
+	if (c == 97) { //Pressed a
+		returnCommands.moveLeft = true;
+	}
+	if (c == 100) { //Pressed d
+		returnCommands.moveRight = true;
+	}
+	if (c == 119) { //Pressed w
+		returnCommands.moveUp = true;
+	}
+	if (c == 115) { //Pressed s
+		returnCommands.moveDown = true;
+	}
+
+	return returnCommands;
+}
+
 tiltPanCommand objectCentering::findCommand(TrackingBox swimmerFollowed, cv::Mat frame)
 {
 	cv::Point_<float> centrePoint = findCentreOfFrame(frame);
@@ -132,6 +156,31 @@ void objectCentering::outputToFile(std::ostream& out, tiltPanCommand box)
 		goRight = "Right = NO";
 
 	out << goRight << "," << goLeft << "," << goUp << "," << goDown << std::endl;
+	return;
+}
+
+void objectCentering::outputToScreen(tiltPanCommand box)
+{
+	std::string goRight;
+	std::string goLeft;
+	std::string goUp;
+	std::string goDown;
+
+	if (box.moveDown)
+		std::cout << "Down = YES, ";
+
+	if (box.moveUp)
+		std::cout << "Up = YES, ";
+
+	if (box.moveLeft)
+		std::cout << "Left = YES, ";
+
+	if (box.moveRight)
+		std::cout << "Right = YES, ";
+
+	if(box.moveDown || box.moveUp || box.moveLeft || box.moveRight)
+		std::cout  << std::endl;
+
 	return;
 }
 

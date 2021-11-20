@@ -35,6 +35,7 @@ private:
 	std::vector<TrackingBox> resultsSingleSwimmer; //Holds results of single swimmer from all tracked frames
 	std::vector<TrackingBox> currentResults; //Holds tracking of all swimmers for the most recent frame
 	std::vector<tiltPanCommand> commandResults; //Holds command results for the single swimmer that is being followed (not necessarily tracked)
+	std::vector<tiltPanCommand> commandResults_KeyBoard; //Holds command results for the single swimmer that is being followed (not necessarily tracked)
 
 public:
 
@@ -67,6 +68,8 @@ public:
 
 	void setVideoData(cv::Mat frame, float deltaX, float deltaY);
 	cv::Point_<float> getVideoDataInfo();
+
+	void buttonClicked(char c);
 
 	void writeToFile();
 

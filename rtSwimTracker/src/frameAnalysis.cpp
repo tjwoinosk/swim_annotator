@@ -414,6 +414,15 @@ cv::Point_<float> frameAnalysis::getVideoDataInfo()
 	return cv::Point_<float>(centeringObj.getDeltaX(), centeringObj.getDeltaY());
 }
 
+void frameAnalysis::buttonClicked(char c)
+{
+	if (getStatus() == 3) {
+		commandResults_KeyBoard.push_back(centeringObj.findCommand(c));
+		centeringObj.outputToScreen(commandResults_KeyBoard.back()); //TODO is for testing
+	}
+	return;
+}
+
 void frameAnalysis::writeToFile()
 {
 	fileFinder find;

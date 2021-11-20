@@ -44,7 +44,7 @@ void SSAGUI::playVideo() {
 			char c = waitKey(VIDEO_DELAY);
 
 			///TODO listen for key board clicks here, that will tell servo via objectCentering to move baesd on keyboard input and frameAnalysis status (only do if we are not following)
-
+			frameAnalysisObj_ptr->buttonClicked(c);
 			// Display the resulting frame
 			imshow(appName, canvas); 
 
