@@ -65,7 +65,8 @@ public:
 	bool isFollowing();
 	std::vector<TrackingBox> getSingleSwimmerResults();
 
-	void setVideoData(cv::Mat frame, int deltaX, int deltaY);
+	void setVideoData(cv::Mat frame, float deltaX, float deltaY);
+	cv::Point_<float> getVideoDataInfo();
 
 	void writeToFile();
 

@@ -402,11 +402,16 @@ std::vector<TrackingBox> frameAnalysis::getSingleSwimmerResults()
 	return resultsSingleSwimmer;
 }
 
-void frameAnalysis::setVideoData(cv::Mat frame, int deltaX, int deltaY)
+void frameAnalysis::setVideoData(cv::Mat frame, float deltaX, float deltaY) //TODO change name percentage to tlerance
 {
 	//TODO call this when hitting the start button. 
 	centeringObj.setCentrePointFrame(frame);
 	centeringObj.setDelta(deltaX, deltaY, cv::Point_<float>(frame.cols, frame.rows));
+}
+
+cv::Point_<float> frameAnalysis::getVideoDataInfo()
+{
+	return cv::Point_<float>(centeringObj.getDeltaX(), centeringObj.getDeltaY());
 }
 
 void frameAnalysis::writeToFile()

@@ -80,6 +80,9 @@ bool objectCentering::setDelta(float percent_X, float percent_Y, cv::Point_<floa
 	if(frameCorner.x < 0 || frameCorner.y < 0)
 		return false;
 
+	std::cout << " frameCorder (x, y) = " << frameCorner.x << " , " << frameCorner.y << std::endl;
+	std::cout << " (percent x, percent y) = " << percent_X << " , " << percent_Y << std::endl;
+
 	deltaX = frameCorner.x * percent_X;
 	deltaY = frameCorner.y * percent_Y;
 

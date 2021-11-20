@@ -207,8 +207,9 @@ void SSAGUI::secondCall(int event, int x, int y)
 		}
 		else {
 			if (!frameAnalysisObj_ptr->isFollowing()) {
-				frameAnalysisObj_ptr->setVideoData(frame, 0.1, 0.1); //TODO What should be deltaX and deltaY? I just added random value
+				frameAnalysisObj_ptr->setVideoData(frame, 0.2f, 0.2f); //TODO What should be deltaX and deltaY? I just added random value
 				std::cout << std::endl << " on screen clicked at x = " << x << " , y = " << y << std::endl;
+				std::cout << std::endl << " accepted (diff_X, diff_Y) = " << frameAnalysisObj_ptr->getVideoDataInfo() << std::endl;
 				postProcessRealTimeTracking processObj;
 				frameAnalysisObj_ptr->analyzeVideo(frame);
 				float scaleX = frameAnalysisObj_ptr->findFrameScale(frameResized.cols, frame.cols);
