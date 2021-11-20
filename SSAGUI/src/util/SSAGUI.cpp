@@ -43,6 +43,8 @@ void SSAGUI::playVideo() {
 			setMouseCallback(appName, callBackFunc, this);
 			char c = waitKey(VIDEO_DELAY);
 
+			///TODO listen for key board clicks here, that will tell servo via objectCentering to move baesd on keyboard input and frameAnalysis status (only do if we are not following)
+
 			// Display the resulting frame
 			imshow(appName, canvas); 
 
@@ -207,7 +209,7 @@ void SSAGUI::secondCall(int event, int x, int y)
 		}
 		else {
 			if (!frameAnalysisObj_ptr->isFollowing()) {
-				frameAnalysisObj_ptr->setVideoData(frame, 0.2f, 0.2f); //TODO What should be deltaX and deltaY? I just added random value
+				frameAnalysisObj_ptr->setVideoData(frame, toleranceX, toleranceY); //TODO What should be deltaX and deltaY? I just added random value
 				std::cout << std::endl << " on screen clicked at x = " << x << " , y = " << y << std::endl;
 				std::cout << std::endl << " accepted (diff_X, diff_Y) = " << frameAnalysisObj_ptr->getVideoDataInfo() << std::endl;
 				postProcessRealTimeTracking processObj;
@@ -237,3 +239,22 @@ void SSAGUI::secondCall(int event, int x, int y)
 	}
 }
 
+float SSAGUI::getToleranceX()
+{
+	return toleranceX;
+}
+
+float SSAGUI::getToleranceY()
+{
+	return toleranceY;
+}
+
+void SSAGUI::setToleranceX(float val)
+{
+	toleranceX = val;
+}
+
+void SSAGUI::setToleranceY(float val)
+{
+	toleranceY = val;
+}

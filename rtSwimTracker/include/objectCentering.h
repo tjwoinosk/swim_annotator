@@ -19,7 +19,7 @@ struct tiltPanCommand
 	bool moveLeft;
 	bool moveDown;
 	bool moveUp;
-};
+}; //TODO is this okay or do we need angles?
 
 class objectCentering
 {

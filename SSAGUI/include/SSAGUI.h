@@ -31,6 +31,11 @@ public:
 
 	void setFrameAnalysis(frameAnalysis& frameObj);
 
+	float getToleranceX();
+	float getToleranceY();
+	void setToleranceX(float val);
+	void setToleranceY(float val);
+
 private:
 	// private variables for video streaming
 	bool isPlaying = true;
@@ -44,6 +49,9 @@ private:
 	Rect startButton, stopButton, cancelButton;
 
 	frameAnalysis* frameAnalysisObj_ptr;
+
+	float toleranceX;
+	float toleranceY;
 	
 	const int VIDEO_DELAY = 10;
 	const float VIDSIZE_WIDTH = 680;

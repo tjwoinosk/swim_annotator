@@ -13,10 +13,14 @@ int main()
 	
 	SSAGUI ssaVideo("14.mp4");
 	frameAnalysis frameAnalysisObj;
-	subVideoCreator subVidObj("14.mp4");
 
 	ssaVideo.setFrameAnalysis(frameAnalysisObj);
-	ssaVideo.playVideo();
+	ssaVideo.setToleranceX(0.25);
+	ssaVideo.setToleranceY(0.25);
+	ssaVideo.playVideoTest(false, 130, 134, 140, cv::Point_<float>(300, 275)); //Lane two - 0.25, 0.25 means within; 0.15 = Y means outside Y
+	//ssaVideo.playVideoTest(false, 130, 134, 140, cv::Point_<float>(655, 10)); //Lane two - 0.25, 0.25 means within; 0.15 = Y means outside Y
+
+
 	//ssaVideo.playVideoTest(false, 130, 134, 140, cv::Point_<float>(300, 275));
 
 	//ssaVideo.playVideoTest(false, 185, 190, 200, cv::Point_<float>(659, 83));

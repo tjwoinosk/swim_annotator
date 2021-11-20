@@ -200,3 +200,59 @@ BOOST_AUTO_TEST_CASE(testLaneEightTrackingCancellationTestTwo)
     }
 }
 BOOST_AUTO_TEST_SUITE_END() //End output validation tests suite
+
+BOOST_AUTO_TEST_SUITE(objectCenteringTestSuite)
+BOOST_AUTO_TEST_CASE(testWithinTolerance) {
+    SSAGUI ssaVideo("14.mp4");
+    frameAnalysis frameAnalysisObj;
+
+    ssaVideo.setFrameAnalysis(frameAnalysisObj);
+    ssaVideo.setToleranceX(0.25);
+    ssaVideo.setToleranceY(0.25);
+    ssaVideo.playVideoTest(false, 130, 134, 140, cv::Point_<float>(300, 275)); 
+    //Lane two - 0.25, 0.25 means within; 0.15 = Y means outside Y
+
+    fileFinder find;
+    std::string outputName = "objectCentering.txt";
+    std::string gtName;
+    outputName = find.absolutePath(outputName);
+    gtName = outputName;
+    gtName.replace(gtName.end() - 4, gtName.end(), "GT1.txt");
+    //results file
+
+    std::ifstream ifs1(outputName);
+    std::ifstream ifs2(gtName);
+
+    std::istream_iterator<char> b1(ifs1), e1;
+    std::istream_iterator<char> b2(ifs2), e2;
+
+    // compare 
+    BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
+}
+BOOST_AUTO_TEST_CASE(testOutsideTolerance) {
+    SSAGUI ssaVideo("14.mp4");
+    frameAnalysis frameAnalysisObj;
+
+    ssaVideo.setFrameAnalysis(frameAnalysisObj);
+    ssaVideo.setToleranceX(0.15);
+    ssaVideo.setToleranceY(0.15);
+    ssaVideo.playVideoTest(false, 130, 134, 140, cv::Point_<float>(655, 10)); //Lane eight
+
+    fileFinder find;
+    std::string outputName = "objectCentering.txt";
+    std::string gtName;
+    outputName = find.absolutePath(outputName);
+    gtName = outputName;
+    gtName.replace(gtName.end() - 4, gtName.end(), "GT2.txt");
+    //results file
+
+    std::ifstream ifs1(outputName);
+    std::ifstream ifs2(gtName);
+
+    std::istream_iterator<char> b1(ifs1), e1;
+    std::istream_iterator<char> b2(ifs2), e2;
+
+    // compare 
+    BOOST_CHECK_EQUAL_COLLECTIONS(b1, e1, b2, e2);
+}
+BOOST_AUTO_TEST_SUITE_END() //End objectCentering tests suite
