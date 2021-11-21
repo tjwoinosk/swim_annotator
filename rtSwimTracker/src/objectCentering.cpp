@@ -178,10 +178,19 @@ void objectCentering::outputToScreen(tiltPanCommand box)
 	if (box.moveRight)
 		std::cout << "Right = YES, ";
 
-	if(box.moveDown || box.moveUp || box.moveLeft || box.moveRight)
+	if(doSomething(box))
 		std::cout  << std::endl;
+	else
+		std::cout << "Nothing set"<< std::endl;
 
 	return;
+}
+
+bool objectCentering::doSomething(tiltPanCommand box)
+{
+	if (box.moveDown || box.moveUp || box.moveLeft || box.moveRight)
+		return true;
+	return false;
 }
 
 tiltPanCommand objectCentering::findCommand(cv::Point_<float> diffOfPoints)

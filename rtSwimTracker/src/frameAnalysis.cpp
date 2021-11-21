@@ -417,8 +417,11 @@ cv::Point_<float> frameAnalysis::getVideoDataInfo()
 void frameAnalysis::buttonClicked(char c)
 {
 	if (getStatus() == 3) {
-		commandResults_KeyBoard.push_back(centeringObj.findCommand(c));
-		centeringObj.outputToScreen(commandResults_KeyBoard.back()); //TODO is for testing
+		tiltPanCommand keyBoardObj = centeringObj.findCommand(c);
+		if (centeringObj.doSomething(keyBoardObj)) {
+			commandResults_KeyBoard.push_back(centeringObj.findCommand(c));
+			centeringObj.outputToScreen(commandResults_KeyBoard.back()); //TODO is for testing
+		}
 	}
 	return;
 }

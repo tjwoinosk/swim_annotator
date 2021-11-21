@@ -46,6 +46,8 @@ public:
 	void outputToFile(std::ostream& out, tiltPanCommand box); // Similar to overloaded operator<< (can use either)
 	void outputToScreen(tiltPanCommand box); // Similar to overloaded operator<< (can use either)
 
+	bool doSomething(tiltPanCommand box);
+
 private:
 	float deltaX;
 	float deltaY;
