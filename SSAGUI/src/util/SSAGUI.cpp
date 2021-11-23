@@ -75,18 +75,18 @@ void SSAGUI::playVideoTest(bool withCancellation, int frameNum_selectSwimmer, in
 			}
 
 			if (withCancellation) {
-				if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_startTracking) {
+				if (getVideoStream().get(CAP_PROP_POS_FRAMES) == (frameNum_startTracking-1)) { //This is -1 due to how we call this after drawOnFrame() which calls analyze Video before we get to this
 					secondCall(cv::EVENT_LBUTTONDOWN, cancelButton.x + 10, cancelButton.y + 10);
 				}
 			}
 			else {
-				if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_startTracking) {
+				if (getVideoStream().get(CAP_PROP_POS_FRAMES) == (frameNum_startTracking-1)) {
 					secondCall(cv::EVENT_LBUTTONDOWN, startButton.x + 10, startButton.y + 10);
 				}
-				else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_stopTracking && isPlaying != false) {
+				else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == (frameNum_stopTracking-1) && isPlaying != false) {
 					secondCall(cv::EVENT_LBUTTONDOWN, stopButton.x + 10, stopButton.y + 10);
 				}
-				else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == frameNum_stopTracking && isPlaying == false) {
+				else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == (frameNum_stopTracking-1) && isPlaying == false) {
 					waitKey(50);
 					secondCall(cv::EVENT_LBUTTONDOWN, startButton.x + 10, startButton.y + 10);
 				}

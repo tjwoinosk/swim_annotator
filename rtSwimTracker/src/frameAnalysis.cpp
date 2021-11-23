@@ -80,16 +80,23 @@ TrackingBox frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 		resultsDetector = predefinedDetections[currentFrameNum - 1];
 	}
 
+	//TODO to fix frame number 
+	for (int i = 0; i < resultsDetector.size(); i++) {
+		resultsDetector[i].set_m_frame(currentFrameNum);
+	}
+	currentFrameNum++;
+	//end
+
 	currentResults.clear();
 	currentResults = trackSORTprocessorInVideo.singleFrameSORT(resultsDetector);
 
 	//TODO this was to fix frame number for subvideo creation
-
+	/*
 	for (int i = 0; i < currentResults.size(); i++) {
 		currentResults[i].set_m_frame(currentFrameNum);
 	}
 	currentFrameNum++;
-
+	*/
 	//END 
 
 	if (getindexSelectedSwimmer() != -1 && isFollowing()) {

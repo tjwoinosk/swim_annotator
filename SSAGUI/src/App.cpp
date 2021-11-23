@@ -23,7 +23,8 @@ int main()
 	
 	
 	frameAnalysisObj.setUseDetetionFile("14_detectionsPredefined.txt");
-	ssaVideo.playVideoTest(false, 20, 30, 240, cv::Point_<float>(300, 275));
+	ssaVideo.playVideoTest(false, 20, 22, 60, cv::Point_<float>(300, 275));
+	//ssaVideo.playVideoTest(false, 20, 30, 240, cv::Point_<float>(300, 275));
 
 
 	//340 , y = 263 - lane 4

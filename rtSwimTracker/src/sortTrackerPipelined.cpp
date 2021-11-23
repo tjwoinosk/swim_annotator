@@ -5,6 +5,7 @@ sortTrackerPiplelined::sortTrackerPiplelined()
 {
 	KalmanTracker::kf_count = 0; // tracking id relies on this, so we have to reset it in each seq.
 	m_numberFramesProcessed = 0;
+	currentFrameNum = 0;
 }
 
 /*
@@ -59,7 +60,10 @@ void sortTrackerPiplelined::initializeTrackersUsing(const std::vector<TrackingBo
 
 		tb.updateBox(trk.get_state());
 		tb.set_m_boxID(trk.m_id + 1); //TODO print result if fails?
-		tb.set_m_frame(m_numberFramesProcessed); //TODO print result if fails?
+		//tb.set_m_frame(m_numberFramesProcessed); //TODO print result if fails?
+		//tb.set_m_frame(trackingBoxData[i].get_m_frame()); //TODO does not work without throwing error
+		//tb.set_m_frame(m_frameData[i].get_m_frame()); //TODO testing 
+		tb.set_m_frame(currentFrameNum);
 		m_frameTrackingResults.push_back(tb);
 	}
 }
@@ -196,7 +200,9 @@ void sortTrackerPiplelined::collectResultsWhileKillingTrackers()
 			TrackingBox res;
 			res.updateBox(it->get_state());
 			res.set_m_boxID(it->m_id + 1); //TODO print result if fails?
-			res.set_m_frame(m_numberFramesProcessed);//TODO print result if fails?
+			//res.set_m_frame(m_numberFramesProcessed);//TODO print result if fails?
+			//res.set_m_frame(m_frameData[0].get_m_frame()); //TODO THIS IS NOT IDEAL
+			res.set_m_frame(currentFrameNum);
 			m_frameTrackingResults.push_back(res);
 			it++;
 		}

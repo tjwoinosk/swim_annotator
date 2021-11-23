@@ -26,6 +26,8 @@ private:
 	{ 
 		m_frameData = detFrameData; 
 		m_numDetections = static_cast<int>(detFrameData.size());
+
+		currentFrameNum = m_frameData[0].get_m_frame(); //TODO add check to ensure the entire vector has same frame num
 	}
 
 	void initializeTrackersUsing(const std::vector<TrackingBox>& detFrameData);
@@ -48,6 +50,7 @@ private:
 	int m_numTrajectories;
 	int m_numDetections;
 	int m_numberFramesProcessed;
+	int currentFrameNum;
 
 	const double m_iou = 0.05; //Orignaly this value was 0.30
 	const int m_maxUpdateAllowance = 1;
