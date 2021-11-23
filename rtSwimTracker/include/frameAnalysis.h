@@ -26,6 +26,10 @@ private:
 	int idSelectedSwimmer;
 	int indexSelectedSwimmer; 
 	int statusSelected; //1=Tracking, 2=Not tracking but selected swimmer, 3=Not tracking
+	int currentFrameNum;
+
+	bool usePredefinedDetections; //TODO for use on CPU to speed up testing
+	std::vector<std::vector<TrackingBox>> predefinedDetections; //TODO for use on CPU to speed up testing
 
 	objectCentering centeringObj;
 
@@ -65,6 +69,8 @@ public:
 	bool isTracking();
 	bool isFollowing();
 	std::vector<TrackingBox> getSingleSwimmerResults();
+	int getCurrentFrameNum();
+	bool setCurrentFrameNum(int val);
 
 	void setVideoData(cv::Mat frame, float deltaX, float deltaY);
 	cv::Point_<float> getVideoDataInfo();
@@ -76,6 +82,9 @@ public:
 	void resizeBoxes(float scaleX, float scaleY, std::vector<TrackingBox>& dataToResize); 
 	float findFrameScale(int newFrameSize, int currentFrameSize);
 	TrackingBox resizeBox(float scaleX, float scaleY, TrackingBox boxToResize);
+
+	void setUseDetetionFile(std::string fileName); //TODO for use on CPU to speed up testing
+	void setDontUseDetectionFile();
 };
 
 

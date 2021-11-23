@@ -8,6 +8,8 @@ frameAnalysis::frameAnalysis()
 	idSelectedSwimmer = -1;
 	indexSelectedSwimmer = 0;
 	statusSelected = 3;
+	currentFrameNum = 0;
+	usePredefinedDetections = false;
 }
 
 //TODO the below function needs to be tested - also it could interfere with analyzeVideo(Mat frame) due to overlap in use of private variables
@@ -71,11 +73,24 @@ TrackingBox frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 {
 	std::vector<TrackingBox> resultsDetector;
 
-	resultsDetector = detectSwimmersInVideo.detectSwimmers(frameToAnalyze);
-	//TODO do we need to reset m_frame in vector from detector?
-	
+	if (!usePredefinedDetections) {
+		resultsDetector = detectSwimmersInVideo.detectSwimmers(frameToAnalyze);
+	}
+	else {
+		resultsDetector = predefinedDetections[currentFrameNum - 1];
+	}
+
 	currentResults.clear();
 	currentResults = trackSORTprocessorInVideo.singleFrameSORT(resultsDetector);
+
+	//TODO this was to fix frame number for subvideo creation
+
+	for (int i = 0; i < currentResults.size(); i++) {
+		currentResults[i].set_m_frame(currentFrameNum);
+	}
+	currentFrameNum++;
+
+	//END 
 
 	if (getindexSelectedSwimmer() != -1 && isFollowing()) {
 		commandResults.push_back(centeringObj.findCommand(currentResults[indexSelectedSwimmer]));
@@ -402,6 +417,18 @@ std::vector<TrackingBox> frameAnalysis::getSingleSwimmerResults()
 	return resultsSingleSwimmer;
 }
 
+int frameAnalysis::getCurrentFrameNum()
+{
+	return currentFrameNum;
+}
+
+bool frameAnalysis::setCurrentFrameNum(int val)
+{
+	if (val < 0) { return false; } //TODO should be a check if over max frame num allowed
+	currentFrameNum = val;
+	return true;
+}
+
 void frameAnalysis::setVideoData(cv::Mat frame, float deltaX, float deltaY) //TODO change name percentage to tlerance
 {
 	//TODO call this when hitting the start button. 
@@ -502,3 +529,25 @@ TrackingBox frameAnalysis::resizeBox(float scaleX, float scaleY, TrackingBox box
 	resizedBox.height = scaleY * boxToResize.height;
 	return resizedBox;
 }
+
+void frameAnalysis::setUseDetetionFile(std::string fileName)
+{
+	//void frameAnalysis::getDataFromDetectionFile(std::string detFileName, std::vector<TrackingBox>& detData)
+	//int frameAnalysis::groupingDetectionData(std::vector<TrackingBox> detData, std::vector<std::vector<TrackingBox>>& detFrameData)
+
+	std::vector<TrackingBox> detectionData;
+	std::string resFileAbsPath = "";
+	fileFinder find;
+
+	resFileAbsPath = find.absolutePath(fileName);
+
+	getDataFromDetectionFile(resFileAbsPath, detectionData);
+	groupingDetectionData(detectionData, predefinedDetections);
+	usePredefinedDetections = true;
+}
+
+void frameAnalysis::setDontUseDetectionFile()
+{
+	usePredefinedDetections = false;
+}
+
