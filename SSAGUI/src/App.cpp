@@ -10,7 +10,18 @@
 
 int main()
 {
-	
+
+	SSAGUI ssaVideo("14.mp4");
+	frameAnalysis frameAnalysisObj;
+
+	ssaVideo.setFrameAnalysis(frameAnalysisObj);
+	ssaVideo.setToleranceX(0.25);
+	ssaVideo.setToleranceY(0.25);
+	ssaVideo.playVideoTest(false, 130, 132, 134, cv::Point_<float>(300, 275));
+
+
+
+	/*
 	SSAGUI ssaVideo("14.mp4");
 	frameAnalysis frameAnalysisObj;
 	subVideoCreator subVidObj("14.mp4");
@@ -18,13 +29,16 @@ int main()
 	ssaVideo.setFrameAnalysis(frameAnalysisObj);
 	ssaVideo.setToleranceX(0.15);
 	ssaVideo.setToleranceY(0.15);
+	frameAnalysisObj.setUseDetetionFile("14_detectionsPredefined.txt");
+	ssaVideo.playVideoTest(false, 20, 30, 240, cv::Point_<float>(300, 275));
+	*/
+
+
+
+
 	//ssaVideo.playVideoTest(false, 30, 35, 40, cv::Point_<float>(300, 275)); //Lane two - 0.25, 0.25 means within; 0.15 = Y means outside Y
 	//ssaVideo.playVideo();
-	
-	
-	frameAnalysisObj.setUseDetetionFile("14_detectionsPredefined.txt");
-	ssaVideo.playVideoTest(false, 20, 22, 60, cv::Point_<float>(300, 275));
-	//ssaVideo.playVideoTest(false, 20, 30, 240, cv::Point_<float>(300, 275));
+
 
 
 	//340 , y = 263 - lane 4

@@ -26,7 +26,7 @@ int SSAGUI::isVideoStreamValid() {
 	}
 }
 
-void SSAGUI::playVideo() { 
+void SSAGUI::playVideo() {
 
 	if (isVideoStreamValid()) {
 		while (1) {
@@ -46,7 +46,7 @@ void SSAGUI::playVideo() {
 			///TODO listen for key board clicks here, that will tell servo via objectCentering to move baesd on keyboard input and frameAnalysis status (only do if we are not following)
 			frameAnalysisObj_ptr->buttonClicked(c);
 			// Display the resulting frame
-			imshow(appName, canvas); 
+			imshow(appName, canvas);
 
 			// Press  ESC on keyboard to exit
 			if (c == 27)
@@ -56,7 +56,7 @@ void SSAGUI::playVideo() {
 	}
 }
 
-void SSAGUI::playVideoTest(bool withCancellation, int frameNum_selectSwimmer, int frameNum_startTracking, int frameNum_stopTracking, cv::Point_<float> mouseClick_Test) 
+void SSAGUI::playVideoTest(bool withCancellation, int frameNum_selectSwimmer, int frameNum_startTracking, int frameNum_stopTracking, cv::Point_<float> mouseClick_Test)
 {
 	if (isVideoStreamValid()) {
 		while (1) {
@@ -66,7 +66,7 @@ void SSAGUI::playVideoTest(bool withCancellation, int frameNum_selectSwimmer, in
 			if (frame.empty())
 				break;
 
-			std::cout << "     on frame number  " << getVideoStream().get(CAP_PROP_POS_FRAMES) << std::endl;
+			//std::cout << "     on frame number  " << getVideoStream().get(CAP_PROP_POS_FRAMES) << std::endl;
 
 			drawOnFrame();
 
@@ -75,18 +75,18 @@ void SSAGUI::playVideoTest(bool withCancellation, int frameNum_selectSwimmer, in
 			}
 
 			if (withCancellation) {
-				if (getVideoStream().get(CAP_PROP_POS_FRAMES) == (frameNum_startTracking-1)) { //This is -1 due to how we call this after drawOnFrame() which calls analyze Video before we get to this
+				if (getVideoStream().get(CAP_PROP_POS_FRAMES) == (frameNum_startTracking - 1)) { //This is -1 due to how we call this after drawOnFrame() which calls analyze Video before we get to this
 					secondCall(cv::EVENT_LBUTTONDOWN, cancelButton.x + 10, cancelButton.y + 10);
 				}
 			}
 			else {
-				if (getVideoStream().get(CAP_PROP_POS_FRAMES) == (frameNum_startTracking-1)) {
+				if (getVideoStream().get(CAP_PROP_POS_FRAMES) == (frameNum_startTracking - 1)) {
 					secondCall(cv::EVENT_LBUTTONDOWN, startButton.x + 10, startButton.y + 10);
 				}
-				else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == (frameNum_stopTracking-1) && isPlaying != false) {
+				else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == (frameNum_stopTracking - 1) && isPlaying != false) {
 					secondCall(cv::EVENT_LBUTTONDOWN, stopButton.x + 10, stopButton.y + 10);
 				}
-				else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == (frameNum_stopTracking-1) && isPlaying == false) {
+				else if (getVideoStream().get(CAP_PROP_POS_FRAMES) == (frameNum_stopTracking - 1) && isPlaying == false) {
 					waitKey(50);
 					secondCall(cv::EVENT_LBUTTONDOWN, startButton.x + 10, startButton.y + 10);
 				}
@@ -107,7 +107,7 @@ void SSAGUI::playVideoTest(bool withCancellation, int frameNum_selectSwimmer, in
 
 void SSAGUI::setFrameAnalysis(frameAnalysis& frameObj)
 {
-	frameAnalysisObj_ptr = &frameObj; 
+	frameAnalysisObj_ptr = &frameObj;
 	//TODO check for memory leaks
 }
 
@@ -177,10 +177,10 @@ void SSAGUI::secondCall(int event, int x, int y)
 	{
 		if (startButton.contains(Point(x, y)))
 		{
-			std::cout << std::endl<<" start button clicked" << std::endl;
+			std::cout << std::endl << " start button clicked" << std::endl;
 			rectangle(canvas, startButton, Scalar(0, 0, 255), 2);
 			isPlaying = true;
-		
+
 			if (frameAnalysisObj_ptr->isFollowing() && !frameAnalysisObj_ptr->isTracking()) {  //TODO deal with index error checking - in case ID went to another index
 				frameAnalysisObj_ptr->setStatus(true, frameAnalysisObj_ptr->getIDSelectedSwimmer());
 				TrackingBox toGetTrajectoryFrom = frameAnalysisObj_ptr->analyzeVideo(frame);
@@ -221,13 +221,18 @@ void SSAGUI::secondCall(int event, int x, int y)
 				float scaleX = frameAnalysisObj_ptr->findFrameScale(frameResized.cols, frame.cols);
 				float scaleY = frameAnalysisObj_ptr->findFrameScale(frameResized.rows, frame.rows);
 				std::vector<TrackingBox> resultsCurrent = frameAnalysisObj_ptr->getCurrentResults();
-				frameAnalysisObj_ptr->resizeBoxes(scaleX, scaleY, resultsCurrent);
+				if (resultsCurrent.size() != 0) {
+					//TODO this kind of check should be in frameAnalysis
+					frameAnalysisObj_ptr->resizeBoxes(scaleX, scaleY, resultsCurrent);
 
-				int y_inFrame = y - BUTTON_HEIGHT; //Account for offset from buttons to get position on the video image
-				int idFound = processObj.trajectoryMatcher(cv::Point_<float>(x, y_inFrame), resultsCurrent); //TODO error check
-				frameAnalysisObj_ptr->setStatus(false, idFound);
+					int y_inFrame = y - BUTTON_HEIGHT; //Account for offset from buttons to get position on the video image
+					int idFound = processObj.trajectoryMatcher(cv::Point_<float>(x, y_inFrame), resultsCurrent); //TODO error check
+					frameAnalysisObj_ptr->setStatus(false, idFound);
 
-				rectangle(frameResized, resultsCurrent[frameAnalysisObj_ptr->getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
+					rectangle(frameResized, resultsCurrent[frameAnalysisObj_ptr->getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
+				}
+				else
+					std::cout << " NO SWIMMER" << std::endl;
 			}
 		}
 

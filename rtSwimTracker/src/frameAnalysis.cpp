@@ -3,7 +3,7 @@
 
 frameAnalysis::frameAnalysis()
 {
-	detectSwimmersInVideo.configureDetector(); 
+	detectSwimmersInVideo.configureDetector();
 	analyzeSwimmer = false;
 	idSelectedSwimmer = -1;
 	indexSelectedSwimmer = 0;
@@ -64,7 +64,7 @@ void frameAnalysis::analyzeVideo(std::string videoToAnalyzeName)
 */
 
 /*
-Tracks swimmers in a certain frame. 
+Tracks swimmers in a certain frame.
 Saves results for all swimmers (temporary, will be updated each time this function is called).
 Saves result for single swimmer with selected ID (catalogued) if saveResults = true.
 Returns result for single swimmer with selected ID regardless of if it is also saved or not.
@@ -78,6 +78,12 @@ TrackingBox frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 	}
 	else {
 		resultsDetector = predefinedDetections[currentFrameNum - 1];
+	}
+
+	if (resultsDetector.size() == 0) {
+		std::cout << " ERROR: No swimmers found." << std::endl;
+		currentResults.clear();
+		return TrackingBox(); //TODO this requires the person to click stop to actually de-activate
 	}
 
 	//TODO to fix frame number 
@@ -99,9 +105,14 @@ TrackingBox frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 	*/
 	//END 
 
+	if (currentResults.size() == 0) {
+		std::cout << " ERROR: No swimmers found." << std::endl;
+		return TrackingBox(); //TODO this requires the person to click stop to actually de-activate
+	}
+
 	if (getindexSelectedSwimmer() != -1 && isFollowing()) {
 		commandResults.push_back(centeringObj.findCommand(currentResults[indexSelectedSwimmer]));
-		if (getStatus() == 1) 
+		if (getStatus() == 1)
 			resultsSingleSwimmer.push_back(currentResults[indexSelectedSwimmer]);
 		return currentResults[indexSelectedSwimmer];
 	}
@@ -323,14 +334,14 @@ int frameAnalysis::getIDSelectedSwimmer()
 
 bool frameAnalysis::setindexSelectedSwimmer(int valSetTo)
 {
-	if (valSetTo < 0 || valSetTo > currentResults.size()) { return false; } 
+	if (valSetTo < 0 || valSetTo > currentResults.size()) { return false; }
 	indexSelectedSwimmer = valSetTo;
 	return true;
 }
 
 int frameAnalysis::getindexSelectedSwimmer()
 {
-	if(currentResults[indexSelectedSwimmer].get_m_boxID() == idSelectedSwimmer)
+	if (currentResults[indexSelectedSwimmer].get_m_boxID() == idSelectedSwimmer)
 		return indexSelectedSwimmer;
 	else {
 		for (int i = 0; i < currentResults.size(); i++) {
@@ -349,7 +360,7 @@ int frameAnalysis::findindexSelectedSwimmer(int idSwimmer)
 		if (currentResults[i].get_m_boxID() == idSwimmer)
 			return i;
 	}
-	return -1; 
+	return -1;
 }
 
 std::vector<TrackingBox> frameAnalysis::getCurrentResults()
@@ -365,14 +376,14 @@ int frameAnalysis::getStatus()
 
 void frameAnalysis::setStatus(bool tracking, int selectedSwimmer)
 {
-	if (tracking && selectedSwimmer>-1) {
+	if (tracking && selectedSwimmer > -1) {
 		//Case A: We want to track a swimmer
 		if (!setIDSelectedSwimmer(selectedSwimmer)) {
 			std::cout << " ERROR: Failed to set ID of swimmer" << std::endl;
 			return;
 		}
 		if (!setindexSelectedSwimmer(findindexSelectedSwimmer(selectedSwimmer))) {
-			std::cout << std::endl << " ERROR: Failed to set index of swimmer" << std::endl; 
+			std::cout << std::endl << " ERROR: Failed to set index of swimmer" << std::endl;
 			return;
 		}
 		setAnalyzeSwimmer(true);
@@ -492,7 +503,7 @@ void frameAnalysis::writeToFile()
 		resultsFile_centering.open(resFileAbsPath_centering);
 
 		for (int i = 0; i < commandResults.size(); i++) {
-			 centeringObj.outputToFile(resultsFile_centering, commandResults[i]);
+			centeringObj.outputToFile(resultsFile_centering, commandResults[i]);
 		}
 		resultsFile.close();
 	}

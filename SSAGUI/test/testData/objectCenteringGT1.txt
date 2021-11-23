@@ -8,4 +8,3 @@ Right = NO,Left = NO,Up = NO,Down = NO
 Right = NO,Left = NO,Up = NO,Down = NO
 Right = NO,Left = NO,Up = NO,Down = NO
 Right = NO,Left = NO,Up = NO,Down = NO
-Right = NO,Left = NO,Up = NO,Down = NO
