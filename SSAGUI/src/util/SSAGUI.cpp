@@ -38,6 +38,15 @@ void SSAGUI::playVideo() {
 			if (frame.empty())
 				break;
 
+			//std::cout << "     on frame number  " << getVideoStream().get(CAP_PROP_POS_FRAMES) << std::endl;
+			//std::cout << " max frameNum " << getVideoStream().get(CAP_PROP_FRAME_COUNT) << std::endl;
+			//TODO test remove
+			//if (getVideoStream().get(CAP_PROP_POS_FRAMES) == getVideoStream().get(CAP_PROP_FRAME_COUNT)) {
+			//	std::cout << "  TESTING " << std::endl;
+			//}
+			//TODO test remove END
+
+
 			drawOnFrame();
 
 			setMouseCallback(appName, callBackFunc, this);
@@ -66,7 +75,13 @@ void SSAGUI::playVideoTest(bool withCancellation, int frameNum_selectSwimmer, in
 			if (frame.empty())
 				break;
 
-			//std::cout << "     on frame number  " << getVideoStream().get(CAP_PROP_POS_FRAMES) << std::endl;
+			std::cout << "     on frame number  " << getVideoStream().get(CAP_PROP_POS_FRAMES) << std::endl;
+			std::cout<< " max frameNum " << getVideoStream().get(CAP_PROP_FRAME_COUNT) << std::endl;
+			//TODO test remove
+			//if (getVideoStream().get(CAP_PROP_POS_FRAMES) == 231) {
+			//	std::cout << "  TESTING " << std::endl;
+			//}
+			//TODO test remove END
 
 			drawOnFrame();
 
@@ -214,7 +229,7 @@ void SSAGUI::secondCall(int event, int x, int y)
 				frameAnalysisObj_ptr->setVideoData(frame, toleranceX, toleranceY); //TODO What should be deltaX and deltaY? I just added random value
 				frameAnalysisObj_ptr->setCurrentFrameNum(getVideoStream().get(CAP_PROP_POS_FRAMES)); //TODO this was to fix frame number for subvideo creation
 					//TODO the above setCurrentFrameNum call was in start button before
-				std::cout << std::endl << " on screen clicked at x = " << x << " , y = " << y << std::endl;
+				std::cout << std::endl << " on screen clicked at x = " << x << " , y = " << y << "   and frame num = " << getVideoStream().get(CAP_PROP_POS_FRAMES) <<  std::endl;
 				std::cout << std::endl << " accepted (diff_X, diff_Y) = " << frameAnalysisObj_ptr->getVideoDataInfo() << std::endl;
 				postProcessRealTimeTracking processObj;
 				frameAnalysisObj_ptr->analyzeVideo(frame);

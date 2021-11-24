@@ -53,8 +53,8 @@ private:
 	int currentFrameNum;
 
 	const double m_iou = 0.05; //Orignaly this value was 0.30
-	const int m_maxUpdateAllowance = 1;
-	const int m_minHitsInFrames = 3;
+	const int m_maxUpdateAllowance = 10; //TODO test - this was 1 before - being 300 seemed to work
+	const int m_minHitsInFrames = 1; //TODO TEST - this was 3 before - being changed to 30 is worse - being 1 seemed to work
 };
 
 #endif // !SORTTRACKERPIPELINED_H

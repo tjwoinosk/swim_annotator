@@ -77,7 +77,11 @@ TrackingBox frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 		resultsDetector = detectSwimmersInVideo.detectSwimmers(frameToAnalyze);
 	}
 	else {
-		resultsDetector = predefinedDetections[currentFrameNum - 1];
+		if (currentFrameNum < predefinedDetections.size())
+			resultsDetector = predefinedDetections[currentFrameNum - 1];
+		else 
+			resultsDetector.clear();
+		
 	}
 
 	if (resultsDetector.size() == 0) {
@@ -112,6 +116,7 @@ TrackingBox frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 
 	if (getindexSelectedSwimmer() != -1 && isFollowing()) {
 		commandResults.push_back(centeringObj.findCommand(currentResults[indexSelectedSwimmer]));
+		std::cout << " tracking swimmer ID " << idSelectedSwimmer << std::endl;
 		if (getStatus() == 1)
 			resultsSingleSwimmer.push_back(currentResults[indexSelectedSwimmer]);
 		return currentResults[indexSelectedSwimmer];
@@ -341,6 +346,16 @@ bool frameAnalysis::setindexSelectedSwimmer(int valSetTo)
 
 int frameAnalysis::getindexSelectedSwimmer()
 {
+	if (indexSelectedSwimmer >= currentResults.size()) {
+		for (int i = 0; i < currentResults.size(); i++) {
+			if (currentResults[i].get_m_boxID() == idSelectedSwimmer) {
+				indexSelectedSwimmer = i;
+				return indexSelectedSwimmer;
+			}
+		}
+		std::cout << " ERROR: Indexing issue in swimmer vector" << std::endl;
+		return -1;
+	}
 	if (currentResults[indexSelectedSwimmer].get_m_boxID() == idSelectedSwimmer)
 		return indexSelectedSwimmer;
 	else {
