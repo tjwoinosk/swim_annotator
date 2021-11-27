@@ -18,6 +18,7 @@ static const string buttonTextStop = "Stop";
 static const string buttonTextCancel = "Cancel";
 static const string appName = "Smart Swim App";
 static const Vec3b buttonColor = Vec3b(200, 200, 200);
+static const Vec3b errorColor = Vec3b(10, 10, 240);
 
 class SSAGUI
 {
@@ -46,7 +47,7 @@ private:
 	cv::Mat3b canvas;
 	Mat frame;
 	Mat frameResized;
-	Rect startButton, stopButton, cancelButton;
+	Rect startButton, stopButton, cancelButton, errorBox;
 
 	frameAnalysis* frameAnalysisObj_ptr;
 
@@ -58,6 +59,15 @@ private:
 	const float VIDSIZE_HEIGHT = 400;
 	const int BUTTON_HEIGHT = 50;
 	
+	//For displaying error message
+	bool errorMessageDisplay;
+	int numFramesDisplayedError;
+	const int MAXFRAMES_DISPLAYERROR = 20;
+	string messageDisplayed;
+
+	void resetErrorMessage();
+	void updateErrorValues();
+	void setErrorMessage(string messageToShow);
 
 	VideoCapture& getVideoStream();
 	int isVideoStreamValid();

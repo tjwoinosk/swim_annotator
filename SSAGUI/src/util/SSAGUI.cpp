@@ -6,6 +6,8 @@ SSAGUI::SSAGUI(string videoFile) {
 	video = videoFile;
 	videoStream.open(videoFile);
 	frameAnalysisObj_ptr = NULL;
+	errorMessageDisplay = false;
+	numFramesDisplayedError = 0;
 }
 
 SSAGUI::~SSAGUI() {
@@ -14,6 +16,37 @@ SSAGUI::~SSAGUI() {
 
 VideoCapture& SSAGUI::getVideoStream() {
 	return videoStream;
+}
+
+void SSAGUI::resetErrorMessage()
+{
+	errorMessageDisplay = false;
+	numFramesDisplayedError = 0;
+	messageDisplayed = "";
+}
+
+void SSAGUI::setErrorMessage(string messageToShow)
+{
+	if (!errorMessageDisplay) { //To avoid reseting each time
+		errorMessageDisplay = true;
+		messageDisplayed = messageToShow;
+		numFramesDisplayedError = 0;
+	}
+}
+
+void SSAGUI::updateErrorValues()
+{
+	if (errorMessageDisplay) {
+		numFramesDisplayedError++;
+		if (numFramesDisplayedError > MAXFRAMES_DISPLAYERROR) {
+			resetErrorMessage();
+			return;
+		}
+	}
+	errorBox = Rect(50, 300, canvas.cols - 100, BUTTON_HEIGHT);
+	//canvas(errorBox) = errorColor; //Colour
+	canvas(errorBox) = errorColor; //Colour
+	putText(canvas, messageDisplayed, Point(errorBox.x + errorBox.width * 0.35, errorBox.y + errorBox.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
 }
 
 int SSAGUI::isVideoStreamValid() {
@@ -148,10 +181,23 @@ void SSAGUI::drawOnFrame()
 	canvas(startButton) = buttonColor; //Colour
 	canvas(stopButton) = buttonColor; //Colour
 	canvas(cancelButton) = buttonColor; //Colour
-
+		
 	if (frameAnalysisObj_ptr->isFollowing() && frameAnalysisObj_ptr->isTracking()) {
 		//A swimmer is selected and we want to track the swimmer
 		TrackingBox trackingForThisFrame = frameAnalysisObj_ptr->analyzeVideo(frame);
+		if (trackingForThisFrame.allZeroes()) {
+			std::cout << " empty box made for tracking" << std::endl;
+			//TODO here add a check for empty values in TrackingBox - bool
+			//if that bool is true, set a boolean in SSAGUI and restart counter  and set a message in a string(function
+			//if that boolean is true, then display on the screen a box with a message (in secondCall call a function)
+			//if the boolean is true and user clicks on screen again, set it to false (function)
+			//if the boolean is true and user clicks on stop, set it to false (function)
+			//if the boolean is true and user clicks start, dont do anything 
+			//each time you go through drawOnFrame, if the boolean is true, increment the counter
+				//if in this incrementing, this is over the max, then reset the counter = 0 and boolean = false
+			setErrorMessage("ERROR: Lost swimmer. Stopped tracking.");
+
+		}
 		float scaleX = frameAnalysisObj_ptr->findFrameScale(frameResized.cols, frame.cols);
 		float scaleY = frameAnalysisObj_ptr->findFrameScale(frameResized.rows, frame.rows);
 		TrackingBox newBox = frameAnalysisObj_ptr->resizeBox(scaleX, scaleY, trackingForThisFrame);
@@ -160,17 +206,31 @@ void SSAGUI::drawOnFrame()
 	else if (frameAnalysisObj_ptr->isFollowing() && !frameAnalysisObj_ptr->isTracking()) {
 		//A swimmer is selected but we are not yet tracking the swimmer
 		TrackingBox toGetTrajectoryFrom = frameAnalysisObj_ptr->analyzeVideo(frame);
+		if (toGetTrajectoryFrom.allZeroes()) {
+			std::cout << " empty box being followed" << std::endl;
+			setErrorMessage("ERROR: No swimmers found.");
+
+		}
 		float scaleX = frameAnalysisObj_ptr->findFrameScale(frameResized.cols, frame.cols);
 		float scaleY = frameAnalysisObj_ptr->findFrameScale(frameResized.rows, frame.rows);
 		TrackingBox newBox = frameAnalysisObj_ptr->resizeBox(scaleX, scaleY, toGetTrajectoryFrom);
 		rectangle(frameResized, newBox, Scalar(0, 190, 255), 4);
 	}
 
+	//if (errorMessageDisplay) {
+	//	updateErrorValues(); //TODO I think when we put the text vs box matters
+	//}
+
 	frameResized.copyTo(canvas(Rect(0, startButton.height, frameResized.cols, frameResized.rows)));
 
 	putText(canvas, buttonTextStart, Point(startButton.width * 0.35, startButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
 	putText(canvas, buttonTextStop, Point(stopButton.x + (stopButton.width * 0.35), stopButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
 	putText(canvas, buttonTextCancel, Point(cancelButton.x + (cancelButton.width * 0.35), cancelButton.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+	
+	if (errorMessageDisplay) {
+		updateErrorValues(); //TODO I think when we put the text vs box matters
+	}
+
 
 	return;
 }
@@ -190,6 +250,9 @@ void SSAGUI::secondCall(int event, int x, int y)
 {
 	if (event == EVENT_LBUTTONDOWN)
 	{
+		if(errorMessageDisplay) //If there was an error message displayed, we assume the click is to correct the issue
+			resetErrorMessage();
+
 		if (startButton.contains(Point(x, y)))
 		{
 			std::cout << std::endl << " start button clicked" << std::endl;

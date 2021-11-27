@@ -27,7 +27,6 @@ int main()
 
 
 
-
 	//ssaVideo.playVideoTest(false, 30, 35, 40, cv::Point_<float>(300, 275)); //Lane two - 0.25, 0.25 means within; 0.15 = Y means outside Y
 	//ssaVideo.playVideo();
 
@@ -47,6 +46,6 @@ int main()
 	//    ssaVideoTwo.playVideoTest(true, 14, 20, 26, cv::Point_<float>(300, 275)); //This should make no changes to the output file
 
 
-	//subVidObj.setFrameAnalysis(frameAnalysisObj);
-	//subVidObj.make_video();
+	subVidObj.setFrameAnalysis(frameAnalysisObj);
+	subVidObj.make_video();
 }

@@ -129,6 +129,14 @@ float TrackingBox::get_m_confScore()
 	return m_confScore;
 }
 
+bool TrackingBox::allZeroes()
+{
+	if (x == 0 && y == 0 && width == 0 && height == 0) {
+		return true;
+	}
+	return false;
+}
+
 double TrackingBox::GetIOU(const TrackingBox& bb_gt)
 {
 	float in = ((*this) & bb_gt).area();

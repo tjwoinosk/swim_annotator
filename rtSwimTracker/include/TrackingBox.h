@@ -50,6 +50,8 @@ public:
 	bool set_m_confScore(float setVal);
 	float get_m_confScore();
 
+	bool allZeroes();
+
 private:
 	std::string CLASSES[6] = { "On_Block", "Diving", "Swimming", "Underwater", "Turning", "Finishing" }; //the six possible classes
 

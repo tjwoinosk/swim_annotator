@@ -124,6 +124,7 @@ TrackingBox frameAnalysis::analyzeVideo(cv::Mat frameToAnalyze)
 	else {
 		if (isFollowing()) {
 			std::cout << " ERROR: could not track results with ID = " << idSelectedSwimmer << " and index = " << indexSelectedSwimmer << std::endl;
+			setStatus(false, -1);
 		}
 	}
 	return TrackingBox();
