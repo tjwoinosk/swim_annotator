@@ -43,10 +43,10 @@ void SSAGUI::updateErrorValues()
 			return;
 		}
 	}
-	errorBox = Rect(50, 300, canvas.cols - 100, BUTTON_HEIGHT);
+	errorBox = Rect(50, canvas.rows/2 - BUTTON_HEIGHT, canvas.cols - 100, BUTTON_HEIGHT);
 	//canvas(errorBox) = errorColor; //Colour
 	canvas(errorBox) = errorColor; //Colour
-	putText(canvas, messageDisplayed, Point(errorBox.x + errorBox.width * 0.35, errorBox.y + errorBox.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
+	putText(canvas, messageDisplayed, Point(errorBox.x + errorBox.width * 0.15, errorBox.y + errorBox.height * 0.7), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 0));
 }
 
 int SSAGUI::isVideoStreamValid() {
@@ -208,7 +208,7 @@ void SSAGUI::drawOnFrame()
 		TrackingBox toGetTrajectoryFrom = frameAnalysisObj_ptr->analyzeVideo(frame);
 		if (toGetTrajectoryFrom.allZeroes()) {
 			std::cout << " empty box being followed" << std::endl;
-			setErrorMessage("ERROR: No swimmers found.");
+			setErrorMessage("ERROR: Lost swimmer. Please re-select.");
 
 		}
 		float scaleX = frameAnalysisObj_ptr->findFrameScale(frameResized.cols, frame.cols);
@@ -309,8 +309,10 @@ void SSAGUI::secondCall(int event, int x, int y)
 
 					rectangle(frameResized, resultsCurrent[frameAnalysisObj_ptr->getindexSelectedSwimmer()], Scalar(150, 200, 150), 10);
 				}
-				else
+				else {
 					std::cout << " NO SWIMMER" << std::endl;
+					setErrorMessage("ERROR: No swimmers found");
+				}
 			}
 		}
 

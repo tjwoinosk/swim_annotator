@@ -62,7 +62,7 @@ private:
 	//For displaying error message
 	bool errorMessageDisplay;
 	int numFramesDisplayedError;
-	const int MAXFRAMES_DISPLAYERROR = 20;
+	const int MAXFRAMES_DISPLAYERROR = 26;
 	string messageDisplayed;
 
 	void resetErrorMessage();
