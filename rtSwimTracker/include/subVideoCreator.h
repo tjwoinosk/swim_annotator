@@ -1,6 +1,10 @@
 #ifndef SUB_VIDEO_CREATOR_H
 #define SUB_VIDEO_CREATOR_H
 
+/*
+References: [8], [9], [10], [11], [12], [13]
+*/
+
 #include <iostream>
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>

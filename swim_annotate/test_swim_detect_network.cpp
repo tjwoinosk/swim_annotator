@@ -1,5 +1,10 @@
 // This code is copied and modified from BigVision LLC. It is based on the OpenCV project. 
 //It is subject to the license terms in the LICENSE file found in this distribution and at http://opencv.org/license.html
+
+/*
+References: [1]
+*/
+
 #include "test_swim_detect_network.h"
 #include <list>
 #include <iomanip>

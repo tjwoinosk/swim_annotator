@@ -1,6 +1,10 @@
 #ifndef TRACKINGBOX_H
 #define TRACKINGBOX_H
 
+/*
+References: [18], [19], [20], [21]
+*/
+
 #include <iostream>
 #include <opencv2/core.hpp>
 

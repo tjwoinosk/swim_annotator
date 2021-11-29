@@ -1,5 +1,11 @@
 #pragma once
 #include "swimmer_tracking.h"
+
+/*
+References: [3]
+*/
+
+
 class sub_video :
   public swimmer_tracking
 {

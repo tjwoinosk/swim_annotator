@@ -1,6 +1,10 @@
 #ifndef SORT_TRACKER_H
 #define SORT_TRACKER_H
 
+/*
+References: [1]
+*/
+
 #include <iostream>
 #include <fstream>
 #include <iomanip> // to format image names using setw() and setfill()

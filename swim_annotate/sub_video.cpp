@@ -1,6 +1,11 @@
 #include "sub_video.h"
 #include <math.h>
 
+/*
+References: [3]
+*/
+
+
 using namespace std;
 using namespace cv;
 

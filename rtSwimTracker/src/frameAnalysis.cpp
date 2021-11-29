@@ -1,5 +1,8 @@
 #include "frameAnalysis.h"
 
+/*
+References: [4]
+*/
 
 frameAnalysis::frameAnalysis()
 {

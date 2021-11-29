@@ -1,0 +1,8 @@
+References - swim_annotate
+
+[1] OpenCV team, “License”, OpenCV. https://opencv.org/license/ (accessed November 17, 2021).
+
+[2] mcximing, “mcximing/sort-cpp”, GitHub. https://github.com/mcximing/sort-cpp (accessed November 17, 2021).
+
+[3] Wikimedia Foundation, Inc, “Digital image processing”, Wikipedia. https://en.wikipedia.org/wiki/Digital_image_processing (accessed November 17, 2021).
+

@@ -2,6 +2,10 @@
 #include <boost/test/included/unit_test.hpp>
 //Add --detect_memory_leak=0 to debug command to remove memory leak output
 
+/*
+References: [1], [16]
+*/
+
 #include "TrackingBox.h"
 #include "fileFinder.h"
 #include "SSAGUI.h"

@@ -1,6 +1,10 @@
 #ifndef FRAMEANALYSIS_H
 #define FRAMEANALYSIS_H
 
+/*
+References: [4]
+*/
+
 #include <iostream>
 #include <fstream>
 #include <string>

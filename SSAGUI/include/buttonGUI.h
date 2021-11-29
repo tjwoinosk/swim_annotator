@@ -1,6 +1,11 @@
 #ifndef BUTTONGUI_H
 #define BUTTONGUI_H
 
+/*
+References: [2], [3], [4], [5]
+*/
+
+
 #include <opencv2\opencv.hpp>
 #include <iostream>
 using namespace cv;

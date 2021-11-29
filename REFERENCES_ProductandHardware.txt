@@ -1,0 +1,74 @@
+References Overall Project/Hardware
+
+[1] Reda Drissi, “Understanding darknet's yolo.cfg config files”, StackOverflow. https://stackoverflow.com/questions/50390836/understanding-darknets-yolo-cfg-config-files (accessed November 17, 2021).
+
+[2] Compute Canada, “Using GPUs with Slurm”, Compute Canada Calcul Canada. https://docs.computecanada.ca/wiki/Using_GPUs_with_Slurm (accessed November 17, 2021).
+
+[3] Augmented Startups, “How to build a Raspberry Pi Pan Tilt Tracking | OpenCV AI Kit Tutorial | 2021 | App #4”, YouTube. https://www.youtube.com/watch?v=Vv2L6UCWwhA (accessed November 17, 2021).
+
+[4] Pysource, “Control webcam with servo motor and Raspberry pi - Opencv with Python tutorial”, YouTube. https://www.youtube.com/watch?v=Mx-zXDWYWoA (accessed November 17, 2021).
+
+[5] Joyplanes RC, “How PWM works | Controlling a DC motor with a homemade circuit”, YouTube. https://www.youtube.com/watch?v=5nwNKPs2gco (accessed November 17, 2021).
+
+[6] Simply Electronics, “Pulse Width Modulation (PWM) - Electronics Basics 23”, YouTube. https://www.youtube.com/watch?v=GQLED3gmONg (accessed November 17, 2021).
+
+[7] ExplainingComputers, “Raspberry Pi Servo Motor Control”, YouTube. https://www.youtube.com/watch?v=xHDT4CwjUQE (accessed November 17, 2021).
+
+[8] Broadcom Corporation, BCM2835 ARM Peripherals,  406 Science Park Milton Road Cambridge CB4 0WW: Broadcom Europe Ltd. 2012. [Online]. Available: https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf 
+
+[9] Gadgetoid, “Raspberry Pi GPIO Pinout home”, PWM at Raspberry Pi GPIO Pinout. https://pinout.xyz/pinout/pwm (accessed November 17, 2021).
+
+[10] Aleksandar Haber, “Controlling Servomotors using Raspberry Pi – 2”, Aleksandar Haber. https://aleksandarhaber.com/controlling-servo-motors-using-raspberry-pi-2/ (accessed November 17, 2021).
+
+[11] Wiring Pi, “About”, Wiring Pi: GPIO Interface library for the Raspberry Pi. http://wiringpi.com/ (accessed November 17, 2021).
+
+[12]  Wiring Pi, “Raspberry Pi Specifics”, Wiring Pi: GPIO Interface library for the Raspberry Pi. http://wiringpi.com/reference/raspberry-pi-specifics/ (accessed Nov 18, 2021).
+
+[13] Premier Farnell Limited, “1593HAMARTBU ENCLOSURE, ARDUINO BOARD, ABS, BLU/CLEAR”, Newark. https://canada.newark.com/hammond/1593hamartbu/enclosure-arduino-board-abs-blu/dp/58AC5141?st=arduino%20enclosure (accessed Nov 18, 2021).
+
+[14] Premier Farnell Limited, “1555WGY Plastic Enclosure, Small, ABS, 59.9 mm, 180 mm, 180 mm, IP66”, Newark. https://canada.newark.com/hammond/1555wgy/small-enclosure-abs-grey/dp/97AC9366#anchorTechnicalDOCS (accessed Nov 18, 2021).
+
+[15] RobotShop,  “Lynxmotion Aluminum Multi-Purpose Servo Bracket Two Pack ASB-04”, RobotShop inc. https://www.robotshop.com/ca/en/lynxmotion-aluminum-multi-purpose-servo.html (accessed Nov 18, 2021).
+
+[16] RealVNC Limited. , “VNC Connect consists of VNC Viewer and VNC Server”, RealVNC. https://www.realvnc.com/en/connect/download/viewer/ (accessed Nov 18, 2021).
+
+[17]  JetsonHacks, “Install ttyACM Module – NVIDIA Jetson TX Development Kits”, JetsonHacks: Developing for NVIDIA Jetson. https://www.jetsonhacks.com/2017/11/19/install-ttyacm-module-nvidia-jetson-tx-development-kits/ (accessed Nov 18, 2021).
+
+[18] Arduino, “Arduino Uno Rev3”, Arduino Store. https://store-usa.arduino.cc/products/arduino-uno-rev3?selectedStore=us (accessed Nov 18, 2021).
+
+[19] elinux.org, “Jetson/Tutorials/Communicate To Arduino”, Jetson/Tutorials/Communicate To Arduino - eLinux.org. https://elinux.org/Jetson/Tutorials/Communicate_To_Arduino (accessed Nov 18, 2021).
+
+[20] Chris Heydrick, “How to read serial data from an Arduino in Linux with C: Part 1”, Chris Heydrick: Serial Hobbyist. https://chrisheydrick.com/2012/06/12/how-to-read-serial-data-from-an-arduino-in-linux-with-c-part-1/ (accessed Nov 18, 2021).
+
+[21] Chris Heydrick, “How to read serial data from an Arduino in Linux with C: Part 2”, Chris Heydrick: Serial Hobbyist. https://chrisheydrick.com/2012/06/13/how-to-read-serial-data-from-an-arduino-in-linux-with-c-part-2/ (accessed Nov 18, 2021).
+
+[22]  Chris Heydrick, “How to read serial data from an Arduino in Linux with C: Part 3”, Chris Heydrick: Serial Hobbyist. https://chrisheydrick.com/2012/06/17/how-to-read-serial-data-from-an-arduino-in-linux-with-c-part-3/ (accessed Nov 18, 2021).
+
+[23] Chris Heydrick, “How to read serial data from an Arduino in Linux with C: Part 4”, Chris Heydrick: Serial Hobbyist. https://chrisheydrick.com/2012/06/24/how-to-read-serial-data-from-an-arduino-in-linux-with-c-part-4/ (accessed Nov 18, 2021).
+
+[24] David S.Lawyer, Greg Hankins, “Serial HOWTO”, Serial HOWTO. https://tldp.org/HOWTO/Serial-HOWTO.html (accessed Nov 18, 2021).
+
+[25]  cheydrick, “cheydrick/Canonical-Arduino-Read”, GitHub. https://github.com/cheydrick/Canonical-Arduino-Read/blob/master/canonicalarduinoread.c (accessed Nov 18, 2021).
+
+[26]  Anonymous, “gist:2980344”, GitHub Gist. https://gist.github.com/anonymous/2980344 (accessed Nov 18, 2021).
+
+[27]  Arduino, “Software Serial Example”,  Arduino. https://www.arduino.cc/en/Tutorial/LibraryExamples/SoftwareSerialExample (accessed Nov 18, 2021).
+
+[28] Adafruit Industries, “5V 2A (2000mA) switching power supply - UL Listed”, Adafruit. https://www.adafruit.com/product/276 (accessed Nov 18, 2021).
+
+[29] Kevin Townsend, Adafruit 16 Channel Servo Driver with Raspberry Pi. Adafruit Industries: 2021. [Online]. Available: https://cdn-learn.adafruit.com/downloads/pdf/adafruit-16-channel-servo-driver-with-raspberry-pi.pdf (accessed Nov 18, 2021).
+
+[30] Victor Corona, “DIY Oscilloscope with Raspberry Pi”, Victor Corona. https://quantum.medium.com/diy-oscilloscope-with-raspberry-pi-c71caf788144 (accessed Nov 18, 2021).
+
+[31] NVIDIA, “Jetson TX2”, NVIDIA. https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-tx2/ (accessed Nov 18, 2021).
+
+[32] Iain Explains Signals, Systems, and Digital Comms, “How are the Fourier Series, Fourier Transform, DTFT, DFT, FFT, LT and ZT Related?”, YouTube. https://www.youtube.com/watch?v=2kMSLqAbLj4 (accessed Nov 18, 2021).
+
+[33] AlexeyAB, “AlexeyAB/darknet”, GitHub. https://github.com/AlexeyAB/darknet#when-should-i-stop-training (accessed Nov 18, 2021).
+
+[34] Massachusetts Institute of Technology, “Lecture 1: Introduction”, MIT OpenCourseWare, Massachusetts Institute of Technology. https://ocw.mit.edu/resources/res-6-008-digital-signal-processing-spring-2011/video-lectures/lecture-1-introduction/ (accessed Nov 18, 2021).
+
+[35] T. Woinoski, “Automated Swimming Analytics Using Deep Neural Networks”, Thesis, Applied Sciences, SFU, Burnaby, BC, Canada, 2020, unpublished.
+
+[36] Compute Canada, “Running jobs”, Compute Canada Calcul Canada. https://docs.computecanada.ca/wiki/Running_jobs (accessed November 17, 2021).
+

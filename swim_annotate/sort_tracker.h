@@ -1,4 +1,9 @@
 #pragma once
+
+/*
+References: [2]
+*/
+
 #include "swimmer_tracking.h"
 
 #include <iostream>

@@ -1,6 +1,11 @@
 #ifndef SORTTRACKERPIPELINED_H
 #define SORTTRACKERPIPELINED_H
 
+/*
+References: [1], [14], [15], [16], [17]
+*/
+
+
 #include <iostream>
 #include <set>
 #include <vector>

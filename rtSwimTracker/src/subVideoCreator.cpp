@@ -1,5 +1,9 @@
 #include "subVideoCreator.h"
 
+/*
+References: [8], [9], [10], [11], [12], [13]
+*/
+
 //TODO what file format to accept and save in?
 
 subVideoCreator::subVideoCreator(string videoFile)

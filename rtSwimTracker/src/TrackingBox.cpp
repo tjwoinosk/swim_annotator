@@ -1,5 +1,9 @@
 #include "TrackingBox.h"
 
+/*
+References: [18], [19], [20], [21]
+*/
+
 std::ostream& operator<<(std::ostream& out, const TrackingBox& box)
 {
   out << box.m_frame << "," << box.m_boxID << "," << box.x << "," << box.y << "," << box.width << "," << box.height << ",1,-1,-1,-1" << std::endl;

@@ -1,0 +1,22 @@
+References - entire solution
+
+[1] OpenCV team, "OpenCV", Home - OpenCV. https://opencv.org/ (accessed November 17, 2021).
+
+[2] OpenCV team, “License”, OpenCV. https://opencv.org/license/ (accessed November 17, 2021).
+
+[3] OpenCV, “Doxygen HTML”, OpenCV documentation index. https://docs.opencv.org/ (accessed November 17, 2021).
+
+[4] Beman Dawes, David Abrahams, Rene Rivera, "Welcome to Boost.org!", Boost C++ Libraries. https://www.boost.org/ (accessed November 17, 2021).
+
+[5] Beman Dawes, Daniel Frey, David Abrahams, Rene Rivera, “Boost Software License”, Boost C++ Libraries. https://www.boost.org/users/license.html (accessed November 17, 2021).
+
+[6] Beman Dawes, David Abrahams, Rene Rivera, “Boost Library Documentation”, Boost C++ Libraries. https://www.boost.org/doc/libs/ (accessed November 17, 2021).
+
+[7] Eigen, "Eigen is a C++ template library for linear algebra: matrices, vectors, numerical solvers, and related algorithms.", Eigen. https://eigen.tuxfamily.org/index.php?title=Main_Page (accessed November 17, 2021).
+
+[8] Eigen, “Licensing FAQ”, Eigen. https://eigen.tuxfamily.org/index.php?title=Main_Page (accessed November 17, 2021).
+
+[9] pjreddie, “pjreddie/darknet”, GitHub. https://github.com/pjreddie/darknet (accessed Nov 18, 2021).
+
+[10] corob-msft, eddynaka, gewarren, ghogen, legobridge, Mikejo5000, nickuhlenhuth, and nschonni,  “How to use Boost.Test for C++ in Visual Studio”, Microsoft Docs. https://docs.microsoft.com/en-us/visualstudio/test/how-to-use-boost-test-for-cpp?view=vs-2019 (accessed Nov 18, 2021).
+

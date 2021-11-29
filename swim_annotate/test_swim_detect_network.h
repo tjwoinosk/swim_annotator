@@ -4,6 +4,10 @@
 #include "box_annotate.h"
 #include <string>
 
+/*
+References: [1]
+*/
+
 using namespace dnn;
 using namespace std;
 using namespace cv;

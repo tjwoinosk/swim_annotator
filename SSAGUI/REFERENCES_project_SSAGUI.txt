@@ -1,0 +1,42 @@
+References - SSAGUI
+
+[1] Mhh Lecker, “How to compare files with Boost.Test?”. StackOverflow. https://stackoverflow.com/questions/15022036/how-to-compare-files-with-boost-test (accessed November 17, 2021).
+
+[2] Murtaza's Workshop - Robotics and AI, “LEARN OPENCV C++ in 4 HOURS | Including 3x Projects | Computer Vision”, YouTube, https://www.youtube.com/watch?v=2FYm3GOonhk (accessed November 17, 2021).
+
+[3] Koci Ogon, Miki, “How to make a simple window with one button using OpenCV HighGui only?”, StackOverflow. https://stackoverflow.com/questions/33937800/how-to-make-a-simple-window-with-one-button-using-opencv-highgui-only/33938726 (accessed November 17, 2021).
+
+[4] Testus, “How to use cv::setMouseCallback in class?”, StackOverflow. https://stackoverflow.com/questions/25748404/how-to-use-cvsetmousecallback-in-class (accessed November 17, 2021).
+
+[5] Muhammad Abdullah, “What should be the arguments of cv2.setMouseCallback()”, StackOverflow. https://stackoverflow.com/questions/47114360/what-should-be-the-arguments-of-cv2-setmousecallback (accessed November 17, 2021).
+
+[6] mpour, user4519127, “Opencv: detect mouse position clicking over a picture”, StackOverflow. https://stackoverflow.com/questions/28327020/opencv-detect-mouse-position-clicking-over-a-picture/28330835 (accessed November 17, 2021).
+
+[7] Clip, “Resize image OpenCV”, StackOverflow. https://stackoverflow.com/questions/23984191/resize-image-opencv (accessed November 17, 2021).
+
+[8] RyanN, “C++ Class holding and returning pointer to another class”, StackOverflow. https://stackoverflow.com/questions/22902533/c-class-holding-and-returning-pointer-to-another-class  (accessed November 17, 2021).
+
+[9] Samathy, “C++ Passing a pointer (pointing to an object) to function in another class”, StackOverflow. https://stackoverflow.com/questions/21286457/c-passing-a-pointer-pointing-to-an-object-to-function-in-another-class (accessed November 17, 2021).
+
+[10] Smash, “Passing a class object pointer to a function for initialization C++”, StackOverflow. https://stackoverflow.com/questions/6875277/passing-a-class-object-pointer-to-a-function-for-initialization-c (accessed November 17, 2021).
+
+[11] LCY, “How to use button with call back function?”, OpenCV. https://answers.opencv.org/question/205774/how-to-use-button-with-call-back-function/ (accessed November 17, 2021).
+
+[12] blinkThrice, nathancy, “Can't set frame width and height with [OpenCV] cv2.VideoCapture.set()”, StackOverflow. https://stackoverflow.com/questions/57660458/cant-set-frame-width-and-height-with-opencv-cv2-videocapture-set (accessed November 17, 2021).
+
+[13] Clip, “Resize image OpenCV”, StackOverflow, https://stackoverflow.com/questions/23984191/resize-image-opencv (accessed November 17, 2021).
+
+[14] Homer Simpson, “Passing a pointer to a new object from a different class (C++)”, StackOverflow. https://stackoverflow.com/questions/32402104/passing-a-pointer-to-a-new-object-from-a-different-class-c (accessed November 17, 2021).
+
+[15] Jain, “Communicating 2 way between class in C++”, StackOverflow. https://stackoverflow.com/questions/35979472/communicating-2-way-between-class-in-c (accessed November 17, 2021).
+
+[16] user3325798, ”Using Boost Floating Point Comparison to get a bool return value”, StackOverflow. https://stackoverflow.com/questions/21868358/using-boost-floating-point-comparison-to-get-a-bool-return-value (accessed November 17, 2021).
+
+[17] Adel Khatem, Georgy, “Draw rectangle in OpenCV”, StackOverflow. https://stackoverflow.com/questions/40120433/draw-rectangle-in-opencv (accessed November 17, 2021).
+
+[18] Community, Hendrik, “Opencv draw a rectangle in a picture were never shown”, StackOverflow. https://stackoverflow.com/questions/30310430/opencv-draw-a-rectangle-in-a-picture-were-never-shown (accessed November 17, 2021).
+
+[19] evanhutomo, Omar Pervez Khan, “Difference in output with waitKey(0) and waitKey(1)”, StackOverflow. https://stackoverflow.com/questions/51143458/difference-in-output-with-waitkey0-and-waitkey1/51143586 (accessed November 17, 2021).
+
+[20] Bastian, Glains, “How to resize an image with OpenCV2.0 and Python2.6”, StackOverflow. https://stackoverflow.com/questions/4195453/how-to-resize-an-image-with-opencv2-0-and-python2-6 (accessed November 17, 2021).
+

@@ -1,5 +1,10 @@
 #include "buttonGUI.h"
 
+/*
+References: [3], [5], [6], [7]
+*/
+
+
 buttonGUI::buttonGUI()
 {
 }

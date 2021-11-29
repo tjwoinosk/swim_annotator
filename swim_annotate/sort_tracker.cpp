@@ -1,6 +1,10 @@
 #include "sort_tracker.h"
 #include "swimmer_tracking.h"
 
+/*
+References: [2]
+*/
+
 sort_tracker::sort_tracker() {
 	
 }

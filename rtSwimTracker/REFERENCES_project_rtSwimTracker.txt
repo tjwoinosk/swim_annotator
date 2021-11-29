@@ -1,0 +1,45 @@
+References - rtSwimTracker
+
+[1] mcximing, “mcximing/sort-cpp”, GitHub. https://github.com/mcximing/sort-cpp (accessed November 17, 2021).
+
+[2] Mhh Lecker, “How to compare files with Boost.Test?”. StackOverflow. https://stackoverflow.com/questions/15022036/how-to-compare-files-with-boost-test (accessed November 17, 2021).
+
+[3] Murtaza's Workshop - Robotics and AI, “LEARN OPENCV C++ in 4 HOURS | Including 3x Projects | Computer Vision”, YouTube, https://www.youtube.com/watch?v=2FYm3GOonhk (accessed November 17, 2021).
+
+[4] Sam Maier, tshepang, “How to write to file in separate function”, StackOverflow. https://stackoverflow.com/questions/14717616/how-to-write-to-file-in-separate-function (accessed November 17, 2021).
+
+[5] Koci Ogon, Miki, “How to make a simple window with one button using OpenCV HighGui only?”, StackOverflow. https://stackoverflow.com/questions/33937800/how-to-make-a-simple-window-with-one-button-using-opencv-highgui-only/33938726 (accessed November 17, 2021).
+
+[6] Testus, “How to use cv::setMouseCallback in class?”, StackOverflow. https://stackoverflow.com/questions/25748404/how-to-use-cvsetmousecallback-in-class (accessed November 17, 2021).
+
+[7] Muhammad Abdullah, “What should be the arguments of cv2.setMouseCallback()”, StackOverflow. https://stackoverflow.com/questions/47114360/what-should-be-the-arguments-of-cv2-setmousecallback (accessed November 17, 2021).
+
+[8] superninja, “Write frame into MP4 format using opencv2 and c++”, StackOverflow. https://stackoverflow.com/questions/61807359/write-frame-into-mp4-format-using-opencv2-and-c (accessed November 17, 2021).
+
+[9] RyanN, “C++ Class holding and returning pointer to another class”, StackOverflow. https://stackoverflow.com/questions/22902533/c-class-holding-and-returning-pointer-to-another-class  (accessed November 17, 2021).
+
+[10] Samathy, “C++ Passing a pointer (pointing to an object) to function in another class”, StackOverflow. https://stackoverflow.com/questions/21286457/c-passing-a-pointer-pointing-to-an-object-to-function-in-another-class (accessed November 17, 2021).
+
+[11] Smash, “Passing a class object pointer to a function for initialization C++”, StackOverflow. https://stackoverflow.com/questions/6875277/passing-a-class-object-pointer-to-a-function-for-initialization-c (accessed November 17, 2021).
+
+[12] Homer Simpson, “Passing a pointer to a new object from a different class (C++)”, StackOverflow. https://stackoverflow.com/questions/32402104/passing-a-pointer-to-a-new-object-from-a-different-class-c (accessed November 17, 2021).
+
+[13] Jain, “Communicating 2 way between class in C++”, StackOverflow. https://stackoverflow.com/questions/35979472/communicating-2-way-between-class-in-c (accessed November 17, 2021).
+
+[14] Pratheesh Shivaprasad, “A Comprehensive Guide To Object Detection Using YOLO Framework — Part I”, Towards Data Science. https://towardsdatascience.com/object-detection-part1-4dbe5147ad0a (accessed November 17, 2021).
+
+[15] Mehul Gupta, “All About YOLO Object Detection and its 3 versions (Paper Summary and Codes!!)”, Data Science in your pocket. https://medium.com/data-science-in-your-pocket/all-about-yolo-object-detection-and-its-3-versions-paper-summary-and-codes-2742d24f56e (accessed November 17, 2021).
+
+[16] Sambasivarao. K, “Non-maximum Suppression (NMS)”, Towards Data Science. https://towardsdatascience.com/non-maximum-suppression-nms-93ce178e177c (accessed November 17, 2021).
+
+[17] jainpulkit54, “What are “min_hits” and “hit_streak” parameters? #104”, GitHub: abewley/sort. https://github.com/abewley/sort/issues/104 (accessed November 17, 2021).
+
+[18] shuttle87, Xeo, “error: use of deleted function”, StackOverflow. https://stackoverflow.com/questions/5966698/error-use-of-deleted-function (accessed November 17, 2021).
+
+[19] Pat O'Keefe, Sam, “Meaning of = delete after function declaration”, StackOverflow. https://stackoverflow.com/questions/5513881/meaning-of-delete-after-function-declaration (accessed November 17, 2021).
+
+[20] fenkerbb, hackjutsu, “Setup std::vector in class constructor”, StackOverflow. https://stackoverflow.com/questions/11415469/setup-stdvector-in-class-constructor (accessed November 17, 2021).
+
+[21] Kevin Kostlan, “C++ vectors of classes with constructors”, StackOverflow. https://stackoverflow.com/questions/3437017/c-vectors-of-classes-with-constructors (accessed November 17, 2021).
+
+

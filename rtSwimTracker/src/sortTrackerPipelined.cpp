@@ -1,6 +1,11 @@
 #include "sortTrackerPipelined.h"
 #include "HungarianAlgorithm.h"
 
+/*
+References: [1], [14], [15], [16], [17]
+*/
+
+
 sortTrackerPiplelined::sortTrackerPiplelined()
 {
 	KalmanTracker::kf_count = 0; // tracking id relies on this, so we have to reset it in each seq.
